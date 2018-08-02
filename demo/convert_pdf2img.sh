@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pdfdir=''
+pdfdir='.'
 
 while getopts 'd:' flag; do
     case "$flag" in

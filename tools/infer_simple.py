@@ -22,6 +22,14 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
+# EDIT: fix for loading python2 pickles
+# from functools import partial
+# import pickle
+# pickle.load = partial(pickle.load, encoding="bytes")
+# pickle.Unpickler = partial(pickle.Unpickler, encoding="bytes")
+
+
+
 import _init_paths
 import nn as mynn
 from core.config import cfg, cfg_from_file, cfg_from_list, assert_and_infer_cfg

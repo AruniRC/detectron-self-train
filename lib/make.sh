@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CUDA_PATH=/usr/local/cuda/
+CUDA_PATH=/cm/shared/apps/cuda80/toolkit/8.0.61/
 
 python setup.py build_ext --inplace
 rm -rf build
