@@ -78,25 +78,33 @@ def parse_args():
   """Parse input arguments."""
   parser = argparse.ArgumentParser(description='Face Detection using Faster R-CNN')
 
-  parser.add_argument('--exp_name', required=True, dest='det_dir', help='detector name')
-  
   parser.add_argument(
-    '--no_cuda', dest='cuda', help='whether use CUDA', action='store_false')
-  
+    '--exp_name', required=True, dest='det_dir', 
+    help='detector name'
+  )
   parser.add_argument(
-    '--cfg', dest='cfg_file', required=True, help='optional config file')
+    '--no_cuda', dest='cuda', help='whether use CUDA', 
+    action='store_false'
+  )  
+  parser.add_argument(
+    '--cfg', dest='cfg_file', required=True, 
+    help='config file'
+  )
   parser.add_argument(
     '--set', dest='set_cfgs',
     help='set config keys, will overwrite config in the cfg_file',
-    default=[], nargs='+')
-
-  parser.add_argument('--load_ckpt', help='path of checkpoint to load')
+    default=[], nargs='+'
+  )
   parser.add_argument(
-    '--load_detectron', help='path to the detectron weight pickle file')
-
-  parser.add_argument('--split', dest='split', default='val', help='train or val') 
+    '--load_ckpt', help='path of checkpoint to load'
+  )
+  parser.add_argument(
+    '--load_detectron', help='path to the detectron weight pickle file'
+  )
+  parser.add_argument(
+    '--split', dest='split', default='val', help='train or val'
+  ) 
   
-
   args = parser.parse_args()
 
   return args
