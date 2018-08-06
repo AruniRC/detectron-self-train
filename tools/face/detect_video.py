@@ -218,7 +218,6 @@ if __name__ == '__main__':
     img_output_dir = osp.join(args.output_dir, vid_name)
     if not osp.exists(img_output_dir):
         os.makedirs(img_output_dir)
-    # writer = skvideo.io.FFmpegWriter("outputvideo.mp4")
     
     
     # Detect faces on video frames
