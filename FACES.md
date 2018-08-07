@@ -1,8 +1,15 @@
 # Face detection in CS6 videos
 
+## Data preparation
 CS6 has a total of 179 surveillance videos, taken from 9 different cameras. 
 A symlink `data/CS6` should point to the CS6 data root location
-(on Gypsum this is in `/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6`).
+(on Gypsum this is in `/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6`). For the detection task, under `data/CS6` we need `protocols/cs6_face_detection_ground_truth.csv` that lists the ground-truth faces in videos and the folder `videos` that contains all 179 MP4 videos (29.6 GB).
+
+Another symlink should point to the prepared annotations of CS6: `data/CS6_annot`, pointing to `/mnt/nfs/work1/elm/arunirc/Data/CS6_annots/` (on Gypsum). This contains extracted video frames (under `frames/<vid-name>/*.jpg`) and corresponding annotations in FDDB-style text files (as `video_annots/<vid-name>.txt`).
+
+Video filenames for train(88)/val(5)/test(86) splits in `data/CS6/list_video_<split>.txt`.
+
+**TODO**: script to convert from Janus-style formats in data/CS6 to FDDB-style ground-truth annotations in data/CS6_annots. 
 
 * Validation experiments
 * Mining
