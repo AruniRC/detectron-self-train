@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     
     # -----------------------------------------------------------------------------------
-    # Eval-format ground-truth annots and detection results for CS6
+    # Eval-format ground-truth annots for CS6
     # -----------------------------------------------------------------------------------
     with open(gt_out_file, 'w') as fid_gt:
         with open(gt_imlist_file, 'w') as fid_imlist:

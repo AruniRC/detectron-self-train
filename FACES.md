@@ -9,7 +9,6 @@ Another symlink should point to the prepared annotations of CS6: `data/CS6_annot
 
 Video filenames for train(88)/val(5)/test(86) splits in `data/CS6/list_video_<split>.txt`.
 
-**TODO**: script to convert from Janus-style formats in data/CS6 to FDDB-style ground-truth annotations in data/CS6_annots. 
 
 * Validation experiments
 * Mining

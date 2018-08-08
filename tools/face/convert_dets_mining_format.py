@@ -181,8 +181,3 @@ if __name__ == '__main__':
             det_dict = face_utils.parse_wider_gt(dets_file_name)
             out_file_name = osp.join(det_output_dir, video_name + '.txt')
             write_formatted_dets(video_name, out_file_name, det_dict, conf_thresh)
-
-
-        
-        
-        
