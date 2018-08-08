@@ -10,6 +10,11 @@ Another symlink should point to the prepared annotations of CS6: `data/CS6_annot
 Video filenames for train(88)/val(5)/test(86) splits in `data/CS6/list_video_<split>.txt`.
 
 
+## CS6 evaluation code
+
+TODO
+
+
 * Validation experiments
 * Mining
 * Re-training
