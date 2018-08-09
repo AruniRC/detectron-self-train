@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-
+#!/usr/bin/env python3
 
 """
 
@@ -67,7 +66,7 @@ CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
 WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
 
 
-OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video'
+OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video' % DET_NAME
 # CONF_THRESH = 0.85   
 # CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
 CONF_THRESH = 0.5
@@ -114,7 +113,7 @@ def parse_args():
     parser.add_argument(
         '--thresh',
         dest='thresh',
-        help='Threshold on class score (default: 0.7)',
+        help='Threshold on class score (default: 0.5)',
         default=CONF_THRESH,
         type=float
     )
@@ -125,6 +124,13 @@ def parse_args():
         action='store_true',
         default=False
     )
+    # parser.add_argument(
+    #     '--save_frame',
+    #     dest='save_frame',
+    #     help='Save the video frames that have detections',
+    #     action='store_true',
+    #     default=False
+    # )
     parser.add_argument(
         '--data_dir', help='Path to video file', default=DATA_DIR
     )
@@ -169,7 +175,7 @@ if __name__ == '__main__':
         sys.exit("Need a CUDA device to run the code.")
 
     args = parse_args()
-    args.output_dir = args.output_dir % args.exp_name
+    # args.output_dir = args.output_dir % args.exp_name
     print('Called with args:')
     print(args)
 
@@ -215,10 +221,12 @@ if __name__ == '__main__':
         raise IOError('Path to video not found: \n%s' % video_path)
 
     vid_name = osp.basename(video_path).split('.')[0]
-    img_output_dir = osp.join(args.output_dir, vid_name)
-    if not osp.exists(img_output_dir):
-        os.makedirs(img_output_dir)
-    
+
+    if args.vis:
+        img_output_dir = osp.join(args.output_dir, vid_name)
+        if not osp.exists(img_output_dir):
+            os.makedirs(img_output_dir)
+        
     
     # Detect faces on video frames
     start = time.time()
@@ -241,7 +249,7 @@ if __name__ == '__main__':
                     cls_scores[:, np.newaxis])).astype(np.float32)            
             keep = box_utils.nms(dets, NMS_THRESH)
             dets = dets[keep, :]
-            keep = np.where(dets[:, 4] > CONF_THRESH)
+            keep = np.where(dets[:, 4] > args.thresh)
             dets = dets[keep]
 
             dets[:, 2] = dets[:, 2] - dets[:, 0] + 1

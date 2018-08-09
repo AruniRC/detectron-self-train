@@ -11,12 +11,15 @@
 # Run detector on a CS6 video to get visualized boxes on frames
 # Usage: sbatch gypsum/scripts/eval/run_det_video.sh 501.mp4
 
-DET_NAME=frcnn-R-50-C4-1x
-CONF_THRESH=0.25
-OUT_DIR=Outputs/evaluations/${DET_NAME}/cs6/sample-baseline-video_conf-${CONF_THRESH}
-
 echo $1
-python tools/face/detect_video.py --vis --video_name $1 \
-    --thresh ${CONF_THRESH} \
-    --output-dir ${OUT_DIR}
+
+
+python tools/face/detect_video.py \
+    --video_name $1 \
+    --exp_name $2 \
+    --output-dir $3 \
+    --thresh $4 \
+    --vis
+
+
 

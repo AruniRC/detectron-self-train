@@ -29,7 +29,7 @@ OUT_FOLDER
 - ...
 
 
-TODO - Usage (on slurm cluster):
+TODO: Usage (on slurm cluster):
 
 srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_mining_format.py ...
 

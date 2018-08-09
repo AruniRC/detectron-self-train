@@ -5,13 +5,13 @@ CS6 has a total of 179 surveillance videos, taken from 9 different cameras.
 A symlink `data/CS6` should point to the CS6 data root location
 (on Gypsum this is in `/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6`). For the detection task, under `data/CS6` we need `protocols/cs6_face_detection_ground_truth.csv` that lists the ground-truth faces in videos and the folder `videos` that contains all 179 MP4 videos (29.6 GB).
 
-Another symlink should point to the prepared annotations of CS6: `data/CS6_annot`, pointing to `/mnt/nfs/work1/elm/arunirc/Data/CS6_annots/` (on Gypsum). This contains extracted video frames (under `frames/<vid-name>/*.jpg`) and corresponding annotations in FDDB-style text files (as `video_annots/<vid-name>.txt`).
+Another symlink should point to the prepared annotations of CS6: `data/CS6_annot`, pointing to `/mnt/nfs/work1/elm/arunirc/Data/CS6_annots/` (on Gypsum). This contains extracted video frames (under `frames/<vid-name>/*.jpg`) and corresponding annotations in FDDB-style text files (as `video_annots/<vid-name>.txt`). If CS6_annot folder does not already exist, `tools/face/make_ground_truth_data.py` is used for generating the video frames and annotations for each video.
 
 Video filenames for train(88)/val(5)/test(86) splits in `data/CS6/list_video_<split>.txt`.
 
 
-## CS6 evaluation code
 
+    **under construction**
 TODO
 
 
@@ -58,6 +58,17 @@ Output folder structure:
 ```
 
 **MP4 video from frames.** In the `sample-baseline-video` folder, use ffmpeg to convert the frames in a folder into a video (quicker than writing videos from Python). `ffmpeg -framerate 30 -pattern_type glob -i '501/*.jpg' -c:v libx24 501.mp4`.
+
+
+#### Evaluating detections
+
+**Evaluation format.** 
+Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_split_det.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `sample-baseline-video/eval-dets_val`.
+
+
+**CS6 evaluation code.** 
+Under `tools/face/CS6-evaluation`. The script `runEvalCS6_gypsum.sh` generates ROC curves for each video in parallel. After this is completed, the Python script `plot_roc.py` generates a final ROC curve under `tools/face/CS6-evaluation/rocCurves/<model-name>`. Each script needs settings to be specified at the top. 
+
 
 
 #### Validating Tracklets
