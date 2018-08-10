@@ -12,16 +12,16 @@ OUT_DIR=Outputs/evaluations/${DET_NAME}/cs6/baseline_train_conf-${CONF_THRESH}
 
 
 
-mkdir -p "Outputs/cache/face"
+# mkdir -p "Outputs/cache/face"
 
-cat data/CS6/list_video_train.txt | \
-    sort -R --random-source=data/CS6/list_video_val.txt | \
-    tail -n 20 \
-    > Outputs/cache/face/list_video_train_subset.txt
+# cat data/CS6/list_video_train.txt | \
+#     sort -R --random-source=data/CS6/list_video_val.txt | \
+#     tail -n 20 \
+#     > Outputs/cache/face/list_video_train_subset.txt
 
 
 
-for VIDEO in `cat Outputs/cache/face/list_video_train_subset.txt`
+for VIDEO in `cat data/CS6/list_video_train_subset.txt`
 do
     echo $VIDEO
 

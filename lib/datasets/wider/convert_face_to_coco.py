@@ -30,30 +30,30 @@ import utils.boxes as bboxs_util
 import utils.face_utils as face_util
 
 
-INFO = {
-    "description": "WIDER Face Dataset",
-    "url": "http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/",
-    "version": "0.1.0",
-    "year": 2018,
-    "contributor": "umass vision",
-    "date_created": datetime.datetime.utcnow().isoformat(' ')
-}
+# INFO = {
+#     "description": "WIDER Face Dataset",
+#     "url": "http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/",
+#     "version": "0.1.0",
+#     "year": 2018,
+#     "contributor": "umass vision",
+#     "date_created": datetime.datetime.utcnow().isoformat(' ')
+# }
 
-LICENSES = [
-    {
-        "id": 1,
-        "name": "placeholder",
-        "url": "placeholder"
-    }
-]
+# LICENSES = [
+#     {
+#         "id": 1,
+#         "name": "placeholder",
+#         "url": "placeholder"
+#     }
+# ]
 
-CATEGORIES = [
-    {
-        'id': 1,
-        'name': 'face',
-        'supercategory': 'face',
-    },
-]
+# CATEGORIES = [
+#     {
+#         'id': 1,
+#         'name': 'face',
+#         'supercategory': 'face',
+#     },
+# ]
 
 
 
@@ -124,6 +124,9 @@ def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
     print("Num annotations: %s" % len(annotations))
     with open(os.path.join(out_dir, json_name), 'w', encoding='utf8') as outfile:
         outfile.write(json.dumps(ann_dict))
+
+
+
 
 
 if __name__ == '__main__':
