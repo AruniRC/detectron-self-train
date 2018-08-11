@@ -159,6 +159,9 @@ def main():
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-subset":
+        cfg.TRAIN.DATASETS = ('cs6-subset',)
+        cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
