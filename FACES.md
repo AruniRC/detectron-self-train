@@ -63,7 +63,7 @@ Output folder structure:
 #### Evaluating detections
 
 **Evaluation format.** 
-Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_split_det.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `sample-baseline-video/eval-dets_val`.
+Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_split_det.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `<DET_OUTPUT_FOLDER>/eval-dets_val`.
 
 
 **CS6 evaluation code.** 

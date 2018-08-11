@@ -223,6 +223,14 @@ DATASETS = {
         IM_DIR:
             _DATA_DIR + '/WIDER',
         ANN_FN:
-            _DATA_DIR + '/WIDER/wider_face_train_annot_coco_style.json', # TODO
+            _DATA_DIR + '/WIDER/wider_face_train_annot_coco_style.json',
+    },
+
+    # CS6 DATASET SUBSET
+    'cs6-subset': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-subset_face_train_annot_coco_style.json',
     },
 }

@@ -8,7 +8,7 @@ The properly formatted detection text files are saved in a subfolder under
 the original detections' folder.
 
 Usage:
-srun --pty --mem 50000 python tools/face/make_cs6_split_det.py --split val
+srun --pty --mem 50000 python tools/face/make_cs6_det_eval.py --split val
 
 Output files:
     
@@ -39,7 +39,8 @@ import utils.face_utils as face_utils
 
 
 DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video/'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video/'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video_conf-0.25/'
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'
 SPLIT = 'val'
 GT_ANNOT_DIR =  'data/CS6_annot'

@@ -65,13 +65,13 @@ DET_NAME = 'frcnn-R-50-C4-1x'
 CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
 WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
 
-
-OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video' % DET_NAME
+CONF_THRESH = 0.25
+NMS_THRESH = 0.15
+OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (DET_NAME, CONF_THRESH)
 # CONF_THRESH = 0.85   
 # CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
-CONF_THRESH = 0.5
-NMS_THRESH = 0.15
-VID_NAME = '3013.mp4'
+
+VID_NAME = '1100.mp4'
 # DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
 DATA_DIR = 'data/CS6'
 
@@ -179,7 +179,6 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
-
     # Model setup
     cfg.TEST.SCALE = 800
     cfg.TEST.MAX_SIZE = 1333
@@ -257,7 +256,9 @@ if __name__ == '__main__':
 
 
             # Saving visualized frames
-            viz_out_path = osp.join(img_output_dir, im_name + '.jpg')
+            if args.vis:
+                viz_out_path = osp.join(img_output_dir, im_name + '.jpg')
+
             if dets.size == 0: # nothing detected
                 if args.vis:
                     cv2.imwrite(viz_out_path, im)
