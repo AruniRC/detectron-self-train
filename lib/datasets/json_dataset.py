@@ -106,7 +106,7 @@ class JsonDataset(object):
         so we don't need to overwrite it again.
         """
         keys = ['boxes', 'segms', 'gt_classes', 'seg_areas', 'gt_overlaps',
-                'is_crowd', 'box_to_gt_ind_map']
+                'is_crowd', 'box_to_gt_ind_map', 'gt_scores'] # EDIT: add 'gt_scores'
         if self.keypoints is not None:
             keys += ['gt_keypoints', 'has_visible_keypoints']
         return keys
@@ -209,6 +209,11 @@ class JsonDataset(object):
         """Add ground truth annotation metadata to an roidb entry."""
         ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
         objs = self.COCO.loadAnns(ann_ids)
+        has_scores = ('score' in objs[0].keys())
+        # EDIT: detection "soft"-scores
+        if has_scores:
+            if not 'gt_scores' in entry.keys():
+                entry['gt_scores'] = np.empty((0), dtype=np.float32)
         # Sanitize bboxes -- some are invalid
         valid_objs = []
         valid_segms = []
@@ -243,6 +248,8 @@ class JsonDataset(object):
             (num_valid_objs, self.num_classes),
             dtype=entry['gt_overlaps'].dtype
         )
+        if has_scores:
+            gt_scores = np.zeros((num_valid_objs), dtype=entry['gt_scores'].dtype)  # EDIT: scores
         seg_areas = np.zeros((num_valid_objs), dtype=entry['seg_areas'].dtype)
         is_crowd = np.zeros((num_valid_objs), dtype=entry['is_crowd'].dtype)
         box_to_gt_ind_map = np.zeros(
@@ -259,6 +266,8 @@ class JsonDataset(object):
             cls = self.json_category_id_to_contiguous_id[obj['category_id']]
             boxes[ix, :] = obj['clean_bbox']
             gt_classes[ix] = cls
+            if has_scores:
+                gt_scores[ix] = obj['score'] # EDIT: scores
             seg_areas[ix] = obj['area']
             is_crowd[ix] = obj['iscrowd']
             box_to_gt_ind_map[ix] = ix
@@ -278,6 +287,8 @@ class JsonDataset(object):
         # entry['boxes'] = np.append(
         #     entry['boxes'], boxes.astype(np.int).astype(np.float), axis=0)
         entry['gt_classes'] = np.append(entry['gt_classes'], gt_classes)
+        if has_scores:
+            entry['gt_scores'] = np.append(entry['gt_scores'], gt_scores) # EDIT: scores
         entry['seg_areas'] = np.append(entry['seg_areas'], seg_areas)
         entry['gt_overlaps'] = np.append(
             entry['gt_overlaps'].toarray(), gt_overlaps, axis=0
@@ -286,7 +297,7 @@ class JsonDataset(object):
         entry['is_crowd'] = np.append(entry['is_crowd'], is_crowd)
         entry['box_to_gt_ind_map'] = np.append(
             entry['box_to_gt_ind_map'], box_to_gt_ind_map
-        )
+        )        
         if self.keypoints is not None:
             entry['gt_keypoints'] = np.append(
                 entry['gt_keypoints'], gt_keypoints, axis=0
@@ -300,13 +311,19 @@ class JsonDataset(object):
             cached_roidb = pickle.load(fp)
 
         assert len(roidb) == len(cached_roidb)
-
+        
+        gt_scores = [] # EDIT: gt_scores
         for entry, cached_entry in zip(roidb, cached_roidb):
             values = [cached_entry[key] for key in self.valid_cached_keys]
             boxes, segms, gt_classes, seg_areas, gt_overlaps, is_crowd, \
                 box_to_gt_ind_map = values[:7]
             if self.keypoints is not None:
                 gt_keypoints, has_visible_keypoints = values[7:]
+            elif len(values) == 8:
+                # EDIT: if not keypoints, but we have 8th value, it is "gt_scores"
+                gt_scores = values[7]
+                if not 'gt_scores' in entry.keys():
+                    entry['gt_scores'] = np.empty((0), dtype=np.float32)
             entry['boxes'] = np.append(entry['boxes'], boxes, axis=0)
             entry['segms'].extend(segms)
             # To match the original implementation:
@@ -324,6 +341,8 @@ class JsonDataset(object):
                     entry['gt_keypoints'], gt_keypoints, axis=0
                 )
                 entry['has_visible_keypoints'] = has_visible_keypoints
+            if not len(gt_scores)==0:
+                entry['gt_scores'] = np.append(entry['gt_scores'], gt_scores)
 
     def _add_proposals_from_file(
         self, roidb, proposal_file, min_proposal_size, top_k, crowd_thresh
@@ -415,6 +434,8 @@ def add_proposals(roidb, rois, scales, crowd_thresh):
     but no proposals. If the proposals are not at the original image scale,
     specify the scale factor that separate them in scales.
     """
+    import pdb; pdb.set_trace()  # breakpoint 863a711e //
+
     box_list = []
     for i in range(len(roidb)):
         inv_im_scale = 1. / scales[i]

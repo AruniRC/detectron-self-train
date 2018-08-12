@@ -134,11 +134,13 @@ def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
 
 
 def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
-    """Convert from WIDER FDDB-style format to COCO bounding box"""
+    """Convert from FDDB-style detections format to COCO annotations"""
 
     if data_set=='CS6-subset':
         json_name = 'cs6-subset_face_train_annot_coco_style.json'
-        # ann_file = os.path.join(data_dir, 'wider_face_train_annot.txt')
+    elif data_set=='CS6-subset-score':
+        # include "scores" as soft-labels
+        json_name = 'cs6-subset_face_train_score-annot_coco_style.json'
     else:
         raise NotImplementedError
 
@@ -178,7 +180,9 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
             ann['category_id'] = cat_id # 1:"face" for WIDER
             ann['iscrowd'] = 0
             ann['area'] = gt_bbox[2] * gt_bbox[3]
-            ann['bbox'] = gt_bbox
+            ann['bbox'] = gt_bbox[:4]
+            if 'score' in data_set:
+                ann['score'] = gt_bbox[4] # for soft-label distillation
             annotations.append(ann)
 
     ann_dict['images'] = images
@@ -196,8 +200,11 @@ if __name__ == '__main__':
     args = parse_args()
     if args.dataset == "wider":
         convert_wider_annots(args.datadir, args.outdir)
-    if args.dataset == "cs6-subset":
+    elif args.dataset == "cs6-subset":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset')
+    elif args.dataset == "cs6-subset-score":
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-subset-score')
     else:
         print("Dataset not supported: %s" % args.dataset)

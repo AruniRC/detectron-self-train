@@ -233,4 +233,11 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-subset_face_train_annot_coco_style.json',
     },
+
+    'cs6-subset-score': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-subset_face_train_score-annot_coco_style.json',
+    },
 }
