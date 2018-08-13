@@ -12,6 +12,10 @@ import nn as mynn
 logger = logging.getLogger(__name__)
 
 
+def is_nan_loss(x):
+    """ Check if a Variable loss value is NaN """
+    return np.isnan(np.sum((x.data).cpu().numpy()))
+
 def smooth_l1_loss(bbox_pred, bbox_targets, bbox_inside_weights, bbox_outside_weights, beta=1.0):
     """
     SmoothL1(x) = 0.5 * x^2 / beta      if |x| < beta
@@ -30,6 +34,22 @@ def smooth_l1_loss(bbox_pred, bbox_targets, bbox_inside_weights, bbox_outside_we
     N = loss_box.size(0)  # batch size
     loss_box = loss_box.view(-1).sum(0) / N
     return loss_box
+
+
+def loss_kd(outputs, soft_labels, T=1):
+    """
+    Compute the knowledge-distillation (KD) loss given outputs, soft_labels.    
+    NOTE: the losses are averaged over the batch by default.
+    Original repo: https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py
+    """
+    loss_kd = (T * T) * F.kl_div(F.log_softmax(outputs/T, dim=1),
+                                 soft_labels/T, 
+                                 size_average=False) # sum over classes and samples
+    # NOTE: the KL Divergence for PyTorch comparing the predictions of teacher
+    # and student needs the student outputs tensor to be log probabilities!
+    N = outputs.size(0)  # batch size
+    loss_kd = loss_kd / N  # average over samples
+    return loss_kd
 
 
 def clip_gradient(model, clip_norm):

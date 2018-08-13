@@ -110,7 +110,8 @@ __C.TRAIN.ASPECT_LO = 0.5
 
 # EDIT: Use ground-truth soft-labels as gt_scores in distillation loss
 __C.TRAIN.GT_SCORES = False
-
+__C.TRAIN.DISTILL_LAMBDA = 1.0  # weight on the distillation loss
+__C.TRAIN.DISTILL_TEMPERATURE = 1.0
 
 # ---------------------------------------------------------------------------- #
 # RPN training options

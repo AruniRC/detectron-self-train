@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from core.config import cfg
 import nn as mynn
 import utils.net as net_utils
-
+import numpy as np
 
 class fast_rcnn_outputs(nn.Module):
     def __init__(self, dim_in):
@@ -52,18 +52,37 @@ def fast_rcnn_losses(cls_score, bbox_pred, label_int32, bbox_targets,
     device_id = cls_score.get_device()
     rois_label = Variable(torch.from_numpy(label_int32.astype('int64'))).cuda(device_id)
     loss_cls = F.cross_entropy(cls_score, rois_label)
+    assert not net_utils.is_nan_loss(loss_cls)
 
     bbox_targets = Variable(torch.from_numpy(bbox_targets)).cuda(device_id)
     bbox_inside_weights = Variable(torch.from_numpy(bbox_inside_weights)).cuda(device_id)
     bbox_outside_weights = Variable(torch.from_numpy(bbox_outside_weights)).cuda(device_id)
     loss_bbox = net_utils.smooth_l1_loss(
         bbox_pred, bbox_targets, bbox_inside_weights, bbox_outside_weights)
+    assert not net_utils.is_nan_loss(loss_bbox)
 
     # class accuracy
     cls_preds = cls_score.max(dim=1)[1].type_as(rois_label)
     accuracy_cls = cls_preds.eq(rois_label).float().mean(dim=0)
 
     return loss_cls, loss_bbox, accuracy_cls
+
+
+def distillation_loss(cls_score, soft_labels, dist_T=1.0):
+    """
+    Compute the knowledge-distillation (KD) loss given outputs, soft_labels.
+    """
+    assert all(soft_labels >= 0) & all(soft_labels <= 1) # sanity-check
+    if soft_labels.ndim == 1:
+        # for one-class, pre-pend a column for bg probability
+        soft_labels = np.concatenate(
+                        (1. - soft_labels[:,np.newaxis], soft_labels[:,np.newaxis]), 
+                        axis=1 )
+    device_id = cls_score.get_device()
+    soft_labels = Variable( torch.from_numpy(soft_labels.astype('float32')) ).cuda(device_id)
+    loss_distill = net_utils.loss_kd(cls_score, soft_labels, T=dist_T)
+    assert not net_utils.is_nan_loss(loss_distill)
+    return loss_distill
 
 
 # ---------------------------------------------------------------------------- #
