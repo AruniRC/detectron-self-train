@@ -34,6 +34,8 @@ def get_rpn_blob_names(is_training=True):
                 'rpn_bbox_inside_weights_wide',
                 'rpn_bbox_outside_weights_wide'
             ]
+        # if cfg.TRAIN.GT_SCORES:
+        #     blob_names += ['gt_scores'] # EDIT: soft labels
     return blob_names
 
 
@@ -98,8 +100,9 @@ def add_rpn_blobs(blobs, im_scales, roidb):
 
     valid_keys = [
         'has_visible_keypoints', 'boxes', 'segms', 'seg_areas', 'gt_classes',
-        'gt_overlaps', 'is_crowd', 'box_to_gt_ind_map', 'gt_keypoints'
-    ]
+        'gt_overlaps', 'is_crowd', 'box_to_gt_ind_map', 'gt_keypoints', 
+        'gt_scores'
+    ] # EDIT: "gt_scores" is a valid key
     minimal_roidb = [{} for _ in range(len(roidb))]
     for i, e in enumerate(roidb):
         for k in valid_keys:

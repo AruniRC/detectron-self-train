@@ -434,9 +434,7 @@ def add_proposals(roidb, rois, scales, crowd_thresh):
     but no proposals. If the proposals are not at the original image scale,
     specify the scale factor that separate them in scales.
     """
-    import pdb; pdb.set_trace()  # breakpoint 863a711e //
-
-    box_list = []
+    box_list = []    
     for i in range(len(roidb)):
         inv_im_scale = 1. / scales[i]
         idx = np.where(rois[:, 0] == i)[0]
@@ -509,6 +507,12 @@ def _merge_proposal_boxes_into_roidb(roidb, box_list):
                 entry['box_to_gt_ind_map'].dtype, copy=False
             )
         )
+        if cfg.TRAIN.GT_SCORES:
+            # EDIT: soft labels
+            entry['gt_scores'] = np.append(
+                entry['gt_scores'],
+                np.zeros((num_boxes), dtype=entry['gt_scores'].dtype)
+        )
 
 
 def _filter_crowd_proposals(roidb, crowd_thresh):
@@ -543,6 +547,10 @@ def _add_class_assignments(roidb):
         max_classes = gt_overlaps.argmax(axis=1)
         entry['max_classes'] = max_classes
         entry['max_overlaps'] = max_overlaps
+        if cfg.TRAIN.GT_SCORES:
+            # EDIT: soft labels
+            entry['max_scores'] = entry['gt_scores'][entry['box_to_gt_ind_map']]
+            assert all((entry['max_scores']>0) == (entry['max_classes']>0))
         # sanity checks
         # if max overlap is 0, the class must be background (class 0)
         zero_inds = np.where(max_overlaps == 0)[0]

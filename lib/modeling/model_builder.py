@@ -145,6 +145,7 @@ class Generalized_RCNN(nn.Module):
 
     def _forward(self, data, im_info, roidb=None, **rpn_kwargs):
         im_data = data
+
         if self.training:
             roidb = list(map(lambda x: blob_utils.deserialize(x)[0], roidb))
 
@@ -202,6 +203,7 @@ class Generalized_RCNN(nn.Module):
             return_dict['losses']['loss_cls'] = loss_cls
             return_dict['losses']['loss_bbox'] = loss_bbox
             return_dict['metrics']['accuracy_cls'] = accuracy_cls
+
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):

@@ -162,6 +162,9 @@ def main():
     elif args.dataset == "cs6-subset":
         cfg.TRAIN.DATASETS = ('cs6-subset',)
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-subset-score":
+        cfg.TRAIN.DATASETS = ('cs6-subset-score',)
+        cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
@@ -240,7 +243,7 @@ def main():
     logger.info('Takes %.2f sec(s) to construct roidb', timers['roidb'].average_time)
 
     # Effective training sample size for one epoch
-    train_size = roidb_size // args.batch_size * args.batch_size
+    train_size = roidb_size // args.batch_size * args.batch_size    
 
     batchSampler = BatchSampler(
         sampler=MinibatchSampler(ratio_list, ratio_index),
@@ -426,7 +429,7 @@ def main():
                 for key in input_data:
                     if key != 'roidb': # roidb is a list of ndarrays with inconsistent length
                         input_data[key] = list(map(Variable, input_data[key]))
-
+                                
                 net_outputs = maskRCNN(**input_data)
                 training_stats.UpdateIterStats(net_outputs, inner_iter)
                 loss = net_outputs['total_loss']

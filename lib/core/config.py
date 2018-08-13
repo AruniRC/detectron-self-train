@@ -108,6 +108,10 @@ __C.TRAIN.ASPECT_CROPPING = False
 __C.TRAIN.ASPECT_HI = 2
 __C.TRAIN.ASPECT_LO = 0.5
 
+# EDIT: Use ground-truth soft-labels as gt_scores in distillation loss
+__C.TRAIN.GT_SCORES = False
+
+
 # ---------------------------------------------------------------------------- #
 # RPN training options
 # ---------------------------------------------------------------------------- #

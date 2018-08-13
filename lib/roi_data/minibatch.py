@@ -41,6 +41,8 @@ def get_minibatch(roidb):
     else:
         # Fast R-CNN like models trained on precomputed proposals
         valid = roi_data.fast_rcnn.add_fast_rcnn_blobs(blobs, im_scales, roidb)
+    # if cfg.TRAIN.GT_SCORES:
+    #     blobs['gt_scores'] = np.array(blobs['gt_scores']) # EDIT: to allow squeeze()
     return blobs, valid
 
 
