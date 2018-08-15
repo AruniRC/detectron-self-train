@@ -17,7 +17,7 @@
 
 python tools/train_net_step.py \
     --dataset cs6-subset-score \
-    --cfg configs/cs6/e2e_faster_rcnn_R-50-C4_1x_distill-scratch.yaml  \
+    --cfg configs/cs6/e2e_faster_rcnn_R-50-C4_1x_distill-scratch-baseline.yaml  \
     --load_ckpt Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth \
     --use_tfboard
 

@@ -68,20 +68,38 @@ def fast_rcnn_losses(cls_score, bbox_pred, label_int32, bbox_targets,
     return loss_cls, loss_bbox, accuracy_cls
 
 
-def distillation_loss(cls_score, soft_labels, dist_T=1.0):
+def distillation_loss(cls_score, label_int32, gt_score, dist_T=1.0, dist_lambda=0.5, cls_id=1):
     """
-    Compute the knowledge-distillation (KD) loss given outputs, soft_labels.
+    Compute the knowledge-distillation (KD) loss given outputs, hard labels, soft labels. 
+    This currently supports a single foreground category.
+
+    soft_label = lambda*label_noisy + (1 - lambda)*baseline_score
+
+    Loss = BinaryCrossEntropy(predicted_scores, soft_label)
+
+    Inputs: cls_score (network predictions), label_int32 (hard labels), 
+            gt_score (baseline detector scores as groundtruth)
+
     """
-    assert all(soft_labels >= 0) & all(soft_labels <= 1) # sanity-check
-    if soft_labels.ndim == 1:
-        # for one-class, pre-pend a column for bg probability
-        soft_labels = np.concatenate(
-                        (1. - soft_labels[:,np.newaxis], soft_labels[:,np.newaxis]), 
-                        axis=1 )
-    device_id = cls_score.get_device()
-    soft_labels = Variable( torch.from_numpy(soft_labels.astype('float32')) ).cuda(device_id)
-    loss_distill = net_utils.loss_kd(cls_score, soft_labels, T=dist_T)
+    assert all(gt_score >= 0) & all(gt_score <= 1) # sanity-check
+    assert gt_score.shape == label_int32.shape
+    assert dist_lambda > 0
+    assert dist_T > 0
+    
+    pred = cls_score[:, cls_id]  # prediction logits
+    device_id = pred.get_device()
+    label = torch.from_numpy(label_int32.astype('float32'))
+    gt_score = torch.from_numpy(gt_score.astype('float32'))
+    # get logits from sigmoid, apply temperature, reapply sigmoid
+    if dist_T != 1.0:
+        gt_logit = torch.log(gt_score) - torch.log(1 - gt_score)  # TODO: check stability
+        gt_score = F.sigmoid(gt_logit / dist_T)
+    # blend "baseline gt score" and "label"
+    soft_label = dist_lambda*label + (1-dist_lambda)*gt_score
+    soft_label = Variable(soft_label).cuda(device_id)     
+    loss_distill = F.binary_cross_entropy_with_logits(pred, soft_label)
     assert not net_utils.is_nan_loss(loss_distill)
+
     return loss_distill
 
 

@@ -108,9 +108,9 @@ __C.TRAIN.ASPECT_CROPPING = False
 __C.TRAIN.ASPECT_HI = 2
 __C.TRAIN.ASPECT_LO = 0.5
 
-# EDIT: Use ground-truth soft-labels as gt_scores in distillation loss
+# EDIT: Use baseline model predictions as gt_scores in distillation loss
 __C.TRAIN.GT_SCORES = False
-__C.TRAIN.DISTILL_LAMBDA = 1.0  # weight on the distillation loss
+__C.TRAIN.DISTILL_LAMBDA = 0.5  # mixing noisy_gt_labels and baseline_gt_scores
 __C.TRAIN.DISTILL_TEMPERATURE = 1.0
 
 # ---------------------------------------------------------------------------- #
