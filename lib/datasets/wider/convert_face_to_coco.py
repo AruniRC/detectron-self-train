@@ -83,6 +83,7 @@ def parse_args():
 def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
     """Convert from WIDER FDDB-style format to COCO bounding box"""
 
+    # http://cocodataset.org/#format-data: [x,w,width,height]
     json_name = 'wider_face_train_annot_coco_style.json'
     img_id = 0
     ann_id = 0
@@ -119,7 +120,7 @@ def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
             ann['category_id'] = cat_id # 1:"face" for WIDER
             ann['iscrowd'] = 0
             ann['area'] = gt_bbox[2] * gt_bbox[3]
-            ann['bbox'] = gt_bbox
+            ann['bbox'] = gt_bbox 
             annotations.append(ann)
 
     ann_dict['images'] = images

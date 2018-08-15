@@ -8,7 +8,8 @@ The properly formatted detection text files are saved in a subfolder under
 the original detections' folder.
 
 Usage:
-srun --pty --mem 50000 python tools/face/make_cs6_det_eval.py --split val
+srun --pty --mem 50000 python tools/face/make_cs6_det_eval.py --split val \
+                        --det_dir <DET_DIR>
 
 Output files:
     

@@ -6,6 +6,7 @@ A symlink 'data/CS6' should point to the CS6 data root location.
 
 Two types of lists are generated - one containing the soft-labels (scores) and the 
 other containing just the detections as positive ground-truth.
+By default the output files are saved in a sub-folder created under DET_DIR.
 
 CS6 VIDEO DET FORMAT:
 <video-name>_<0-starting-frame-number>
