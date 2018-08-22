@@ -106,7 +106,10 @@ class JsonDataset(object):
         so we don't need to overwrite it again.
         """
         keys = ['boxes', 'segms', 'gt_classes', 'seg_areas', 'gt_overlaps',
-                'is_crowd', 'box_to_gt_ind_map', 'gt_scores'] # EDIT: add 'gt_scores'
+                'is_crowd', 'box_to_gt_ind_map'] # EDIT: add 'gt_scores'
+        if cfg.TRAIN.GT_SCORES:
+            keys.append('gt_scores')
+
         if self.keypoints is not None:
             keys += ['gt_keypoints', 'has_visible_keypoints']
         return keys

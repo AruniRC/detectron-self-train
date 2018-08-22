@@ -9,7 +9,7 @@ srun --pty --mem 50000 --gres gpu:1 -p m40-short \
   python tools/eval/run_face_detection_on_wider.py \
   --cfg ${CFG_PATH} \
   --load_ckpt ${WT_PATH} \
-  --exp_name frcnn-R-50-C4-1x
+  --exp_name frcnn-R-50-C4-1x_distill
 
 
 
