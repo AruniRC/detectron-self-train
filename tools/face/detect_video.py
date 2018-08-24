@@ -9,7 +9,7 @@ A symlink 'data/CS6' should point to the CS6 data root location
 Usage (on slurm cluster):
 
 srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_video.py \
---vis --video_name 801.mp4
+--vis --video_name 3004.mp4
 
 """
 
@@ -61,16 +61,50 @@ from utils.detectron_weight_helper import load_detectron_weight
 # from utils.timer import Timer
 
 
-DET_NAME = 'frcnn-R-50-C4-1x'
-CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
-WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
+
+# ---------------------------------------------------------------------------- #
+# Change quick settings here:
+# ---------------------------------------------------------------------------- #
+
+# Baseline: trained on WIDER Face
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
+# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
+# TRAIN_DATA = 'WIDER'
+
+# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
+# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
+# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug11-12-52-16_node151_step/ckpt/model_step29999.pth'
+# TRAIN_DATA = 'cs6-subset'
+
+
+# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
+# TRAIN_DATA = 'cs6-subset-GT+WIDER'
+# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
+# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth'
+
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
+
+# Overfit: train and test on one video: 3013.mp4
+DET_NAME = 'frcnn-R-50-C4-1x-8gpu'
+CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu.yaml'
+WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu/Aug23-18-29-02_node121_step/ckpt/model_step29999.pth'
+TRAIN_DATA = 'cs6-3013'
+
 
 CONF_THRESH = 0.25
 NMS_THRESH = 0.15
-OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (DET_NAME, CONF_THRESH)
+# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (DET_NAME, CONF_THRESH)
 # CONF_THRESH = 0.85   
 # CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
+# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (
+#             DET_NAME, CONF_THRESH)
+OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-video_conf-%.2f' % (
+            DET_NAME, TRAIN_DATA, CONF_THRESH)
 
+
+
+# VID_NAME = '3004.mp4'
 VID_NAME = '1100.mp4'
 # DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
 DATA_DIR = 'data/CS6'
@@ -141,9 +175,9 @@ def parse_args():
 
 
 _GREEN = (18, 127, 15)
-# -----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def draw_detection_list(im, dets):
-# -----------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
     """ Draw detected bounding boxes on a copy of image and return it.
         [x0 y0 w h conf_score]
     """
@@ -218,14 +252,13 @@ if __name__ == '__main__':
         videogen = skvideo.io.vreader(video_path)
     else:
         raise IOError('Path to video not found: \n%s' % video_path)
-
     vid_name = osp.basename(video_path).split('.')[0]
-
+    if not osp.exists(args.output_dir):
+        os.makedirs(args.output_dir, exist_ok=True)
     if args.vis:
         img_output_dir = osp.join(args.output_dir, vid_name)
         if not osp.exists(img_output_dir):
-            os.makedirs(img_output_dir)
-        
+            os.makedirs(img_output_dir, exist_ok=True)
     
     # Detect faces on video frames
     start = time.time()

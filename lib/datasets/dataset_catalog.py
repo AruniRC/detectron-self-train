@@ -233,4 +233,20 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-subset_face_train_annot_coco_style.json',
     },
+
+    # CS6 DATASET SUBSET - using GROUND-TRUTH
+    'cs6-subset-gt': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-subset_face_train_annot_coco_style.json',
+    },
+
+    # CS6 DATASET - single video overfitting (DEBUG)
+    'cs6-3013-gt': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-subset-gt_face_train_annot_coco_style_3013.json',
+    },
 }

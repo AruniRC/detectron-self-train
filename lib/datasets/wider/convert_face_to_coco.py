@@ -140,6 +140,8 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
     if data_set=='CS6-subset':
         json_name = 'cs6-subset_face_train_annot_coco_style.json'
         # ann_file = os.path.join(data_dir, 'wider_face_train_annot.txt')
+    elif data_set=='CS6-subset-gt':
+        json_name = 'cs6-subset-gt_face_train_annot_coco_style.json'
     else:
         raise NotImplementedError
 
@@ -200,5 +202,8 @@ if __name__ == '__main__':
     if args.dataset == "cs6-subset":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset')
+    if args.dataset == "cs6-subset-gt":
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-subset-gt')
     else:
         print("Dataset not supported: %s" % args.dataset)

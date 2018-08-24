@@ -1,33 +1,50 @@
 #!/usr/bin/env bash
 
-# Run detector on a subset of CS6 train-set videos
-# Usage: ./gypsum/scripts/eval/cs6/run_det_val.sh
 
-
-# DET_NAME=frcnn-R-50-C4-1x_CS6-subset
+###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset, LR=0.0001
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
+# TRAIN_IMDB=cs6-subset
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug11-12-52-16_node151_step/ckpt/model_step29999.pth
 # CONF_THRESH=0.25
-# # CFG_PATH=configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml
-# # WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth
-# OUT_DIR=Outputs/evaluations/${DET_NAME}/cs6/baseline_train_conf-${CONF_THRESH}
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
+
+
+###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset, GT, LR=0.001
+# DET_NAME=frcnn-R-50-C4-1x-8gpu
+# TRAIN_IMDB=cs6-subset-GT
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu/Aug15-17-16-22_node105_step/ckpt/model_step29999.pth
+# CONF_THRESH=0.25
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 
 
 
-# mkdir -p "Outputs/cache/face"
+###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset, GT, LR=0.0001
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
+# TRAIN_IMDB=cs6-subset-GT
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug15-22-04-05_node140_step/ckpt/model_step29999.pth
+# CONF_THRESH=0.25
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 
-# cat data/CS6/list_video_train.txt | \
-#     sort -R --random-source=data/CS6/list_video_val.txt | \
-#     tail -n 20 \
-#     > Outputs/cache/face/list_video_train_subset.txt
+
+###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset + WIDER
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
+# TRAIN_IMDB=cs6-subset+WIDER
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-30_node141_step/ckpt/model_step49999.pth
+# CONF_THRESH=0.25
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 
 
-
-###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset
-DET_NAME=frcnn-R-50-C4-1x
-TRAIN_IMDB=cs6-subset
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu/Aug09-21-48-42_node142_step/ckpt/model_step29999.pth
+###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset-GT + WIDER
+DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
+TRAIN_IMDB=cs6-subset-GT+WIDER
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
+WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth
 CONF_THRESH=0.25
-OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/TRAIN="${TRAIN_IMDB}"_TEST=val_conf="${CONF_THRESH}
+OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 
 
 
