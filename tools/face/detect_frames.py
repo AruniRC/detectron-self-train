@@ -1,15 +1,22 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 
-Perform inference on frames from a video using Detectron saved checkpoint.
+Perform inference on pre-extracted frame images in CS6 using Detectron.
 A symlink 'data/CS6' should point to the CS6 data root location
-(on Gypsum this is in /mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6).
+(on Gypsum this is in /mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6). 
+A sylmlink 'data/CS6_annot' should point to the formatted anntotations and 
+extracted frames from CS6, created by running "tools/make_ground_truth_data.py" 
+The test/val splits and image lists are pre-defined.
+TODO - make the splits lists available online at a fixed location (arc). 
+
+This code is primarily used for quicker evaluations, when we do not need to  
+run the detector on *every* frame of a video, but can just read in those  
+frames (pre-extracted and saved as images) used by the Validation or Test set.
 
 Usage (on slurm cluster):
 
-srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_video.py \
---vis --video_name 3004.mp4
+srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_frames.py --video_name 1100.mp4
 
 """
 
@@ -27,6 +34,7 @@ from collections import defaultdict
 from six.moves import xrange
 import os.path as osp
 import time
+import json
 
 # Use a non-interactive backend
 import matplotlib
@@ -41,10 +49,8 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-
 import sys
 sys.path.append('./tools')
-
 
 import _init_paths
 import nn as mynn
@@ -58,60 +64,29 @@ import utils.net as net_utils
 import utils.vis as vis_utils
 import utils.face_utils as face_utils
 from utils.detectron_weight_helper import load_detectron_weight
-# from utils.timer import Timer
 
 
 
-# ---------------------------------------------------------------------------- #
-# Change quick settings here:
-# ---------------------------------------------------------------------------- #
-
-# Baseline: trained on WIDER Face
-# DET_NAME = 'frcnn-R-50-C4-1x'
-# CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
-# TRAIN_DATA = 'WIDER'
-
-# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
-# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug11-12-52-16_node151_step/ckpt/model_step29999.pth'
-# TRAIN_DATA = 'cs6-subset'
+DEBUG = False
 
 
-# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
-# TRAIN_DATA = 'cs6-subset-GT+WIDER'
-# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth'
-
-# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
-
-# Overfit: train and test on one video: 3013.mp4
-DET_NAME = 'frcnn-R-50-C4-1x-8gpu'
-CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu.yaml'
-WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu/Aug23-18-29-02_node121_step/ckpt/model_step29999.pth'
-TRAIN_DATA = 'cs6-3013'
-
+DET_NAME = 'frcnn-R-50-C4-1x'
+CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
+WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
 
 CONF_THRESH = 0.25
 NMS_THRESH = 0.15
-# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (DET_NAME, CONF_THRESH)
-# CONF_THRESH = 0.85   
-# CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
-# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (
-#             DET_NAME, CONF_THRESH)
-OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-video_conf-%.2f' % (
-            DET_NAME, TRAIN_DATA, CONF_THRESH)
+OUT_DIR = 'Outputs/evaluations/%s/cs6/FRAMES_sample-baseline-video_conf-%.2f' % (DET_NAME, 
+                                                                                 CONF_THRESH)
 
-
-
-# VID_NAME = '3004.mp4'
 VID_NAME = '1100.mp4'
 # DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
-DATA_DIR = 'data/CS6'
-
+DATA_DIR = 'data/CS6_annot'   # this points to ANNOTS folder, and *not* the raw CS6 protocol
+# IM_LIST_FILE = osp.join(DATA_DIR, 'cs6_annot_eval_imlist_val.txt')  # default "val" split
+# VID_PATH = osp.join(DATA_DIR, 'videos', VID_NAME)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Detectron inference on video')
+    parser = argparse.ArgumentParser(description='End-to-end inference')
     parser.add_argument(
         '--exp_name',
         help='detector name', 
@@ -122,13 +97,11 @@ def parse_args():
         dest='cfg_file',
         help='cfg model file (/path/to/model_prototxt)',
         default=CFG_PATH,
-        type=str
     )
     parser.add_argument(
         '--load_ckpt',
         help='checkpoints weights model file (/path/to/model_weights.pkl)',
         default=WT_PATH,
-        type=str
     )
     parser.add_argument(
     '--load_detectron', help='path to the detectron weight pickle file'
@@ -138,7 +111,6 @@ def parse_args():
         dest='output_dir',
         help='directory for visualization pdfs (default: /tmp/infer_simple)',
         default=OUT_DIR,
-        type=str
     )
     parser.add_argument(
         '--no_cuda', dest='cuda', help='whether use CUDA', 
@@ -158,26 +130,26 @@ def parse_args():
         action='store_true',
         default=False
     )
-    # parser.add_argument(
-    #     '--save_frame',
-    #     dest='save_frame',
-    #     help='Save the video frames that have detections',
-    #     action='store_true',
-    #     default=False
-    # )
     parser.add_argument(
-        '--data_dir', help='Path to video file', default=DATA_DIR
+        '--data-dir',
+        dest='data_dir', 
+        help='Path to CS6 annotations folder', 
+        default=DATA_DIR
     )
+    # parser.add_argument(
+    #     '--im_list', help='Path to image list file', default=IM_LIST_FILE
+    # )
     parser.add_argument(
         '--video_name', help='Name of video file', default=VID_NAME
     )
     return parser.parse_args()
 
 
+
 _GREEN = (18, 127, 15)
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
 def draw_detection_list(im, dets):
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------
     """ Draw detected bounding boxes on a copy of image and return it.
         [x0 y0 w h conf_score]
     """
@@ -212,8 +184,10 @@ if __name__ == '__main__':
     # args.output_dir = args.output_dir % args.exp_name
     print('Called with args:')
     print(args)
-
+    
+    # -----------------------------------------------------------------------------------
     # Model setup
+    # -----------------------------------------------------------------------------------
     cfg.TEST.SCALE = 800
     cfg.TEST.MAX_SIZE = 1333
     cfg.MODEL.NUM_CLASSES = 2
@@ -246,75 +220,89 @@ if __name__ == '__main__':
     net.eval()
 
 
+    # -----------------------------------------------------------------------------------
     # Data setup
-    video_path = osp.join(args.data_dir, 'videos', args.video_name)
-    if osp.exists(video_path):
-        videogen = skvideo.io.vreader(video_path)
-    else:
-        raise IOError('Path to video not found: \n%s' % video_path)
-    vid_name = osp.basename(video_path).split('.')[0]
-    if not osp.exists(args.output_dir):
-        os.makedirs(args.output_dir, exist_ok=True)
-    if args.vis:
-        img_output_dir = osp.join(args.output_dir, vid_name)
-        if not osp.exists(img_output_dir):
-            os.makedirs(img_output_dir, exist_ok=True)
-    
-    # Detect faces on video frames
-    start = time.time()
-    with open(os.path.join(args.output_dir, vid_name + '.txt'), 'w') as fid:
-        det_list = []
-        for i, im in enumerate(videogen):
-            im_name = '%s_%08d' % (vid_name, i)
-            print(im_name)
+    # -----------------------------------------------------------------------------------
+    video_name = args.video_name.split('.')[0]  # always discard file extension if any
+    annot_file = osp.join(args.data_dir, 'video_annots', video_name+'.txt')
+    annot_dict = face_utils.parse_wider_gt(annot_file)
+    image_subset = annot_dict.keys()
+    # # image_list = np.loadtxt(args.im_list, dtype=str)
+    # image_subset = [ x for x in image_list \
+    # 					if video_name+'/' in x ] # select frames only from this video
 
-            im = im[:,:,(2,1,0)] # RGB --> BGR
+    # output folders
+    img_output_dir = osp.join(args.output_dir, video_name)
+    if not osp.exists(img_output_dir):
+        os.makedirs(img_output_dir)
+
+    with open(osp.join(args.output_dir, 'config_args.json'), 'w') as fp:
+        json.dump(vars(args), fp, indent=4, sort_keys=True)
+    
+    
+    # -----------------------------------------------------------------------------------
+    # Detect faces on CS6 frames
+    # -----------------------------------------------------------------------------------
+    start = time.time()
+    if osp.exists(osp.join(args.output_dir, video_name + '.txt')):
+        print('Finished: DETECTION FILE EXISTS')
+        sys.exit(0)
+
+    with open(osp.join(args.output_dir, video_name + '.txt'), 'w') as fid:
+        det_list = []
+        for i, im_name in enumerate(image_subset):
+
+            print('%d/%d: %s' % (i, len(image_subset), im_name))
+            im = cv2.imread(osp.join(args.data_dir, im_name))
+            assert im.size != 0
 
             # Detect faces and regress bounding-boxes
             scores, boxes, im_scale, blob_conv = im_detect_bbox(
                 net, im, cfg.TEST.SCALE, cfg.TEST.MAX_SIZE)
 
+            # Format the detection output
             cls_ind = 1
             cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
             cls_scores = scores[:, cls_ind]
             dets = np.hstack((cls_boxes,
-                    cls_scores[:, np.newaxis])).astype(np.float32)            
+                    cls_scores[:, np.newaxis])).astype(np.float32)
             keep = box_utils.nms(dets, NMS_THRESH)
             dets = dets[keep, :]
-            keep = np.where(dets[:, 4] > args.thresh)
+            keep = np.where(dets[:, 4] > CONF_THRESH)
             dets = dets[keep]
             # (x, y, w, h)
             dets[:, 2] = dets[:, 2] - dets[:, 0] + 1
             dets[:, 3] = dets[:, 3] - dets[:, 1] + 1
+            print('Num. detections: %d' % dets.shape[0])
 
+            # Writing to text file
+            fid.write(im_name + '\n')
+            fid.write(str(dets.shape[0]) + '\n')
+            if dets.size == 0: # nothing detected
+                continue
+            for j in xrange(dets.shape[0]):
+                fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
+                                                 dets[j, 2], dets[j, 3], 
+                                                 dets[j, 4]) )
 
             # Saving visualized frames
             if args.vis:
-                viz_out_path = osp.join(img_output_dir, im_name + '.jpg')
-
-            if dets.size == 0: # nothing detected
-                if args.vis:
-                    cv2.imwrite(viz_out_path, im)
-            else:
-                if args.vis:
+                if dets.size != 0:
                     im_det = draw_detection_list( im, dets.copy() )
+                    viz_out_path = osp.join( img_output_dir, osp.basename(im_name) )                    
                     cv2.imwrite(viz_out_path, im_det)
-
-                # Writing to text file
-                fid.write(im_name + '\n')
-                fid.write(str(dets.shape[0]) + '\n')
-                for j in xrange(dets.shape[0]):
-                    fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
-                                                     dets[j, 2], dets[j, 3], 
-                                                     dets[j, 4]) )
+                else:
+                    # TODO - if no detections, save .. original image?
+                    pass
 
             
-            # if ((i + 1) % 100) == 0:
-            #     sys.stdout.write('%d ' % i)
-            #     sys.stdout.flush()
+            if ((i + 1) % 100) == 0:
+                sys.stdout.write('%d ' % i)
+                sys.stdout.flush()
 
     end = time.time()
     print('Execution time in seconds: %f' % (end - start))
+    print('Finished: SUCCESS')
         
         
         

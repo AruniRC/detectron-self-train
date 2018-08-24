@@ -164,6 +164,17 @@ def main():
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == "cs6-subset-score":
         cfg.TRAIN.DATASETS = ('cs6-subset-score',)
+    elif args.dataset == "cs6-subset-gt":
+        cfg.TRAIN.DATASETS = ('cs6-subset-gt',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-3013-gt":
+        cfg.TRAIN.DATASETS = ('cs6-3013-gt',) # DEBUG: overfit on one video annots
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-subset-gt+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-subset-gt', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-subset+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-subset', 'wider_train')
         cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))

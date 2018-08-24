@@ -9,6 +9,8 @@ Another symlink should point to the prepared annotations of CS6: `data/CS6_annot
 
 Video filenames for train(88)/val(5)/test(86) splits in `data/CS6/list_video_<split>.txt`.
 
+The JSON files for training are written using `lib/datasets/wider/convert_face_to_coco.py`.
+
 
 
     **under construction**
@@ -43,31 +45,37 @@ srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_video.py \
 --vis --video_name 801.mp4
 ```
 
-This is run on the following videos: 501.mp4, 801.mp4, 1100.mp4, 3004.mp4, 3007.mp4. These are listed in `data/CS6/list_video_val.txt`.
+This is run on the following videos: 501.mp4, 1100.mp4, 3004.mp4, 3007.mp4. These are listed in `data/CS6/list_video_val.txt`.
 
 Output folder structure:
 ```
 ./Outputs/evaluations/frcnn-R-50-C4-1x/cs6/
     sample-baseline-video/
         501/*.jpg
-        801/*.jpg
         ...
         501.txt
-        801.txt
         ...
 ```
 
 **MP4 video from frames.** In the `sample-baseline-video` folder, use ffmpeg to convert the frames in a folder into a video (quicker than writing videos from Python). `ffmpeg -framerate 30 -pattern_type glob -i '501/*.jpg' -c:v libx24 501.mp4`.
 
+For qualitative validations, placing two videos side-by-side:
+```
+ffmpeg -i left.mp4 -i right.mp4 -filter_complex \
+"[0:v][1:v]hstack=inputs=2[v]; \
+ [0:a][1:a]amerge[a]" \
+-map "[v]" -map "[a]" -ac 2 output.mp4
+```
 
 #### Evaluating detections
 
 **Evaluation format.** 
-Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_split_det.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `<DET_OUTPUT_FOLDER>/eval-dets_val`.
+Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_det_eval.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `<DET_OUTPUT_FOLDER>/eval-dets_val`.
 
 
 **CS6 evaluation code.** 
-Under `tools/face/CS6-evaluation`. The script `runEvalCS6_gypsum.sh` generates ROC curves for each video in parallel. After this is completed, the Python script `plot_roc.py` generates a final ROC curve under `tools/face/CS6-evaluation/rocCurves/<model-name>`. Each script needs settings to be specified at the top. 
+Under `tools/face/CS6-evaluation`. The script `runEvalCS6_gypsum.sh` generates ROC curves for each video in parallel. For example, for the validation split this creates ROC text files `tools/face/CS6-evaluation/cache/val/<MODEL-NAME>/<video-name>.txt`.
+After this is completed, the Python script `plot_roc.py` generates a final ROC curve under `tools/face/CS6-evaluation/rocCurves/<model-name>`. Each script needs settings to be specified at the top. 
 
 
 

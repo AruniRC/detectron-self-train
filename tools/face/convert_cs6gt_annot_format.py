@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
 """
-Convert the "CS6 format" video detections to the WIDER annotations format. 
+Convert the "CS6 format" video GT to the WIDER annotations format. 
 A symlink 'data/CS6' should point to the CS6 data root location. 
 
-Two types of lists are generated - one containing the soft-labels (scores) and the 
-other containing just the detections as positive ground-truth.
-By default the output files are saved in a sub-folder created under DET_DIR.
-
-CS6 VIDEO DET FORMAT:
+CS6 VIDEO GT FORMAT:
 <video-name>_<0-starting-frame-number>
 <num-dets>
 [x1, y1, w, h, score]
@@ -78,13 +74,12 @@ import utils.face_utils as face_utils
 
 
 
-DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/baseline_train_conf-0.25/'
+DET_NAME = 'gt'
+DET_DIR = 'data/CS6_annot/video_annots'
 VIDEO_LIST_FILE = 'list_video_train_subset.txt'  # parent folder is 'data/CS6'
 CONF_THRESH_LIST = '0.5'  # try one threshold for now
-SPLIT = 'train'
+SPLIT = 'train-subset'
 IS_SUBSET = True
-
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 
 
@@ -131,7 +126,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def load_all_dets(video_list, det_dir):
+def load_all_gt(video_list, det_dir):
     ''' Helper function. Load all detections (txt) and merge into single dict. '''
     det_dict_all = {}
     for video_name in video_list:
@@ -164,9 +159,8 @@ def prune_extra_images(det_dict, det_frame_set, im_frame_set):
 
 
 
-def write_hard_annot_dets(out_file_name, det_dict, conf_thresh):
+def write_annot_gt(out_file_name, det_dict):
     '''
-    Write the detections, scores *thresholded*, to a text file.
 
     Output dets format: 
         <image-path>
@@ -175,59 +169,19 @@ def write_hard_annot_dets(out_file_name, det_dict, conf_thresh):
         [x1, y1, w, h]
         ....
 
-    The format of <image-path>: 
-        frames/<vid-name>/<vid-name>_<frame-num>.jpg
-
     '''
     with open(out_file_name, 'w') as fid:
         for im_name, dets in det_dict.items():
             dets = np.array(dets)
             if dets.shape[0] == 0:
                 continue
-            keep = np.where(dets[:, 4] > conf_thresh)
-            dets = dets[keep]
-            if dets.shape[0] == 0:
-                continue
-
-            vid_name = im_name.split('_')[0] # im_name format: <vid-name>_<frame-num>
-            im_path = 'frames/%s/%s.jpg' % (vid_name, im_name)
-            fid.write(im_path + '\n')
+            # vid_name = im_name.split('_')[0] # im_name format: <vid-name>_<frame-num>
+            # im_path = 'frames/%s/%s.jpg' % (vid_name, im_name)
+            fid.write(im_name + '\n')
             fid.write(str(dets.shape[0]) + '\n')
             for j in xrange(dets.shape[0]):
                 fid.write('%f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
                                               dets[j, 2], dets[j, 3]) )
-
-
-
-def write_scores_dets(out_file_name, det_dict):
-    '''
-    Write the detections, scores included, to a text file.
-
-    Output dets format: 
-        <image-path>
-        <num-dets>
-        [x1, y1, w, h, score]
-        [x1, y1, w, h, score]
-        ....
-
-    The format of <image-path>: 
-        frames/<vid-name>/<vid-name>_<frame-num>.jpg
-
-    '''
-    with open(out_file_name, 'w') as fid:
-        for im_name, dets in det_dict.items():
-            dets = np.array(dets)
-            if dets.shape[0] == 0:
-                continue  # skip images with no detections
-
-            vid_name = im_name.split('_')[0] # im_name format: <vid-name>_<frame-num>
-            im_path = 'frames/%s/%s.jpg' % (vid_name, im_name)
-            fid.write(im_path + '\n')
-            fid.write(str(dets.shape[0]) + '\n')
-            for j in xrange(dets.shape[0]):
-                fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
-                                                 dets[j, 2], dets[j, 3], 
-                                                 dets[j, 4]) )
 
 
 
@@ -237,8 +191,7 @@ if __name__ == '__main__':
 
     # Create output folder
     if not args.output_dir:
-        args.output_dir = osp.abspath(
-                            osp.join(args.det_dir, 'annot-format-dets' ))
+        args.output_dir = osp.abspath('data/CS6_annot/annot-format-GT' )
     if not osp.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
@@ -249,41 +202,23 @@ if __name__ == '__main__':
     with open( osp.join('data/CS6', args.video_list_file), 'r' ) as f:
         video_list = [ y.split('.')[0] for y in [ x.strip() for x in f ] ]    
 
-    # List of detector conf. thresholds
-    thresh_list = [ float(x.strip()) for x in args.thresh_list.split(',') ]
 
+    ## Not needed for GT
     # Load list of CS6 frame images
     #   -- we keep only training images that have existing frame images
     #   -- (this avoids extracting more images at marginal cost in terms of data)
-    im_list = osp.join('data/CS6_annot', 'cs6_im_list.txt')
-    im_frame_set = get_extracted_imlist(im_list)
+    # im_list = osp.join('data/CS6_annot', 'cs6_im_list.txt')
+    # im_frame_set = get_extracted_imlist(im_list)
 
 
-    # Load all detections into a dict
-    det_dict = load_all_dets(video_list, args.det_dir)
-    det_frame_set = set(det_dict.keys())
+    # Load all CS6 ground-truth for that video list into a dict
+    det_dict = load_all_gt(video_list, args.det_dir)
+    # det_frame_set = set(det_dict.keys())
+    assert(len(det_dict.keys()) != 0)
 
-    prune_extra_images(det_dict, det_frame_set, im_frame_set)
+    # Write all GT as "hard-annot" into a file
+    out_file_name = osp.join(args.output_dir, 'cs6_gt_annot_%s.txt' % args.split)
 
-
-    # Write all detections into an annot file (scores as soft-labels)
-    if args.subset:
-        out_file_name = osp.join(args.output_dir, 
-                                 'cs6_annot_train_subset_scores.txt')
-    else:
-        raise NotImplementedError
-    print('Writing detections to "score-annot" file: %s' % out_file_name)
-    write_scores_dets(out_file_name, det_dict)
+    print('Writing detections to "annot" file: %s' % out_file_name)
+    write_annot_gt(out_file_name, det_dict)
     print('Done.')
-    # TODO - print a little summary of num. dets. num. images.
-
-    # Write detections as "hard-annot" into a file (*thresholded* scores)
-    for conf_thresh in thresh_list:
-        if args.subset:
-            thresh_file_name = osp.join(args.output_dir, 
-                            'cs6_annot_train_subset_conf-%.2f.txt' % conf_thresh)
-        else:
-            raise NotImplementedError
-        print('Writing detections to "score-annot" file: %s' % thresh_file_name)
-        write_hard_annot_dets(thresh_file_name, det_dict, conf_thresh)
-        print('Done.')

@@ -1,13 +1,17 @@
 
 """
 
+Takes the IARPA Janus-format annotations CS6/protocols/cs6_face_detection_ground_truth.csv 
+and converts it into FDDB-style format.
+
 Format:
 
     data/CS6_annot/
         frames/<video-name>/*.jpg
         video_annots/<video-name>.txt
             
-
+This is done one video at a time, the video name being specified as an argument. 
+This script can then be run in parallel by calling with different video names.
 
 
 
