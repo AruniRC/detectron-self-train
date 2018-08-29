@@ -3,13 +3,10 @@
 """
 
 Perform inference on frames from a video using Detectron saved checkpoint.
-A symlink 'data/CS6' should point to the CS6 data root location
-(on Gypsum this is in /mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6).
 
 Usage (on slurm cluster):
 
-srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_video.py \
---vis --video_name 3004.mp4
+srun --pty --mem 100000 --gres gpu:1 python tools/face/detect_video_wider.py
 
 """
 
@@ -71,6 +68,9 @@ DET_NAME = 'frcnn-R-50-C4-1x'
 CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
 WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
 TRAIN_DATA = 'WIDER'
+VID_NAME = 'video1'
+DATA_DIR = '/mnt/nfs/scratch1/souyoungjin/face_detection_videos_similar_WIDER/'
+GENRE = 'simil-WIDER'
 
 # DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
 # CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
@@ -99,21 +99,18 @@ NMS_THRESH = 0.15
 # CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (
 #             DET_NAME, CONF_THRESH)
-OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-video_conf-%.2f' % (
-            DET_NAME, TRAIN_DATA, CONF_THRESH)
+OUT_DIR = 'Outputs/evaluations/%s/%s/train-%s_val-video_conf-%.2f' % (
+            DET_NAME, GENRE, TRAIN_DATA, CONF_THRESH)
 
 
 
-VID_NAME = '3004.mp4'
-# VID_NAME = '1100.mp4'
-# DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
-DATA_DIR = 'data/CS6'
+
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Detectron inference on video')
     parser.add_argument(
-        '--exp_name',
+        '--model_name',
         help='detector name', 
         default=DET_NAME
     )
@@ -171,6 +168,12 @@ def parse_args():
     parser.add_argument(
         '--video_name', help='Name of video file', default=VID_NAME
     )
+    parser.add_argument(
+        '--genre',
+        dest='genre',
+        default=GENRE,
+        type=str
+    )
     return parser.parse_args()
 
 
@@ -213,7 +216,11 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
-    # Model setup
+
+
+    # --------------------------------------------------------------------------
+    #   Model setup
+    # --------------------------------------------------------------------------
     cfg.TEST.SCALE = 800
     cfg.TEST.MAX_SIZE = 1333
     cfg.MODEL.NUM_CLASSES = 2
@@ -246,23 +253,47 @@ if __name__ == '__main__':
     net.eval()
 
 
-    # Data setup
-    video_path = osp.join(args.data_dir, 'videos', args.video_name)
+    # --------------------------------------------------------------------------
+    #   Data setup
+    # --------------------------------------------------------------------------
+    if args.genre == 'sitcoms':
+        video_path = osp.join(args.data_dir, args.video_name, '101.mkv')
+        vid_name = args.video_name
+    elif args.genre == 'simil-WIDER':
+        vid_dir = osp.join(args.data_dir, args.video_name)
+        file_names = [ fn for fn in os.listdir(vid_dir) if fn.endswith('.mp4') ]
+        assert len(file_names) == 1
+        video_path = osp.join(args.data_dir, args.video_name, file_names[0])
+        vid_name = args.video_name
+    else:
+        raise NotImplementedError
+
     if osp.exists(video_path):
-        videogen = skvideo.io.vreader(video_path)
+        vid_reader = skvideo.io.FFmpegReader(video_path)
     else:
         raise IOError('Path to video not found: \n%s' % video_path)
-    vid_name = osp.basename(video_path).split('.')[0]
+    print('Reading video: %s' % video_path)
+
     if not osp.exists(args.output_dir):
         os.makedirs(args.output_dir, exist_ok=True)
-    if args.vis:
-        img_output_dir = osp.join(args.output_dir, vid_name)
-        if not osp.exists(img_output_dir):
-            os.makedirs(img_output_dir, exist_ok=True)
+    img_output_dir = osp.join(args.output_dir, args.model_name, vid_name)
+    if not osp.exists(img_output_dir):
+        os.makedirs(img_output_dir, exist_ok=True)
     
-    # Detect faces on video frames
+
+    # --------------------------------------------------------------------------
+    #   Detect video
+    # --------------------------------------------------------------------------
+    if osp.exists(os.path.join(args.output_dir, args.model_name, 
+                    vid_name + '.txt')):
+        print('Detection file already exists: %s' % vid_name)
+        sys.exit()
+
+    (numframes, _, _, _) = vid_reader.getShape() # numFrame x H x W x channels
+    videogen = vid_reader.nextFrame()
     start = time.time()
-    with open(os.path.join(args.output_dir, vid_name + '.txt'), 'w') as fid:
+    with open(os.path.join(args.output_dir, args.model_name, 
+                           vid_name + '.txt'), 'w') as fid:
         det_list = []
         for i, im in enumerate(videogen):
             im_name = '%s_%08d' % (vid_name, i)
@@ -291,27 +322,24 @@ if __name__ == '__main__':
             # Saving visualized frames
             if args.vis:
                 viz_out_path = osp.join(img_output_dir, im_name + '.jpg')
-
-            if dets.size == 0: # nothing detected
-                if args.vis:
+                if dets.size == 0: # nothing detected
                     cv2.imwrite(viz_out_path, im)
-            else:
-                if args.vis:
+                else:
                     im_det = draw_detection_list( im, dets.copy() )
                     cv2.imwrite(viz_out_path, im_det)
 
-                # Writing to text file
-                fid.write(im_name + '\n')
-                fid.write(str(dets.shape[0]) + '\n')
-                for j in xrange(dets.shape[0]):
-                    fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
-                                                     dets[j, 2], dets[j, 3], 
-                                                     dets[j, 4]) )
+            # Writing to text file
+            fid.write(im_name + '\n')
+            fid.write(str(dets.shape[0]) + '\n')
+            for j in xrange(dets.shape[0]):
+                fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
+                                                 dets[j, 2], dets[j, 3], 
+                                                 dets[j, 4]) )
 
             
-            # if ((i + 1) % 100) == 0:
-            #     sys.stdout.write('%d ' % i)
-            #     sys.stdout.flush()
+            if ((i + 1) % 20) == 0:
+              sys.stdout.write('%.3f%% ' % ((i + 1) / numframes * 100))
+              sys.stdout.flush()
 
     end = time.time()
     print('Execution time in seconds: %f' % (end - start))

@@ -202,7 +202,8 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
 
 
 if __name__ == '__main__':
-    args = parse_args()    
+    args = parse_args()
+    
     if args.dataset == "wider":
         convert_wider_annots(args.datadir, args.outdir)
     elif args.dataset == "cs6-subset":
@@ -224,6 +225,5 @@ if __name__ == '__main__':
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-gt')
-
     else:
         print("Dataset not supported: %s" % args.dataset)

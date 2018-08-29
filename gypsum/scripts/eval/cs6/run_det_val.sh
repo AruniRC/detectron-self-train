@@ -38,11 +38,70 @@
 # OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 
 
-###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset-GT + WIDER
-DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
-TRAIN_IMDB=cs6-subset-GT+WIDER
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth
+# ###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset-GT + WIDER
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
+# TRAIN_IMDB=cs6-subset-GT+WIDER
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth
+# CONF_THRESH=0.25
+# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
+
+
+###########     Training on *FULL* CS6-GT 
+
+# ###     Faster R-CNN Resnet-50 detector trained on intermediate checkpoint of CS6-train-GT
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k
+# TRAIN_IMDB=cs6-GT-chkpt-30k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step29999.pth
+
+# ##
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k
+# TRAIN_IMDB=cs6-GT-chkpt-60k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step59999.pth
+
+# ##
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k
+# TRAIN_IMDB=cs6-GT-chkpt-100k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step99999.pth
+
+# # ##
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k
+# TRAIN_IMDB=cs6-GT-chkpt-10k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step9999.pth
+
+
+
+
+##         Fine-tuned on CS6-Train-GT
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
+# TRAIN_IMDB=cs6-GT-chkpt-30k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step29999.pth
+
+## 
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
+# TRAIN_IMDB=cs6-GT-chkpt-60k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step59999.pth
+
+# ## 
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
+# TRAIN_IMDB=cs6-GT-chkpt-100k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step99999.pth
+
+## 
+DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
+TRAIN_IMDB=cs6-GT-chkpt-10k
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
+WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step9999.pth
+
+
+
 CONF_THRESH=0.25
 OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
 

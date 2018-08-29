@@ -40,11 +40,18 @@ from six.moves import xrange
 import utils.face_utils as face_utils
 
 
-DET_NAME = 'frcnn-R-50-C4-1x'
+# DET_NAME = 'frcnn-R-50-C4-1x'
+
 # DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video/'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video_conf-0.25/'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video_conf-0.25/'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu/cs6/train-cs6-3013_val-video_conf-0.25/'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_val-video_conf-0.25/'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k/cs6/train-cs6-GT-chkpt-30k_val-video_conf-0.25'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001/cs6/train-cs6-GT-chkpt-100k_val-video_conf-0.25'
+
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'
 SPLIT = 'val'
+# SPLIT = '3004'
 GT_ANNOT_DIR =  'data/CS6_annot'
 
 
@@ -53,7 +60,7 @@ def parse_args():
     parser.add_argument(
         '--exp_name',
         help='detector name', 
-        default=DET_NAME
+        default='frcnn-R-50-C4-1x'
     )
     parser.add_argument(
         '--det_dir', 
