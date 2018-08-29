@@ -2,7 +2,7 @@
 #SBATCH --job-name=cs6_video
 #SBATCH -o gypsum/logs/%j_cs6_video.txt 
 #SBATCH -e gypsum/errs/%j_cs6_video.txt
-#SBATCH -p titanx-long
+#SBATCH -p 1080ti-long
 #SBATCH --gres=gpu:1
 #SBATCH --mem=80000
 ##SBATCH --cpus-per-task=4

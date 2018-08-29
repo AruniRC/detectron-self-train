@@ -11,6 +11,10 @@ notebooks/*.pkl
 
 /Outputs
 
+tools/face/CS6-evaluation/rocCurves
+tools/face/CS6-evaluation/cache
+tools/face/CS6-evaluation/logs
+
 # ------------------------------
 
 .vscode/*

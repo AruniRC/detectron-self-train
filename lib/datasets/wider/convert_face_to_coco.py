@@ -63,13 +63,13 @@ def parse_args():
         '--dataset', help="wider", default='wider', type=str)
     parser.add_argument(
         '--outdir', help="output dir for json files", 
-        default='data/WIDER', type=str)
+        default='', type=str)
     parser.add_argument(
         '--datadir', help="data dir for annotations to be converted",
-        default='data/WIDER', type=str)
+        default='', type=str)
     parser.add_argument(
         '--imdir', help="root directory for loading dataset images",
-        default='data/WIDER', type=str)
+        default='', type=str)
     parser.add_argument(
         '--annotfile', help="directly specify the annotations file",
         default='', type=str)
@@ -139,9 +139,10 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
 
     if data_set=='CS6-subset':
         json_name = 'cs6-subset_face_train_annot_coco_style.json'
-        # ann_file = os.path.join(data_dir, 'wider_face_train_annot.txt')
     elif data_set=='CS6-subset-gt':
         json_name = 'cs6-subset-gt_face_train_annot_coco_style.json'
+    elif data_set=='CS6-train-gt':
+        json_name = 'cs6-train-gt_face_train_annot_coco_style.json'
     else:
         raise NotImplementedError
 
@@ -197,13 +198,24 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
 
 if __name__ == '__main__':
     args = parse_args()
+    
     if args.dataset == "wider":
         convert_wider_annots(args.datadir, args.outdir)
-    if args.dataset == "cs6-subset":
+    elif args.dataset == "cs6-subset":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset')
-    if args.dataset == "cs6-subset-gt":
+    elif args.dataset == "cs6-subset-gt":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset-gt')
+    elif args.dataset == "cs6-train-gt":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_gt_annot_train.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-gt')
     else:
         print("Dataset not supported: %s" % args.dataset)
