@@ -3,6 +3,8 @@
 """
 Convert the "CS6 format" video detections to the WIDER annotations format. 
 A symlink 'data/CS6' should point to the CS6 data root location. 
+(This generated dets file can then be converted into the trianing JSON using 
+lib/datasets/wider/convert_coco....)
 
 Two types of lists are generated - one containing the soft-labels (scores) and the 
 other containing just the detections as positive ground-truth.
@@ -79,11 +81,11 @@ import utils.face_utils as face_utils
 
 
 DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/baseline_train_conf-0.25/'
-VIDEO_LIST_FILE = 'list_video_train_subset.txt'  # parent folder is 'data/CS6'
-CONF_THRESH_LIST = '0.5'  # try one threshold for now
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
+VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
+CONF_THRESH_LIST = '0.5'    # comma-separated string of thresholds
 SPLIT = 'train'
-IS_SUBSET = True
+IS_SUBSET = False
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 
@@ -258,20 +260,20 @@ if __name__ == '__main__':
     im_list = osp.join('data/CS6_annot', 'cs6_im_list.txt')
     im_frame_set = get_extracted_imlist(im_list)
 
-
     # Load all detections into a dict
     det_dict = load_all_dets(video_list, args.det_dir)
     det_frame_set = set(det_dict.keys())
 
     prune_extra_images(det_dict, det_frame_set, im_frame_set)
 
-
     # Write all detections into an annot file (scores as soft-labels)
     if args.subset:
         out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_subset_scores.txt')
     else:
-        raise NotImplementedError
+        out_file_name = osp.join(args.output_dir, 
+                                 'cs6_annot_train_scores.txt')
+
     print('Writing detections to "score-annot" file: %s' % out_file_name)
     write_scores_dets(out_file_name, det_dict)
     print('Done.')
@@ -283,7 +285,9 @@ if __name__ == '__main__':
             thresh_file_name = osp.join(args.output_dir, 
                             'cs6_annot_train_subset_conf-%.2f.txt' % conf_thresh)
         else:
-            raise NotImplementedError
+            thresh_file_name = osp.join(args.output_dir, 
+                            'cs6_annot_train_conf-%.2f.txt' % conf_thresh)
+
         print('Writing detections to "score-annot" file: %s' % thresh_file_name)
         write_hard_annot_dets(thresh_file_name, det_dict, conf_thresh)
         print('Done.')

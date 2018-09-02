@@ -47,7 +47,8 @@ import utils.face_utils as face_utils
 # DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu/cs6/train-cs6-3013_val-video_conf-0.25/'
 # DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_val-video_conf-0.25/'
 # DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k/cs6/train-cs6-GT-chkpt-30k_val-video_conf-0.25'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001/cs6/train-cs6-GT-chkpt-100k_val-video_conf-0.25'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001/cs6/train-cs6-GT-chkpt-100k_val-video_conf-0.25'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-50k/cs6/train-cs6-noisy-0.5_val-video_conf-0.25'
 
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'
 SPLIT = 'val'

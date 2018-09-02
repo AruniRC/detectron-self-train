@@ -143,6 +143,8 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
         json_name = 'cs6-subset-gt_face_train_annot_coco_style.json'
     elif data_set=='CS6-train-gt':
         json_name = 'cs6-train-gt_face_train_annot_coco_style.json'
+    elif data_set=='CS6-train-det':
+        json_name = 'cs6-train-det_face_train_annot_coco_style.json'
     else:
         raise NotImplementedError
 
@@ -217,5 +219,15 @@ if __name__ == '__main__':
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-gt')
+    elif args.dataset == "cs6-train-det":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_conf-0.25.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-det')
     else:
         print("Dataset not supported: %s" % args.dataset)

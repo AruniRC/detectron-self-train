@@ -257,4 +257,10 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-gt_face_train_annot_coco_style.json',
     },
+    'cs6-train-det': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det_face_train_annot_coco_style.json',
+    },
 }

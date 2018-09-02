@@ -95,10 +95,16 @@
 # WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step99999.pth
 
 ## 
-DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
-TRAIN_IMDB=cs6-GT-chkpt-10k
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step9999.pth
+# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
+# TRAIN_IMDB=cs6-GT-chkpt-10k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step9999.pth
+
+
+DET_NAME=frcnn-R-50-C4-1x-8gpu-50k
+TRAIN_IMDB=cs6-noisy-0.5
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k.yaml
+WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k/Aug31-10-58-48_node131_step/ckpt/model_step49999.pth
 
 
 
@@ -113,7 +119,7 @@ for VIDEO in `cat data/CS6/list_video_val.txt`
 do
     echo $VIDEO
 
-    sbatch gypsum/scripts/eval/cs6/run_detector_full_video.sbatch \
+    sbatch gypsum/scripts/eval/cs6/run_detector_full_video_titanx.sbatch \
         ${VIDEO} \
         ${CFG_PATH} \
         ${WT_PATH} \
