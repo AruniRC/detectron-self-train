@@ -38,6 +38,23 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+    'cityscapes_train': {
+        IM_DIR:
+            _DATA_DIR + '/vis/home/pchakrabarty/datasets/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/lib/datasets/cityscapes_train.json',
+        RAW_DIR:
+            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
+    },
+    'cityscapes_val': {
+        IM_DIR:
+            _DATA_DIR + '/vis/home/pchakrabarty/datasets/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/lib/datasets/cityscapes_val.json',
+        RAW_DIR:
+            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
+    },
+
     'cityscapes_fine_instanceonly_seg_train': {
         IM_DIR:
             _DATA_DIR + '/cityscapes/images',
