@@ -3,6 +3,8 @@
 
 Takes a JSON file and visualizes the annotation boxes on images.
 
+Outputs visualized at OUT_DIR/<json_file_basename>/../..*.jpg
+
 """
 
 from __future__ import absolute_import
@@ -26,8 +28,13 @@ from tqdm import tqdm
 
 
 
-JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
+# JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
 # OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
+
+JSON_FILE = 'Outputs/modified_annots/cs6-train-gt_face_train_annot_coco_style_noisy-0.50.json'
+
+
+
 OUT_DIR = 'Outputs/visualizations/'
 
 DEBUG = False

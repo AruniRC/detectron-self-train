@@ -4,8 +4,8 @@
 Convert the "CS6 format" video detections to the WIDER annotations format. 
 A symlink 'data/CS6' should point to the CS6 data root location. 
 
-Two types of lists are generated - one containing the soft-labels (scores) and the 
-other containing just the detections as positive ground-truth.
+Two types of lists are generated - one containing the "soft-labels" (SCORES) and  
+the other containing just the detections as positive ground-truth.
 By default the output files are saved in a sub-folder created under DET_DIR.
 
 CS6 VIDEO DET FORMAT:
@@ -266,7 +266,10 @@ if __name__ == '__main__':
     prune_extra_images(det_dict, det_frame_set, im_frame_set)
 
 
+    # --------------------------------------------------------------------------
+    # SOFT-LABELS (SCORES) DETECTIONS
     # Write all detections into an annot file (scores as soft-labels)
+    # --------------------------------------------------------------------------
     if args.subset:
         out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_subset_scores.txt')
@@ -277,7 +280,11 @@ if __name__ == '__main__':
     print('Done.')
     # TODO - print a little summary of num. dets. num. images.
 
+
+    # --------------------------------------------------------------------------
+    # HARD-LABELS DETECTIONS
     # Write detections as "hard-annot" into a file (*thresholded* scores)
+    # --------------------------------------------------------------------------
     for conf_thresh in thresh_list:
         if args.subset:
             thresh_file_name = osp.join(args.output_dir, 

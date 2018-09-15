@@ -179,6 +179,18 @@ def main():
     elif args.dataset == "cs6-train-gt":
         cfg.TRAIN.DATASETS = ('cs6-train-gt',)
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-gt-noisy-0.3":
+        cfg.TRAIN.DATASETS = ('cs6-train-gt-noisy-0.3',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-gt-noisy-0.5":
+        cfg.TRAIN.DATASETS = ('cs6-train-gt-noisy-0.5',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-det-score":
+        cfg.TRAIN.DATASETS = ('cs6-train-det-score',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-det-score-0.5":
+        cfg.TRAIN.DATASETS = ('cs6-train-det-score-0.5',)
+        cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 

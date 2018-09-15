@@ -15,7 +15,6 @@ import datetime
 from PIL import Image
 import numpy as np
 
-
 def add_path(path):
     if path not in sys.path:
         sys.path.insert(0, path)
@@ -30,31 +29,12 @@ import utils.boxes as bboxs_util
 import utils.face_utils as face_util
 
 
-# INFO = {
-#     "description": "WIDER Face Dataset",
-#     "url": "http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/",
-#     "version": "0.1.0",
-#     "year": 2018,
-#     "contributor": "umass vision",
-#     "date_created": datetime.datetime.utcnow().isoformat(' ')
-# }
+'''
+    srun --pty --mem 50000 \
+    python lib/datasets/wider/convert_face_to_coco.py \
+    --dataset cs6-train-det-score-0.5 
 
-# LICENSES = [
-#     {
-#         "id": 1,
-#         "name": "placeholder",
-#         "url": "placeholder"
-#     }
-# ]
-
-# CATEGORIES = [
-#     {
-#         'id': 1,
-#         'name': 'face',
-#         'supercategory': 'face',
-#     },
-# ]
-
+'''
 
 
 def parse_args():
@@ -73,6 +53,9 @@ def parse_args():
     parser.add_argument(
         '--annotfile', help="directly specify the annotations file",
         default='', type=str)
+    parser.add_argument(
+        '--thresh', help="specify the confidence threshold on detections",
+        default=-1, type=float)
     # if len(sys.argv) == 1:
     #     parser.print_help()
     #     sys.exit(1)
@@ -134,18 +117,34 @@ def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
 
 
 
-def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
+def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_thresh=0.25):
     """Convert from FDDB-style detections format to COCO annotations"""
 
+        # cs6 subsets
     if data_set=='CS6-subset':
         json_name = 'cs6-subset_face_train_annot_coco_style.json'
+
     elif data_set=='CS6-subset-score':
         # include "scores" as soft-labels
         json_name = 'cs6-subset_face_train_score-annot_coco_style.json'
+
     elif data_set=='CS6-subset-gt':
         json_name = 'cs6-subset-gt_face_train_annot_coco_style.json'
+
+        
     elif data_set=='CS6-train-gt':
+        # full train set of CS6 (86 videos)
         json_name = 'cs6-train-gt_face_train_annot_coco_style.json'
+
+        
+    elif data_set=='CS6-train-det-score':
+        # soft-labels used in distillation
+        json_name = 'cs6-train-det-score_face_train_annot_coco_style.json'
+
+    elif data_set=='CS6-train-det-score-0.5':
+        # soft-labels used in distillation, keeping dets with score > 0.5
+        json_name = 'cs6-train-det-score-0.5_face_train_annot_coco_style.json'
+        conf_thresh = 0.5
     else:
         raise NotImplementedError
 
@@ -167,6 +166,11 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
             print("Processed %s images, %s annotations" % (
                 len(images), len(annotations)))
 
+        if 'score' in data_set:
+            dets = np.array(wider_annot_dict[filename])
+            if not any(dets[:,4] > conf_thresh):
+                continue  
+
         image = {}
         image['id'] = img_id
         img_id += 1
@@ -174,7 +178,7 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
         image['width'] = im.height
         image['height'] = im.width
         image['file_name'] = filename
-        images.append(image)
+        images.append(image)          
 
         for gt_bbox in wider_annot_dict[filename]:
             ann = {}
@@ -188,6 +192,8 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
             ann['bbox'] = gt_bbox[:4]
             if 'score' in data_set:
                 ann['score'] = gt_bbox[4] # for soft-label distillation
+                if gt_bbox[4] < conf_thresh:
+                    continue
             annotations.append(ann)
 
     ann_dict['images'] = images
@@ -197,7 +203,7 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset'):
     print("Num images: %s" % len(images))
     print("Num annotations: %s" % len(annotations))
     with open(os.path.join(out_dir, json_name), 'w', encoding='utf8') as outfile:
-        outfile.write(json.dumps(ann_dict))
+        outfile.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -215,6 +221,7 @@ if __name__ == '__main__':
     elif args.dataset == "cs6-subset-gt":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset-gt')
+
     elif args.dataset == "cs6-train-gt":
         # set defaults if inputs args are empty
         if not args.annotfile:
@@ -225,5 +232,32 @@ if __name__ == '__main__':
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-gt')
+
+
+        # Distillation scores for CS6-Train detections (conf 0.25)
+    elif args.dataset == "cs6-train-det-score":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_scores.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-det-score')
+
+
+        # Distillation scores for CS6-Train detections ***(conf 0.5)***
+    elif args.dataset == "cs6-train-det-score-0.5":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_scores.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-det-score-0.5', 
+                                        conf_thresh=0.5)
     else:
         print("Dataset not supported: %s" % args.dataset)

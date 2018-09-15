@@ -226,6 +226,9 @@ DATASETS = {
             _DATA_DIR + '/WIDER/wider_face_train_annot_coco_style.json',
     },
 
+
+
+
     # CS6 DATASET SUBSET
     'cs6-subset': {
         IM_DIR:
@@ -264,4 +267,35 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-gt_face_train_annot_coco_style.json',
     },
+
+    # CS6 DATASET NOISY TRAIN
+    'cs6-train-gt-noisy-0.3': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-gt_noisy-0.3.json',
+    },
+    'cs6-train-gt-noisy-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-gt_noisy-0.5.json',
+    },
+
+
+    # CS6 DATASET DETECTIONS DISTILLATION TRAIN
+    'cs6-train-det-score': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-score_face_train_annot_coco_style.json',
+    },
+    'cs6-train-det-score-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-score-0.5_face_train_annot_coco_style.json',
+    },
+
+    
 }

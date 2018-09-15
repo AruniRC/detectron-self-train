@@ -92,7 +92,9 @@ def distillation_loss(cls_score, label_int32, gt_score, dist_T=1.0, dist_lambda=
     gt_score = torch.from_numpy(gt_score.astype('float32'))
     # get logits from sigmoid, apply temperature, reapply sigmoid
     if dist_T != 1.0:
-        gt_logit = torch.log(gt_score) - torch.log(1 - gt_score)  # TODO: check stability
+        # NOTE: this applies temperature to only the gt_score
+        # TODO: check numerical stability
+        gt_logit = torch.log(gt_score) - torch.log(1 - gt_score) 
         gt_score = F.sigmoid(gt_logit / dist_T)
     # blend "baseline gt score" and "label"
     soft_label = dist_lambda*label + (1-dist_lambda)*gt_score

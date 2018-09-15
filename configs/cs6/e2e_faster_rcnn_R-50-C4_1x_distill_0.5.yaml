@@ -3,7 +3,7 @@ MODEL:
   TYPE: generalized_rcnn
   CONV_BODY: ResNet.ResNet50_conv4_body
   FASTER_RCNN: True
-NUM_GPUS: 1
+NUM_GPUS: 8
 RESNETS:
   IMAGENET_PRETRAINED_WEIGHTS: 'data/pretrained_model/resnet50_caffe.pth'
 SOLVER:
@@ -12,7 +12,7 @@ SOLVER:
   BASE_LR: 0.001
   GAMMA: 0.1
   # 1x schedule (note TRAIN.IMS_PER_BATCH: 1)
-  MAX_ITER: 30000
+  MAX_ITER: 50000
   STEPS: [0, 15000]
 RPN:
   SIZES: (16, 32, 64, 128, 256, 512)
