@@ -67,19 +67,29 @@ ffmpeg -i left.mp4 -i right.mp4 -filter_complex \
 -map "[v]" -map "[a]" -ac 2 output.mp4
 ```
 
-#### Evaluating detections
+
+---
+
+## Evaluating detections
+
+The trained detector is run on the *validation* set of CS6 (4 videos) using the script `gypsum/scripts/eval/cs6/run_det_val.sh`. Paths to the weights and config YAML needs to be specified. This runs SLURM jobs in parallel for each video. The detection results are saved at a location following the format: `Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}`. 
+
+Generating the performance on CS6 validation set (ROC curve) involves the following 3 further steps.
+
 
 **Evaluation format.** 
-Convert the output detections from the previous section into the CS6 evaluation format using `tools/face/make_cs6_det_eval.py`. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `<DET_OUTPUT_FOLDER>/eval-dets_val`.
+Convert the output detections from the previous section (`run_det_val.sh`) into the CS6 evaluation format using `tools/face/make_cs6_det_eval.py`. This essentially merges the separately saved detection results of each video into a single text file. Usage example and settings explanation given in the script header. The formatted detections are saved as text files under `<DET_OUTPUT_FOLDER>/eval-dets_val`.
 
 
 **CS6 evaluation code.** 
-Under `tools/face/CS6-evaluation`. The script `runEvalCS6_gypsum.sh` generates ROC curves for each video in parallel. For example, for the validation split this creates ROC text files `tools/face/CS6-evaluation/cache/val/<MODEL-NAME>/<video-name>.txt`.
-After this is completed, the Python script `plot_roc.py` generates a final ROC curve under `tools/face/CS6-evaluation/rocCurves/<model-name>`. Each script needs settings to be specified at the top. 
+Under `tools/face/CS6-evaluation`. The script `runEvalCS6_gypsum.sh` generates ROC curves for each video in parallel, running the bipartite matching between ground-truth and detections. For example, for the validation split this creates ROC text files `tools/face/CS6-evaluation/cache/val/<MODEL-NAME>/<video-name>.txt`. The code is based off the FDDB evaluation package, replacing ellipses with rectangles.
 
+**Plotting ROC curves.**
+After the matching is completed, the Python script `plot_roc.py` generates a final ROC curve, aggregating the separate ROC curves for each video from the previous step, under `tools/face/CS6-evaluation/rocCurves/<model-name>`. Each script needs settings to be specified at the top. For plotting multiple ROC curves to compare performance, the `plot_compare_roc.py` utility script is provided.
 
+---
 
-#### Validating Tracklets
+## Tracklets
 
 **Format conversion.** Each of the text files in `sample-baseline-video` needs to be converted into a "mining-format" compatible with the tracker code used for mining hard examples, using [tools/face/convert_dets_mining_format.py](tools/face/convert_dets_mining_format.py). The source code contains comments and usage examples. By default it uses videos in the "val" split of CS6 (as defined in `data/CS6/list_video_val.txt`). A range of thresholds are placed on the scores of the detections in `sample-baseline-video` folder. The resultant output structure is shown below:
 

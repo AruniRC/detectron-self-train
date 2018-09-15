@@ -79,13 +79,33 @@ import _init_paths
 import utils.face_utils as face_utils
 
 
+# Quick-specify settings:
 
+
+# ------------------------------------------------------------------------------
+#   For CS6 Train - Detections as pseudo-labels
+# ------------------------------------------------------------------------------
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
+# VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
+# CONF_THRESH_LIST = '0.5'    # comma-separated string of thresholds
+# SPLIT = 'train'
+# IS_SUBSET = False
+
+
+# ------------------------------------------------------------------------------
+#   For CS6 Train Easy - Hard Positives
+# ------------------------------------------------------------------------------
+IS_HARD_EX = True
 DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
-VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
-CONF_THRESH_LIST = '0.5'    # comma-separated string of thresholds
-SPLIT = 'train'
+DET_DIR = 'Outputs/tracklets/hp-res-cs6/'
+VIDEO_LIST_FILE = 'list_video_train_easy.txt'
+CONF_THRESH_LIST = '0.5'
 IS_SUBSET = False
+SPLIT = 'train_easy'
+
+
+
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 
@@ -129,6 +149,11 @@ def parse_args():
         help='Flag for subset', 
         action='store_true',
         default=IS_SUBSET)
+    parser.add_argument(
+        '--hard_ex', 
+        help='Flag for hard examples', 
+        action='store_true',
+        default=IS_HARD_EX)
 
     return parser.parse_args()
 
@@ -230,6 +255,39 @@ def write_scores_dets(out_file_name, det_dict):
                 fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
                                                  dets[j, 2], dets[j, 3], 
                                                  dets[j, 4]) )
+
+
+# TODO
+def write_hard_ex_dets(out_file_name, det_dict):
+    '''
+    Write the detections, scores included, to a text file.
+
+    Output dets format: 
+        <image-path>
+        <num-dets>
+        [x1, y1, w, h, score, source]
+        [x1, y1, w, h, score, source]
+        ....
+
+    The format of <image-path>: 
+        frames/<vid-name>/<vid-name>_<frame-num>.jpg
+
+    '''
+    with open(out_file_name, 'w') as fid:
+        for im_name, dets in det_dict.items():
+            dets = np.array(dets)
+            if dets.shape[0] == 0:
+                continue  # skip images with no detections
+
+            vid_name = im_name.split('_')[0] # im_name format: <vid-name>_<frame-num>
+            im_path = 'frames/%s/%s.jpg' % (vid_name, im_name)
+            fid.write(im_path + '\n')
+            fid.write(str(dets.shape[0]) + '\n')
+            for j in xrange(dets.shape[0]):
+                fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
+                                                 dets[j, 2], dets[j, 3], 
+                                                 dets[j, 4]) )
+
 
 
 

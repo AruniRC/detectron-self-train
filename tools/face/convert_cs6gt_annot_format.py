@@ -59,9 +59,9 @@ DET_DIR = 'data/CS6_annot/video_annots'
 # VIDEO_LIST_FILE = 'list_video_train_subset.txt'  # parent folder is 'data/CS6'
 
 # CS6 Train GT
-SPLIT = 'train'
+SPLIT = 'test-easy'
 IS_SUBSET = False
-VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
+VIDEO_LIST_FILE = 'list_video_test_easy.txt'  # parent folder is 'data/CS6'
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 # ------------------------------------------------------------------------------

@@ -263,4 +263,29 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-det_face_train_annot_coco_style.json',
     },
+    'cs6-train-det-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-0.5_face_train_annot_coco_style.json',
+    },
+
+    'cs6-train-easy-gt': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-gt.json',
+    },
+    'cs6-train-easy-hp': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-hp.json',
+    },
+    'cs6-train-easy-det': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-hp.json',
+    },
 }

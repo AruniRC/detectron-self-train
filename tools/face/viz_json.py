@@ -26,7 +26,7 @@ from tqdm import tqdm
 
 
 
-JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
+JSON_FILE = 'data/CS6_annot/cs6-train-easy-hp.json'
 # OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
 OUT_DIR = 'Outputs/visualizations/'
 

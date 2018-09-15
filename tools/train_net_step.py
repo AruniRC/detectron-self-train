@@ -180,6 +180,18 @@ def main():
     elif args.dataset == "cs6-train-det":
         cfg.TRAIN.DATASETS = ('cs6-train-det',)
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-det-0.5":
+        cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-gt":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-gt',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-hp":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-hp',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-det":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-det',)
+        cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
