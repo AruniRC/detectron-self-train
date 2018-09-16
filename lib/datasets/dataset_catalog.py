@@ -267,7 +267,6 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-gt_face_train_annot_coco_style.json',
     },
-<<<<<<< HEAD
 
     # CS6 DATASET NOISY TRAIN
     'cs6-train-gt-noisy-0.3': {
@@ -299,7 +298,6 @@ DATASETS = {
     },
 
     
-=======
     'cs6-train-det': {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
@@ -319,6 +317,12 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-easy-gt.json',
     },
+    'cs6-train-easy-gt-sub': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-gt-sub.json',
+    },
     'cs6-train-easy-hp': {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
@@ -331,5 +335,5 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-easy-hp.json',
     },
->>>>>>> master
+    
 }

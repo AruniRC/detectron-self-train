@@ -324,12 +324,8 @@ if __name__ == '__main__':
 
     prune_extra_images(det_dict, det_frame_set, im_frame_set)
 
-<<<<<<< HEAD
-
     # --------------------------------------------------------------------------
     # SOFT-LABELS (SCORES) DETECTIONS
-=======
->>>>>>> master
     # Write all detections into an annot file (scores as soft-labels)
     # --------------------------------------------------------------------------
     if args.subset:

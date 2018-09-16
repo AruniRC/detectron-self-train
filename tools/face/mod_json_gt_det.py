@@ -1,9 +1,10 @@
 
 """
 
-Takes a JSON file and visualizes the annotation boxes on images.
+Subsample from CS6 GT only those images that are used in the Dets or HP JSON.
 
-Outputs visualized at OUT_DIR/<json_file_basename>/../..*.jpg
+
+srun --mem 10000 python tools/face/mod_json_gt_det.py 
 
 """
 
@@ -28,22 +29,26 @@ from tqdm import tqdm
 
 
 
+GT_JSON_FILE = 'data/CS6_annot/cs6-train-easy-gt.json'
 
-# JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
-JSON_FILE = 'data/CS6_annot/cs6-train-easy-gt-sub.json'
+HP_JSON_FILE = 'data/CS6_annot/cs6-train-easy-hp.json'
 
-OUT_DIR = 'Outputs/visualizations/'
+# OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
+OUT_DIR = 'Outputs/modified_annots/'
 
 DEBUG = False
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Creating CS6 ground truth data')
+    parser = argparse.ArgumentParser(description='Modifying CS6 ground truth data')
     parser.add_argument(
         '--output_dir', help='directory for saving outputs',
         default=OUT_DIR, type=str
     )
     parser.add_argument(
-        '--json_file', help='Name of JSON file', default=JSON_FILE
+        '--gt_json_file', default=GT_JSON_FILE
+    )
+    parser.add_argument(
+        '--hp_json_file', default=HP_JSON_FILE
     )
     parser.add_argument(
         '--imdir', help="root directory for loading dataset images",
@@ -88,29 +93,38 @@ if __name__ == '__main__':
 
     args = parse_args()
 
-    with open(args.json_file) as f:
-        ann_dict = json.load(f)
-    print(ann_dict.keys())
+    if not osp.exists(args.output_dir):
+        os.makedirs(args.output_dir, exist_ok=True)
 
-    out_dir = osp.join(args.output_dir, 
-                       osp.splitext(osp.basename(args.json_file))[0])
-    if not osp.exists(out_dir):
-        os.makedirs(out_dir, exist_ok=True)    
+    # Load gt JSON
+    with open(args.gt_json_file) as f:
+        ann_dict = json.load(f)
     
-    i = 0
-    for img_annot in tqdm(ann_dict['images']):
-        image_name = img_annot['file_name']
-        image_id = img_annot['id']
-        bboxes = [x['bbox'] for x in ann_dict['annotations'] \
-                        if x['image_id'] == image_id]
-        im = cv2.imread(osp.join(args.imdir, image_name))
-        assert im.size > 0
-        im_det = draw_detection_list(im, np.array(bboxes))
-        out_path = osp.join(out_dir, image_name.replace('/', '_'))
-        cv2.imwrite(out_path, im_det)
-        i += 1 
-        if i == 5000:
-            break
+    # Load HP JSON
+    with open(args.hp_json_file) as f:
+        hp_ann_dict = json.load(f)
+
+    # Keep gt annots only for images in HP annots
+    hp_images = set([ x['file_name'] for x in hp_ann_dict['images'] ])
+    keep_images = [x for x in ann_dict['images'] if x['file_name'] in hp_images]
+    keep_image_ids = set([x['id'] for x in keep_images])
+    keep_annots = [x for x in ann_dict['annotations'] if x['image_id'] in keep_image_ids]
+
+    import pdb; pdb.set_trace()  # breakpoint 4182c7c7 //
+
+
+    # replace the images and annotations with only those from specified video
+    ann_dict['images'] = keep_images
+    ann_dict['annotations'] = keep_annots
+
+    out_file = osp.join(args.output_dir, 
+                osp.splitext(osp.basename(args.gt_json_file))[0]) + '-sub.json'
+
+    with open(out_file, 'w', encoding='utf8') as outfile:
+        outfile.write(json.dumps(ann_dict))
+
+    
+    
 
 
 
