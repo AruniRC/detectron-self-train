@@ -183,8 +183,13 @@ def main():
     elif args.dataset == "cs6-train-det-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
+
+
     elif args.dataset == "cs6-train-easy-gt":
         cfg.TRAIN.DATASETS = ('cs6-train-easy-gt',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-gt-sub":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-gt-sub',)
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == "cs6-train-easy-hp":
         cfg.TRAIN.DATASETS = ('cs6-train-easy-hp',)

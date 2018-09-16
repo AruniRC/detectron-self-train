@@ -276,6 +276,12 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-easy-gt.json',
     },
+    'cs6-train-easy-gt-sub': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-gt-sub.json',
+    },
     'cs6-train-easy-hp': {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
