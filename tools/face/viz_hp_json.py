@@ -3,8 +3,6 @@
 
 Takes a JSON file and visualizes the annotation boxes on images.
 
-Outputs visualized at OUT_DIR/<json_file_basename>/../..*.jpg
-
 """
 
 from __future__ import absolute_import
@@ -28,18 +26,9 @@ from tqdm import tqdm
 
 
 
-<<<<<<< HEAD
-# JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
-=======
 JSON_FILE = 'data/CS6_annot/cs6-train-easy-hp.json'
->>>>>>> master
 # OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
-
-JSON_FILE = 'Outputs/modified_annots/cs6-train-gt_face_train_annot_coco_style_noisy-0.50.json'
-
-
-
-OUT_DIR = 'Outputs/visualizations/'
+OUT_DIR = 'Outputs/visualizations-HP/'
 
 DEBUG = False
 
@@ -64,7 +53,7 @@ _GREEN = (18, 127, 15)
 color_dict = {'red': (0,0,225), 'green': (0,255,0), 'yellow': (0,255,255), 
                 'blue': (255,0,0), '_GREEN':(18, 127, 15), '_GRAY': (218, 227, 218)}
 # -----------------------------------------------------------------------------------
-def draw_detection_list(im, dets):
+def draw_detection_list(im, dets, sources):
 # -----------------------------------------------------------------------------------
     """ Draw bounding boxes on a copy of image and return it.
         [x0 y0 w h conf_score]
@@ -79,8 +68,14 @@ def draw_detection_list(im, dets):
 
     for i, det in enumerate(dets):
         bbox = dets[i, :4]
+        source = sources[i]
         x0, y0, x1, y1 = [int(x) for x in bbox]
-        line_color = color_dict['yellow']
+
+        if source == 1:
+            line_color = color_dict['green']
+        elif source == 2:
+            line_color = color_dict['yellow']
+        
         cv2.rectangle(im_det, (x0, y0), (x1, y1), line_color, thickness=2)
 
     return im_det
@@ -108,11 +103,16 @@ if __name__ == '__main__':
     for img_annot in tqdm(ann_dict['images']):
         image_name = img_annot['file_name']
         image_id = img_annot['id']
-        bboxes = [x['bbox'] for x in ann_dict['annotations'] \
+        ann = [x for x in ann_dict['annotations'] \
                         if x['image_id'] == image_id]
+        bboxes = [x['bbox'] for x in ann]
+        sources = [x['source'] for x in ann]
+
         im = cv2.imread(osp.join(args.imdir, image_name))
         assert im.size > 0
-        im_det = draw_detection_list(im, np.array(bboxes))
+        
+        im_det = draw_detection_list(im, np.array(bboxes), np.array(sources))
+        
         out_path = osp.join(out_dir, image_name.replace('/', '_'))
         cv2.imwrite(out_path, im_det)
         i += 1 

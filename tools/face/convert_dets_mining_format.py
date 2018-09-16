@@ -19,6 +19,8 @@ MINING DET FORMAT:
 [x1, y1, w, h, score]
 ... 
 
+*NOTE*: record frame numbers till the end of video
+
 
 DET_FOLDER = Outputs/evaluations/<detector-name>/cs6/sample-baseline-video
 OUT_FOLDER = ../DET_FOLDER/mining-detections/<split>_<conf-threshold>
@@ -31,7 +33,7 @@ OUT_FOLDER
 
 TODO: Usage (on slurm cluster):
 
-srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_mining_format.py ...
+srun --pty --mem 50000 python tools/face/convert_dets_mining_format.py ...
 
 """
 
@@ -65,10 +67,12 @@ import utils.face_utils as face_utils
 
 
 DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video/'
-VIDEO_LIST_FILE = 'list_video_val.txt'  # parent folder is 'data/CS6'
-CONF_THRESH_LIST = '0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8'
-SPLIT = 'val'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
+# VIDEO_LIST_FILE = 'list_video_val.txt'  # parent folder is 'data/CS6'
+VIDEO_LIST_FILE = 'list_video_train.txt'
+# CONF_THRESH_LIST = '0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8'
+CONF_THRESH_LIST = '0.25'
+SPLIT = 'train'
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 
@@ -160,7 +164,7 @@ if __name__ == '__main__':
         args.output_dir = osp.abspath(
                             osp.join(args.det_dir, '..', 'mining-detections' ))
     print('Called with args:')
-    print(args)
+    print(args)    
 
     # List of video files
     with open( osp.join('data/CS6', args.video_list_file), 'r' ) as f:

@@ -36,11 +36,11 @@ from six.moves import xrange
 
 
 
-VID_NAME = '501.mp4'
+VID_NAME = '3013.mp4'
 DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
 OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
 
-DEBUG = False
+DEBUG = True
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Creating CS6 ground truth data')
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     annots = filter_video_gt(gt_file, vid_name)
     first_frame = annots[0,-1]
     last_frame = annots[-1,-1]
-    assert last_frame > first_frame, 
+    assert last_frame > first_frame, \
         'Last frame (%d) cannot be smaller than first frame (%d)!' % (last_frame, first_frame)
 
     
@@ -191,6 +191,7 @@ if __name__ == '__main__':
                 im_det = draw_detection_list( im, frame_annots[:,:4].copy() )
                 cv2.imwrite(viz_out_path, im_det)
             else:
+                # save just the image
                 cv2.imwrite(viz_out_path, im)
 
             # Writing annotations to text file

@@ -179,6 +179,7 @@ def main():
     elif args.dataset == "cs6-train-gt":
         cfg.TRAIN.DATASETS = ('cs6-train-gt',)
         cfg.MODEL.NUM_CLASSES = 2
+<<<<<<< HEAD
     elif args.dataset == "cs6-train-gt-noisy-0.3":
         cfg.TRAIN.DATASETS = ('cs6-train-gt-noisy-0.3',)
         cfg.MODEL.NUM_CLASSES = 2
@@ -190,6 +191,22 @@ def main():
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == "cs6-train-det-score-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-det-score-0.5',)
+=======
+    elif args.dataset == "cs6-train-det":
+        cfg.TRAIN.DATASETS = ('cs6-train-det',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-det-0.5":
+        cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-gt":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-gt',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-hp":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-hp',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cs6-train-easy-det":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-det',)
+>>>>>>> master
         cfg.MODEL.NUM_CLASSES = 2
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))

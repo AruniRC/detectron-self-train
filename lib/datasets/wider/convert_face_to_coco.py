@@ -15,6 +15,19 @@ import datetime
 from PIL import Image
 import numpy as np
 
+<<<<<<< HEAD
+=======
+'''
+
+srun --mem 10000 python lib/datasets/wider/convert_face_to_coco.py --dataset cs6-train-det
+
+
+
+'''
+
+
+
+>>>>>>> master
 def add_path(path):
     if path not in sys.path:
         sys.path.insert(0, path)
@@ -29,6 +42,7 @@ import utils.boxes as bboxs_util
 import utils.face_utils as face_util
 
 
+<<<<<<< HEAD
 '''
     srun --pty --mem 50000 \
     python lib/datasets/wider/convert_face_to_coco.py \
@@ -36,6 +50,8 @@ import utils.face_utils as face_util
 
 '''
 
+=======
+>>>>>>> master
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert dataset')
@@ -135,6 +151,7 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
     elif data_set=='CS6-train-gt':
         # full train set of CS6 (86 videos)
         json_name = 'cs6-train-gt_face_train_annot_coco_style.json'
+<<<<<<< HEAD
 
         
     elif data_set=='CS6-train-det-score':
@@ -145,6 +162,18 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
         # soft-labels used in distillation, keeping dets with score > 0.5
         json_name = 'cs6-train-det-score-0.5_face_train_annot_coco_style.json'
         conf_thresh = 0.5
+=======
+    elif data_set=='CS6-train-det':
+        json_name = 'cs6-train-det_face_train_annot_coco_style.json'
+    elif data_set=='CS6-train-det-0.5':
+        json_name = 'cs6-train-det-0.5_face_train_annot_coco_style.json'
+    elif data_set=='CS6-train-easy-hp':
+        json_name = 'cs6-train-easy-hp.json'
+    elif data_set=='CS6-train-easy-gt':
+        json_name = 'cs6-train-easy-gt.json'
+    elif data_set=='CS6-train-easy-det':
+        json_name = 'cs6-train-easy-det.json'
+>>>>>>> master
     else:
         raise NotImplementedError
 
@@ -190,10 +219,20 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
             ann['iscrowd'] = 0
             ann['area'] = gt_bbox[2] * gt_bbox[3]
             ann['bbox'] = gt_bbox[:4]
+<<<<<<< HEAD
             if 'score' in data_set:
                 ann['score'] = gt_bbox[4] # for soft-label distillation
                 if gt_bbox[4] < conf_thresh:
                     continue
+=======
+            if 'hp' in data_set:
+                ann['score'] = gt_bbox[4] # for soft-label distillation
+                ann['source'] = gt_bbox[5] # annot source: {1: detection, 2:tracker}
+            if data_set=='CS6-train-easy-det':
+                if gt_bbox[5] != 1:
+                    continue # ignore if annot source is not detection (i.e. skip HP)
+
+>>>>>>> master
             annotations.append(ann)
 
     ann_dict['images'] = images
@@ -232,6 +271,7 @@ if __name__ == '__main__':
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-gt')
+<<<<<<< HEAD
 
 
         # Distillation scores for CS6-Train detections (conf 0.25)
@@ -239,11 +279,43 @@ if __name__ == '__main__':
         # set defaults if inputs args are empty
         if not args.annotfile:
             args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_scores.txt'
+=======
+    elif args.dataset == "cs6-train-det":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_conf-0.25.txt'
         if not args.imdir:
             args.imdir = 'data/CS6_annot'
         if not args.outdir:
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-det')
+    elif args.dataset == "cs6-train-det-0.5":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_conf-0.50.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-det-0.5')
+
+
+    # --------------------------------------------------------------------------
+    #   CS6 "EASY" set
+    # --------------------------------------------------------------------------
+    elif args.dataset == "cs6-train-easy-hp":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'Outputs/tracklets/hp-res-cs6/hp_cs6_easy.txt'
+>>>>>>> master
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+<<<<<<< HEAD
                            args.outdir, data_set='CS6-train-det-score')
 
 
@@ -252,12 +324,36 @@ if __name__ == '__main__':
         # set defaults if inputs args are empty
         if not args.annotfile:
             args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_scores.txt'
+=======
+                           args.outdir, data_set='CS6-train-easy-hp')
+
+    elif args.dataset == "cs6-train-easy-gt":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_gt_annot_train-easy.txt'
         if not args.imdir:
             args.imdir = 'data/CS6_annot'
         if not args.outdir:
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-easy-gt')
+
+    elif args.dataset == "cs6-train-easy-det":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'Outputs/tracklets/hp-res-cs6/hp_cs6_easy.txt'
+>>>>>>> master
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+<<<<<<< HEAD
                            args.outdir, data_set='CS6-train-det-score-0.5', 
                                         conf_thresh=0.5)
+=======
+                           args.outdir, data_set='CS6-train-easy-det')
+
+>>>>>>> master
     else:
         print("Dataset not supported: %s" % args.dataset)
