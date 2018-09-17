@@ -90,6 +90,24 @@ if __name__ == '__main__':
     if args.dataset == "coco2017":
         cfg.TEST.DATASETS = ('coco_2017_val',)
         cfg.MODEL.NUM_CLASSES = 81
+    
+    # Specify VAL datasets
+    # Cityscapes sets
+    elif args.dataset == 'cityscapes_val':
+        cfg.TEST.DATASETS = ('cityscapes_val',)
+        cfg.MODEL.NUM_CLASSES = 8
+    
+    # BDD sets -- with constraints
+    elif args.dataset == 'bdd_any_any_daytime':
+        cfg.TEST.DATASETS = ('bdd_any_any_daytime_val',) # or whichever constraint dataset to be used (scene, weather, etc.)
+        cfg.MODEL.NUM_CLASSES = 8
+    elif args.dataset == 'bdd_clear_any_daytime':
+        cfg.TEST.DATASETS = ('bdd_clear_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 8
+    elif args.dataset == 'bdd_any_any_any':
+        cfg.TEST.DATASETS = ('bdd_any_any_any_val',)
+        cfg.MODEL.NUM_CLASSES = 8
+
     elif args.dataset == "keypoints_coco2017":
         cfg.TEST.DATASETS = ('keypoints_coco_2017_val',)
         cfg.MODEL.NUM_CLASSES = 2

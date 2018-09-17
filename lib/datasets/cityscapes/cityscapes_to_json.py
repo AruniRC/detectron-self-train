@@ -19,11 +19,17 @@ def poly2bbox(poly):
     return ((x1,y1),(x2,y2))
 
 def cat2id(lab):
-    cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5}
+    cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    
+    #cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5} # initial 5 classes
+    
     return cat2id_map[lab]
 
 def genJSON(basedir):
-    sel_labels = ['car','traffic light','person','motorcycle','bus']
+    sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
+    
+    #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
+    
     img_dir = os.path.join(basedir,'leftImg8bit')
     ann_dir = os.path.join(basedir,'gtFine')
     #flat_dir = os.path.join(basedir,'all_imgs')
@@ -68,18 +74,20 @@ def genJSON(basedir):
                 
                 #img = cv2.imread(filename)
 
-                filename = os.path.join(img_dir,os.path.split(subdir)[-1],os.path.split(city)[-1],os.path.split(filename)[-1])
+                filename = os.path.join(img_dir,os.path.split(subdir)[-1],os.path.split(city)[-1],os.path.split(filename)[-1]) # use the full path
+                
+                #filename = os.path.split(filename)[-1] # using just the filename
+                
                 print('Reading:',filename)
                 image['file_name'] = filename
-                images.append(image)
 
-                #here = False
+                has_obj = False
                 for i,obj in enumerate(poly_data['objects']):
                     lab = obj['label']
                     if not (lab in sel_labels):
                         ignore_obj.append(i)
                         continue
-                    #here = True
+                    has_obj = True
                     ann = {}
                     ann['id'] = ann_id
                     ann_id += 1
@@ -89,11 +97,16 @@ def genJSON(basedir):
                     ann['iscrowd'] = 0
                     bbox = poly2bbox(obj['polygon'])
                     ann['bbox'] = [bbox[0][0],bbox[0][1],bbox[1][0]-bbox[0][0],bbox[1][1]-bbox[0][1]]
+                    ann['area'] = (bbox[1][0]-bbox[0][0])*(bbox[1][1]-bbox[0][1])
                     annotations.append(ann)
                 
                     #cv2.rectangle(img,bbox[0],bbox[1],(0,255,0),3)
                 
-                '''if not here:
+                images.append(image)
+                #if has_obj:
+                #    images.append(image)
+                
+                '''if not has_obj:
                     print('>>>',[l['label'] for l in poly_data['objects']])
                     img = cv2.imread(filename)
                     img = cv2.resize(img,(800,800))

@@ -156,6 +156,21 @@ def main():
     elif args.dataset == "keypoints_coco2017":
         cfg.TRAIN.DATASETS = ('keypoints_coco_2017_train',)
         cfg.MODEL.NUM_CLASSES = 2
+    
+    elif args.dataset == "cityscapes":
+        cfg.TRAIN.DATASETS = ('cityscapes_train',)
+        cfg.MODEL.NUM_CLASSES = 8
+   
+    elif args.dataset == "bdd_any_any_any":
+        cfg.TRAIN.DATASETS = ('bdd_any_any_any_train',)
+        cfg.MODEL.NUM_CLASSES = 8
+    elif args.dataset == "bdd_any_any_daytime":
+        cfg.TRAIN.DATASETS = ('bdd_any_any_daytime_train',)
+        cfg.MODEL.NUM_CLASSES = 8
+    elif args.dataset == "bdd_clear_any_daytime":
+        cfg.TRAIN.DATASETS = ('bdd_clear_any_daytime_train',)
+        cfg.MODEL.NUM_CLASSES = 8
+    
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)
         cfg.MODEL.NUM_CLASSES = 2
@@ -250,8 +265,7 @@ def main():
 
     ### Dataset ###
     timers['roidb'].tic()
-    roidb, ratio_list, ratio_index = combined_roidb_for_training(
-        cfg.TRAIN.DATASETS, cfg.TRAIN.PROPOSAL_FILES)
+    roidb, ratio_list, ratio_index = combined_roidb_for_training(cfg.TRAIN.DATASETS, cfg.TRAIN.PROPOSAL_FILES)
     timers['roidb'].toc()
     roidb_size = len(roidb)
     logger.info('{:d} roidb entries'.format(roidb_size))
@@ -444,7 +458,6 @@ def main():
                 for key in input_data:
                     if key != 'roidb': # roidb is a list of ndarrays with inconsistent length
                         input_data[key] = list(map(Variable, input_data[key]))
-
                 net_outputs = maskRCNN(**input_data)
                 training_stats.UpdateIterStats(net_outputs, inner_iter)
                 loss = net_outputs['total_loss']

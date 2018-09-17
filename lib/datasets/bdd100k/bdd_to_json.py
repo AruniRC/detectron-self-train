@@ -22,25 +22,48 @@ def poly2bbox(poly):
     return ((x1,y1),(x2,y2))
 
 def cat2id(lab):
-    cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5}
+    cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    #cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5} # 5 initial classes
     return cat2id_map[lab]
+
+def bdd2cityscapes(label):
+    if label == 'motor':
+        return 'motorcycle'
+    elif label == 'bike':
+        return 'bicycle'
+    else:
+        return label
+
+def attrib2str(attrib_dict):
+    keys = []
+    for k in attrib_dict.keys():
+        k_val = ','.join(attrib_dict[k])
+        if len(k_val) == 0:
+            k_val = 'Any'
+        keys.append(k+'-'+k_val)
+    return '_'.join(keys)
 
 def genJSON(basedir):
     # select labels
-    sel_labels = ['car','traffic light','person','motorcycle','bus']
+    sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
+    #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
     
     # select attribute values. set to [] to not restrict an attribute
     sel_attrib = {
-                  'weather'  :[],        #clear, partly cloudy, overcast, rainy, snowy, foggy
+                  'weather'  :['clear'],        #clear, partly cloudy, overcast, rainy, snowy, foggy
                   'scene'    :[],  #residential, highway, city street, parking lot, gas stations, tunnel
-                  'timeofday':['night']       #dawn/dusk, daytime, night
+                  'timeofday':['daytime']       #dawn/dusk, daytime, night
                  }
     img_dir = os.path.join(basedir,'images','100k')
     ann_dir = os.path.join(basedir,'labels','100k')
-    
+    vid_dir = os.path.join(basedir,'videos','100k')
+
     categories = [{'id':cat2id(cat),'name':cat} for cat in sel_labels]
     
     for subdir in ['train','val']:
+        img_file_list = []
+        vid_file_list = []
+
         img_subdir = os.path.join(img_dir,subdir)
         subdir = os.path.join(ann_dir,subdir)
         
@@ -84,8 +107,16 @@ def genJSON(basedir):
             print('Reading:',img_file)
             image['file_name'] = img_file
             images.append(image)
+            
+            img_file_list.append(img_file)
+            vid_file_list.append(os.path.join(
+                                        vid_dir,
+                                        os.path.split(subdir)[-1],
+                                        os.path.split(img_file)[-1].split('.')[0]+'.mov'))
+            
             for i,obj in enumerate(objects):
                 lab = obj['category']
+                lab = bdd2cityscapes(lab)
                 obj_attrib = obj['attributes']
                 if 'box2d' in obj:
                     bbox = obj['box2d']
@@ -102,14 +133,22 @@ def genJSON(basedir):
                 ann['category_id'] = cat2id(lab)
                 ann['iscrowd'] = 0
                 ann['bbox'] = list(map(int, [bbox['x1'],bbox['y1'],bbox['x2']-bbox['x1'],bbox['y2']-bbox['y1']] ))
+                bbox = ann['bbox']
+                ann['area'] = bbox[2]*bbox[3]
                 annotations.append(ann)
 
         ann_dict['images'] = images
         ann_dict['categories'] = categories
         ann_dict['annotations'] = annotations
         #print(subdir,len(annotations))
-        with open('bdd100k_'+str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.json','w',encoding='utf8') as f:
+        with open('bdd_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.json','w',encoding='utf8') as f:
             f.write(json.dumps(ann_dict))
+        f.close()
+        with open('img_files_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.txt','w',encoding='utf8') as f:
+            f.write('\n'.join(img_file_list))
+        with open('vid_files_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.txt','w',encoding='utf8') as f:
+            f.write('\n'.join(vid_file_list))
+        f.close()
 
 if __name__ == '__main__':
     path = sys.argv[1]

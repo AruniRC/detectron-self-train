@@ -38,21 +38,61 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+    'bdd_clear_any_daytime_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-clear_scene-Any_timeofday-daytime_train.json'
+    },
+    'bdd_clear_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-clear_scene-Any_timeofday-daytime_val.json'
+    },
+
+    'bdd_any_any_daytime_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-Any_scene-Any_timeofday-daytime_train.json'
+    },
+    'bdd_any_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-Any_scene-Any_timeofday-daytime_val.json'
+    },   
+
+    'bdd_any_any_any_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-Any_scene-Any_timeofday-Any_train.json'
+    },
+    'bdd_any_any_any_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-Any_scene-Any_timeofday-Any_val.json'
+    },
+
     'cityscapes_train': {
         IM_DIR:
-            _DATA_DIR + '/vis/home/pchakrabarty/datasets/cityscapes',
-        ANN_FN:
-            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/lib/datasets/cityscapes_train.json',
-        RAW_DIR:
-            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
+            _DATA_DIR + '/cityscapes',
+        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_7_class_train.json'
+        
+        #ANN_FN: '/srv/data1/pchakrabarty/cityscapes_train.json'
+        
+            #_DATA_DIR + '/cityscapes/cityscapes_train.json',
+        #RAW_DIR:
+        #    _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
     },
     'cityscapes_val': {
         IM_DIR:
-            _DATA_DIR + '/vis/home/pchakrabarty/datasets/cityscapes',
-        ANN_FN:
-            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/lib/datasets/cityscapes_val.json',
-        RAW_DIR:
-            _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
+            _DATA_DIR + '/cityscapes',
+        
+        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_7_class_val.json'
+        
+        #ANN_FN: '/srv/data1/pchakrabarty/cityscapes_val.json'
+        
+            #_DATA_DIR + '/cityscapes/cityscapes_val.json',
+        #RAW_DIR:
+        #    _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
     },
 
     'cityscapes_fine_instanceonly_seg_train': {

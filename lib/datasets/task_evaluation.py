@@ -249,7 +249,7 @@ def _use_json_dataset_evaluator(dataset):
 
 def _use_cityscapes_evaluator(dataset):
     """Check if the dataset uses the Cityscapes dataset evaluator."""
-    return dataset.name.find('cityscapes_') > -1
+    return (dataset.name.find('cityscapes_') > -1) or (dataset.name.find('bdd') > -1)
 
 
 def _use_voc_evaluator(dataset):

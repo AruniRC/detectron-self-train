@@ -10,9 +10,9 @@ import cv2
 from matplotlib import pyplot as plt
 
 def show_stats(basedir):
-    #sel_labels = ['car','traffic light','person','motorcycle','bus']
-    img_dir = os.path.join(basedir,'leftImg8bit')
-    ann_dir = os.path.join(basedir,'gtFine')
+    
+    img_dir = os.path.join(basedir,'images','100k')
+    ann_dir = os.path.join(basedir,'labels','100k')
     
     for subdir in ['train','val']:
         img_subdir = os.path.join(img_dir,subdir)
@@ -23,44 +23,64 @@ def show_stats(basedir):
         
         lab_ann_count = {}
         lab_img_count = {}
+        weather_img_count = {}
+        scene_img_count = {}
+        timeofday_img_count = {}
         all_lab = []
 
-        for city in os.listdir(subdir):
-            
-            img_city = os.path.join(img_subdir,city)
-            city = os.path.join(subdir,city)
-            
-            img_samples = os.listdir(img_city)
-            samples = os.listdir(city)
-            
-            img_files   = sorted([os.path.join(img_city,s) for s in img_samples if s.split('.')[0].endswith('leftImg8bit')])
-            poly_files  = sorted([os.path.join(city,s) for s in samples if s.split('.')[0].endswith('polygons')])
-            
-            for filename,poly in zip(img_files,poly_files):
-                with open(poly,'r') as f:
-                    poly_data = json.load(f)
-                bbox_data = poly_data.copy()
-                img_count += 1
-                
-                filename = os.path.join(img_dir,os.path.split(subdir)[-1],os.path.split(city)[-1],os.path.split(filename)[-1])
-                print('Reading:',filename)
+        img_samples = os.listdir(img_subdir)
+        samples = os.listdir(subdir)
 
-                for lab in set([t['label'] for t in poly_data['objects']]):
-                    if lab in lab_img_count:
-                        lab_img_count[lab] += 1
-                    else:
-                        lab_img_count.update({lab : 1})
-                    if not (lab in all_lab):
-                        all_lab.append(lab)
-                    
-                for i,obj in enumerate(poly_data['objects']):
-                    lab = obj['label']
-                    if lab in lab_ann_count:
-                        lab_ann_count[lab] += 1
-                    else:
-                        lab_ann_count.update({lab : 1})
-                    ann_count += 1
+        img_files   = sorted([os.path.join(img_subdir,s) for s in img_samples])
+        lab_files  = sorted([os.path.join(subdir,s) for s in samples])
         
+        for img_file,lab_file in zip(img_files,lab_files):
+            with open(lab_file,'r') as f:
+                data = json.load(f)
+            
+            name = data['name']
+            attrib = data['attributes']
+            frames = data['frames']
+
+            frame = frames[0]
+            img_count += 1
+            timestamp = frame['timestamp']
+            objects = frame['objects']
+            # category image count
+            for lab in set([t['category'] for t in objects]):
+                if lab in lab_img_count.keys():
+                    lab_img_count[lab] += 1
+                else:
+                    lab_img_count.update({lab : 1})
+                if not (lab in all_lab):
+                    all_lab.append(lab)
+            # category annotation count
+            for i,obj in enumerate(objects):
+                lab = obj['category']
+                if lab in lab_ann_count.keys():
+                    lab_ann_count[lab] += 1
+                else:
+                    lab_ann_count.update({lab : 1})
+                ann_count += 1
+            # weather image count
+            weather = attrib['weather']
+            if weather in weather_img_count.keys():
+                weather_img_count[weather] += 1
+            else:
+                weather_img_count.update({weather : 1})
+            # scene image count
+            scene = attrib['scene']
+            if scene in scene_img_count.keys():
+                scene_img_count[scene] += 1
+            else:
+                scene_img_count.update({scene : 1})
+            # timeofday image count
+            timeofday = attrib['timeofday']
+            if timeofday in timeofday_img_count.keys():
+                timeofday_img_count[timeofday] += 1
+            else:
+                timeofday_img_count.update({timeofday : 1})
+
         print('Summary Stats:')
         print(os.path.split(subdir)[-1])
         print('Number of images:',img_count)
@@ -71,36 +91,75 @@ def show_stats(basedir):
                  'all_lab':all_lab
                 }
 
-        #print('Number of images per label:')
+        # category image count
+        subdir_type = os.path.split(subdir)[-1]
         x = range(len(all_lab))
         y = []
         for lab in all_lab:
-            #print('\t',lab,lab_img_count[lab])
             y.append(lab_img_count[lab])
         ax = plt.gca()
-        plt.title('Number of images per category')
+        plt.title('Number of images per category: '+subdir_type)
         plt.bar(x,y)
         plt.xticks(x)
         ax.set_xticklabels(all_lab,rotation=90)
         plt.show()
-
         stats.update({'imgs_per_cat' : dict(zip(all_lab,y))})
         
-        #print('Number of instances per category:')
+        # category annotation count
         y = []
         for lab in all_lab:
-            #print('\t',lab,lab_ann_count[lab])
             y.append(lab_ann_count[lab])
         ax = plt.gca()
-        plt.title('Number of annotations per category')
+        plt.title('Number of annotations per category: '+subdir_type)
         plt.bar(x,y)
         plt.xticks(x)
         ax.set_xticklabels(all_lab,rotation=90)
         plt.show()
-
         stats.update({'anns_per_cat' : dict(zip(all_lab,y))})
-        
-        with open('cityscapes_gtFine_'+os.path.split(subdir)[-1]+'_stats.txt','w') as f:
+
+        # weather image count
+        y = []
+        weather_types = weather_img_count.keys()
+        for weather in weather_types:
+            y.append(weather_img_count[weather])
+        x = range(len(y))
+        ax = plt.gca()
+        plt.title('Number of images over weather: '+subdir_type)
+        plt.bar(x,y)
+        plt.xticks(x)
+        ax.set_xticklabels(weather_types,rotation=90)
+        plt.show()
+        stats.update({'weather_img_count':dict(zip(weather_types,y))})
+
+        # scene image count
+        y = []
+        scene_types = scene_img_count.keys()
+        for scene in scene_types:
+            y.append(scene_img_count[scene])
+        x = range(len(y))
+        ax = plt.gca()
+        plt.title('Number of images over scenes: '+subdir_type)
+        plt.bar(x,y)
+        plt.xticks(x)
+        ax.set_xticklabels(scene_types,rotation=90)
+        plt.show()
+        stats.update({'scene_img_count':dict(zip(scene_types,y))})
+
+        # hours image count
+        y = []
+        timeofday_types = timeofday_img_count.keys()
+        for timeofday in timeofday_types:
+            y.append(timeofday_img_count[timeofday])
+        x = range(len(y))
+        ax = plt.gca()
+        plt.title('Number of images over time of day: '+subdir_type)
+        plt.bar(x,y)
+        plt.xticks(x)
+        ax.set_xticklabels(timeofday_types,rotation=90)
+        plt.show()
+        stats.update({'timeofday_img_count':dict(zip(timeofday_types,y))})
+
+        with open('bdd100k_'+os.path.split(subdir)[-1]+'_stats.txt','w') as f:
             f.write(str(stats))
 
 if __name__ == '__main__':

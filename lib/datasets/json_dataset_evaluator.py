@@ -116,7 +116,7 @@ def _do_segmentation_eval(json_dataset, res_file, output_dir):
     coco_eval = COCOeval(json_dataset.COCO, coco_dt, 'segm')
     coco_eval.evaluate()
     coco_eval.accumulate()
-    _log_detection_eval_metrics(json_dataset, coco_eval)
+    _log_detection_eval_metrics(json_dataset, coco_eval, output_dir)
     eval_file = os.path.join(output_dir, 'segmentation_results.pkl')
     save_object(coco_eval, eval_file)
     logger.info('Wrote json eval results to: {}'.format(eval_file))
@@ -193,14 +193,18 @@ def _do_detection_eval(json_dataset, res_file, output_dir):
     coco_eval = COCOeval(json_dataset.COCO, coco_dt, 'bbox')
     coco_eval.evaluate()
     coco_eval.accumulate()
-    _log_detection_eval_metrics(json_dataset, coco_eval)
+    
+    _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0.95, output_dir=output_dir)
+    _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0.5, output_dir=output_dir)
+    _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.75, iou_high=0.75, output_dir=output_dir)
+    
     eval_file = os.path.join(output_dir, 'detection_results.pkl')
     save_object(coco_eval, eval_file)
     logger.info('Wrote json eval results to: {}'.format(eval_file))
     return coco_eval
 
 
-def _log_detection_eval_metrics(json_dataset, coco_eval):
+def _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0.95, output_dir=None):
     def _get_thr_ind(coco_eval, thr):
         ind = np.where((coco_eval.params.iouThrs > thr - 1e-5) &
                        (coco_eval.params.iouThrs < thr + 1e-5))[0][0]
@@ -208,10 +212,19 @@ def _log_detection_eval_metrics(json_dataset, coco_eval):
         assert np.isclose(iou_thr, thr)
         return ind
 
-    IoU_lo_thresh = 0.5
-    IoU_hi_thresh = 0.95
+    #IoU_lo_thresh = 0.5
+    #IoU_hi_thresh = 0.95
+    
+    IoU_lo_thresh = iou_low
+    IoU_hi_thresh = iou_high
+    
     ind_lo = _get_thr_ind(coco_eval, IoU_lo_thresh)
     ind_hi = _get_thr_ind(coco_eval, IoU_hi_thresh)
+
+    class_maps = {}
+    class_maps['IoU_low'] = IoU_lo_thresh
+    class_maps['IoU_high'] = IoU_hi_thresh
+
     # precision has dims (iou, recall, cls, area range, max dets)
     # area range index 0: all area ranges
     # max dets index 2: 100 per image
@@ -220,7 +233,8 @@ def _log_detection_eval_metrics(json_dataset, coco_eval):
     logger.info(
         '~~~~ Mean and per-category AP @ IoU=[{:.2f},{:.2f}] ~~~~'.format(
             IoU_lo_thresh, IoU_hi_thresh))
-    logger.info('{:.1f}'.format(100 * ap_default))
+    logger.info('Overall --> {:.1f}'.format(100 * ap_default))
+    class_maps.update({'Overall' : 100*ap_default})
     for cls_ind, cls in enumerate(json_dataset.classes):
         if cls == '__background__':
             continue
@@ -228,7 +242,15 @@ def _log_detection_eval_metrics(json_dataset, coco_eval):
         precision = coco_eval.eval['precision'][
             ind_lo:(ind_hi + 1), :, cls_ind - 1, 0, 2]
         ap = np.mean(precision[precision > -1])
-        logger.info('{:.1f}'.format(100 * ap))
+        logger.info(str(cls)+' --> {:.1f}'.format(100 * ap))
+        class_maps.update({str(cls) : 100 * ap})
+
+    # save class-wise mAP
+    if not (output_dir is None):
+        with open(os.path.join(output_dir,'classmAP@IoUs'+str(iou_low)+'-'+str(iou_high)+'.json'),'w') as f:
+            json.dump(class_maps,f)
+        f.close()
+
     logger.info('~~~~ Summary metrics ~~~~')
     coco_eval.summarize()
 
