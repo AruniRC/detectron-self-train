@@ -120,6 +120,7 @@ def polys_to_mask_wrt_box(polygons, box, M):
 def polys_to_boxes(polys):
   """Convert a list of polygons into an array of tight bounding boxes."""
   boxes_from_polys = np.zeros((len(polys), 4), dtype=np.float32)
+  #return boxes_from_polys
   for i in range(len(polys)):
     poly = polys[i]
     x0 = min(min(p[::2]) for p in poly)
@@ -127,7 +128,7 @@ def polys_to_boxes(polys):
     y0 = min(min(p[1::2]) for p in poly)
     y1 = max(max(p[1::2]) for p in poly)
     boxes_from_polys[i, :] = [x0, y0, x1, y1]
-
+  #print(boxes_from_poly)
   return boxes_from_polys
 
 
