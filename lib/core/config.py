@@ -116,6 +116,9 @@ __C.TRAIN.DISTILL_TEMPERATURE = 1.0
 # EDIT: Joint training with two datasets, equally sampled
 __C.TRAIN.JOINT_TRAINING = False
 
+# EDIT: Joint training with two datasets, sample only FG from first dataset
+__C.TRAIN.JOINT_SELECTIVE_FG = False
+
 
 # ---------------------------------------------------------------------------- #
 # RPN training options

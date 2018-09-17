@@ -352,6 +352,9 @@ def main():
     # Effective training sample size for one epoch
     train_size = roidb_size // args.batch_size * args.batch_size
 
+    if cfg.TRAIN.JOINT_SELECTIVE_FG:
+        orig_fg_batch_ratio = cfg.TRAIN.FG_FRACTION
+
 
     ### Model ###
     maskRCNN = Generalized_RCNN()
@@ -511,6 +514,8 @@ def main():
 
             training_stats.IterTic()
             optimizer.zero_grad()
+
+
             for inner_iter in range(args.iter_size):
 
                 if cfg.TRAIN.JOINT_TRAINING:
@@ -519,10 +524,19 @@ def main():
                         print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
+                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
+                            cfg.TRAIN.FG_FRACTION = 1.
+                            # Only FG samples will form minibatch (approx.) 
+                            # CAVEAT: if available FG samples cannot fill minibatch 
+                            # then BG samples *will* be included. 
+                            # TODO(arc): make this exact... ?
                     else:
                         print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']
+                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
+                            # revert to original FG fraction for WIDER dataset
+                            cfg.TRAIN.FG_FRACTION = orig_fg_batch_ratio
 
                 try:
                     input_data = next(dataiterator)
