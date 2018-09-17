@@ -33,6 +33,7 @@ def get_minibatch(roidb):
     # Get the input image blob
     im_blob, im_scales = _get_image_blob(roidb)
     blobs['data'] = im_blob
+    # print(blobs.keys())    
     if cfg.RPN.RPN_ON:
         # RPN-only or end-to-end Faster/Mask R-CNN
         valid = roi_data.rpn.add_rpn_blobs(blobs, im_scales, roidb)

@@ -26,7 +26,7 @@ class RoiDataLoader(data.Dataset):
         single_db = [self._roidb[index]]
         blobs, valid = get_minibatch(single_db)
         #TODO: Check if minibatch is valid ? If not, abandon it.
-        # Need to change _worker_loop in torch.utils.data.dataloader.py.
+        # Need to change _worker_loop in torch.utils.data.dataloader.py.        
 
         # Squeeze batch dim
         for key in blobs:
@@ -235,6 +235,7 @@ def collate_minibatch(list_of_blobs):
     A batch contains NUM_GPUS minibatches and image size in different minibatch may be different.
     Hence, we need to stack smaples from each minibatch seperately.
     """
+    # print(list_of_blobs[0])
     Batch = {key: [] for key in list_of_blobs[0]}
     # Because roidb consists of entries of variable length, it can't be batch into a tensor.
     # So we keep roidb in the type of "list of ndarray".

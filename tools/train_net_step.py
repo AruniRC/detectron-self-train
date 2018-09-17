@@ -210,6 +210,11 @@ def main():
     elif args.dataset == "cs6-train-easy-det":
         cfg.TRAIN.DATASETS = ('cs6-train-easy-det',)
         cfg.MODEL.NUM_CLASSES = 2
+
+    elif args.dataset == "cs6-train-easy-gt-sub+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-easy-gt-sub', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
@@ -279,32 +284,74 @@ def main():
     timers = defaultdict(Timer)
 
     ### Dataset ###
-    timers['roidb'].tic()
-    roidb, ratio_list, ratio_index = combined_roidb_for_training(
-        cfg.TRAIN.DATASETS, cfg.TRAIN.PROPOSAL_FILES)
-    timers['roidb'].toc()
-    roidb_size = len(roidb)
-    logger.info('{:d} roidb entries'.format(roidb_size))
-    logger.info('Takes %.2f sec(s) to construct roidb', timers['roidb'].average_time)
+    if cfg.TRAIN.JOINT_TRAINING:
+        if len(cfg.TRAIN.DATASETS)==2:
+            print('Joint training on two datasets')
+        else:
+            raise NotImplementedError
+
+        joint_training_roidb = []
+        for i, dataset_name in enumerate(cfg.TRAIN.DATASETS):
+            # ROIDB construction
+            timers['roidb'].tic()
+            roidb, ratio_list, ratio_index = combined_roidb_for_training(
+                (dataset_name), cfg.TRAIN.PROPOSAL_FILES)
+            timers['roidb'].toc()
+            roidb_size = len(roidb)
+            logger.info('{:d} roidb entries'.format(roidb_size))
+            logger.info('Takes %.2f sec(s) to construct roidb', timers['roidb'].average_time)
+
+            if i == 0:
+                roidb_size = len(roidb)
+
+            batchSampler = BatchSampler(
+                sampler=MinibatchSampler(ratio_list, ratio_index),
+                batch_size=args.batch_size,
+                drop_last=True
+            )
+            dataset = RoiDataLoader(
+                roidb,
+                cfg.MODEL.NUM_CLASSES,
+                training=True)
+            dataloader = torch.utils.data.DataLoader(
+                dataset,
+                batch_sampler=batchSampler,
+                num_workers=(cfg.DATA_LOADER.NUM_THREADS//2),
+                collate_fn=collate_minibatch)
+                # decrease num-threads when using two dataloaders
+            dataiterator = iter(dataloader)
+
+            joint_training_roidb.append(
+                {'dataloader': dataloader, 'dataiterator': dataiterator,
+                 'dataset_name': dataset_name}
+            )
+    else:
+        roidb, ratio_list, ratio_index = combined_roidb_for_training(
+            cfg.TRAIN.DATASETS, cfg.TRAIN.PROPOSAL_FILES)
+        timers['roidb'].toc()
+        roidb_size = len(roidb)
+        logger.info('{:d} roidb entries'.format(roidb_size))
+        logger.info('Takes %.2f sec(s) to construct roidb', timers['roidb'].average_time)
+
+        batchSampler = BatchSampler(
+            sampler=MinibatchSampler(ratio_list, ratio_index),
+            batch_size=args.batch_size,
+            drop_last=True
+        )
+        dataset = RoiDataLoader(
+            roidb,
+            cfg.MODEL.NUM_CLASSES,
+            training=True)
+        dataloader = torch.utils.data.DataLoader(
+            dataset,
+            batch_sampler=batchSampler,
+            num_workers=cfg.DATA_LOADER.NUM_THREADS,
+            collate_fn=collate_minibatch)
+        dataiterator = iter(dataloader)
 
     # Effective training sample size for one epoch
-    train_size = roidb_size // args.batch_size * args.batch_size    
+    train_size = roidb_size // args.batch_size * args.batch_size
 
-    batchSampler = BatchSampler(
-        sampler=MinibatchSampler(ratio_list, ratio_index),
-        batch_size=args.batch_size,
-        drop_last=True
-    )
-    dataset = RoiDataLoader(
-        roidb,
-        cfg.MODEL.NUM_CLASSES,
-        training=True)
-    dataloader = torch.utils.data.DataLoader(
-        dataset,
-        batch_sampler=batchSampler,
-        num_workers=cfg.DATA_LOADER.NUM_THREADS,
-        collate_fn=collate_minibatch)
-    dataiterator = iter(dataloader)
 
     ### Model ###
     maskRCNN = Generalized_RCNN()
@@ -465,6 +512,18 @@ def main():
             training_stats.IterTic()
             optimizer.zero_grad()
             for inner_iter in range(args.iter_size):
+
+                if cfg.TRAIN.JOINT_TRAINING:
+                    # alternate between dataset[0] and dataset[1]                    
+                    if step % 2 == 0:
+                        print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
+                        dataloader = joint_training_roidb[0]['dataloader']
+                        dataiterator = joint_training_roidb[0]['dataiterator']
+                    else:
+                        print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
+                        dataloader = joint_training_roidb[1]['dataloader']
+                        dataiterator = joint_training_roidb[1]['dataiterator']
+
                 try:
                     input_data = next(dataiterator)
                 except StopIteration:
