@@ -18,7 +18,7 @@ Clone the repo:
 ```
 git clone https://github.com/roytseng-tw/mask-rcnn.pytorch.git
 ```
-BRanch test
+Branch test
 
 ### Requirements
 
