@@ -157,10 +157,12 @@ def main():
         cfg.TRAIN.DATASETS = ('keypoints_coco_2017_train',)
         cfg.MODEL.NUM_CLASSES = 2
     
+    # Cityscapes 7 classes
     elif args.dataset == "cityscapes":
         cfg.TRAIN.DATASETS = ('cityscapes_train',)
         cfg.MODEL.NUM_CLASSES = 8
    
+    # BDD 7 classes
     elif args.dataset == "bdd_any_any_any":
         cfg.TRAIN.DATASETS = ('bdd_any_any_any_train',)
         cfg.MODEL.NUM_CLASSES = 8
@@ -170,7 +172,15 @@ def main():
     elif args.dataset == "bdd_clear_any_daytime":
         cfg.TRAIN.DATASETS = ('bdd_clear_any_daytime_train',)
         cfg.MODEL.NUM_CLASSES = 8
-    
+   
+    # Pedestrian sets
+    elif args.dataset == "cityscapes_peds":
+        cfg.TRAIN.DATASETS = ('cityscapes_peds_train',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "bdd_peds":
+        cfg.TRAIN.DATASETS = ('bdd_peds_train',)
+        cfg.MODEL.NUM_CLASSES = 2
+
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)
         cfg.MODEL.NUM_CLASSES = 2

@@ -27,7 +27,7 @@ def cat2id(lab):
 
 def genJSON(basedir):
     sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
-    
+    #sel_labels = ['person']
     #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
     
     img_dir = os.path.join(basedir,'leftImg8bit')

@@ -108,6 +108,18 @@ if __name__ == '__main__':
         cfg.TEST.DATASETS = ('bdd_any_any_any_val',)
         cfg.MODEL.NUM_CLASSES = 8
 
+    # Cityscapes pedestrians
+    elif args.dataset == 'cityscapes_peds_val':
+        cfg.TEST_DATASETS = ('cityscapes_peds_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # BDD pedestrians
+    elif args.dataset == 'bdd_peds_val':
+        cfg.TEST.DATASETS = ('bdd_peds_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds_full_val':
+        cfg.TEST.DATASETS = ('bdd_peds_full_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+
     elif args.dataset == "keypoints_coco2017":
         cfg.TEST.DATASETS = ('keypoints_coco_2017_val',)
         cfg.MODEL.NUM_CLASSES = 2

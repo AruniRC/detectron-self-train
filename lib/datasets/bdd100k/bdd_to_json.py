@@ -46,6 +46,7 @@ def attrib2str(attrib_dict):
 def genJSON(basedir):
     # select labels
     sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
+    #sel_labels = ['person'] # just pedestrians
     #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
     
     # select attribute values. set to [] to not restrict an attribute
