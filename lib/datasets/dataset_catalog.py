@@ -38,6 +38,39 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+     # Pedestrian datasets
+     'bdd_peds_full_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_full_train.json'
+     },
+    'bdd_peds_full_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_full_val.json'
+     },
+     'bdd_peds_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_train.json'
+     },
+     'bdd_peds_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_val.json'
+     },
+     'cityscapes_peds_train' : {
+         IM_DIR:
+            _DATA_DIR + '/cityscapes',
+         ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_peds_train.json'
+     },
+     'cityscapes_peds_val' : {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes',
+        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_peds_val.json'
+     },
+    
+    #7-class datasets
     'bdd_clear_any_daytime_train' : {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
