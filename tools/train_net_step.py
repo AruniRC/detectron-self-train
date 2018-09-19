@@ -316,7 +316,7 @@ def main():
             dataloader = torch.utils.data.DataLoader(
                 dataset,
                 batch_sampler=batchSampler,
-                num_workers=(cfg.DATA_LOADER.NUM_THREADS//2),
+                num_workers=cfg.DATA_LOADER.NUM_THREADS,
                 collate_fn=collate_minibatch)
                 # decrease num-threads when using two dataloaders
             dataiterator = iter(dataloader)
@@ -354,6 +354,7 @@ def main():
 
     if cfg.TRAIN.JOINT_SELECTIVE_FG:
         orig_fg_batch_ratio = cfg.TRAIN.FG_FRACTION
+
 
 
     ### Model ###
@@ -543,6 +544,14 @@ def main():
                 except StopIteration:
                     dataiterator = iter(dataloader)
                     input_data = next(dataiterator)
+
+                    if cfg.TRAIN.JOINT_TRAINING:
+                        if step % 2 == 0:
+                            joint_training_roidb[0]['dataiterator'] = dataiterator
+                        else:
+                            joint_training_roidb[1]['dataiterator'] = dataiterator
+
+
 
                 for key in input_data:
                     if key != 'roidb': # roidb is a list of ndarrays with inconsistent length
