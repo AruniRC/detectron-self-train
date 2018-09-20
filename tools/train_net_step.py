@@ -180,6 +180,9 @@ def main():
     elif args.dataset == "bdd_peds":
         cfg.TRAIN.DATASETS = ('bdd_peds_train',)
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "bdd_peds_full":
+        cfg.TRAIN.DATASETS = ('bdd_peds_full_train',)
+        cfg.MODEL.NUM_CLASSES = 2
 
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)

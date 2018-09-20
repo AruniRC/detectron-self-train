@@ -98,13 +98,13 @@ if __name__ == '__main__':
         cfg.MODEL.NUM_CLASSES = 8
     
     # BDD sets -- with constraints
-    elif args.dataset == 'bdd_any_any_daytime_val':
+    elif args.dataset == 'bdd_any_any_daytime':
         cfg.TEST.DATASETS = ('bdd_any_any_daytime_val',) # or whichever constraint dataset to be used (scene, weather, etc.)
         cfg.MODEL.NUM_CLASSES = 8
-    elif args.dataset == 'bdd_clear_any_daytime_val':
+    elif args.dataset == 'bdd_clear_any_daytime':
         cfg.TEST.DATASETS = ('bdd_clear_any_daytime_val',)
         cfg.MODEL.NUM_CLASSES = 8
-    elif args.dataset == 'bdd_any_any_any_val':
+    elif args.dataset == 'bdd_any_any_any':
         cfg.TEST.DATASETS = ('bdd_any_any_any_val',)
         cfg.MODEL.NUM_CLASSES = 8
 
