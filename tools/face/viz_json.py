@@ -3,6 +3,8 @@
 
 Takes a JSON file and visualizes the annotation boxes on images.
 
+srun --mem 10000 python tools/face/viz_json.py
+
 """
 
 from __future__ import absolute_import

@@ -110,9 +110,6 @@ if __name__ == '__main__':
     keep_image_ids = set([x['id'] for x in keep_images])
     keep_annots = [x for x in ann_dict['annotations'] if x['image_id'] in keep_image_ids]
 
-    import pdb; pdb.set_trace()  # breakpoint 4182c7c7 //
-
-
     # replace the images and annotations with only those from specified video
     ann_dict['images'] = keep_images
     ann_dict['annotations'] = keep_annots
