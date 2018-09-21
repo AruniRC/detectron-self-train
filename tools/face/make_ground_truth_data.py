@@ -13,7 +13,12 @@ Format:
 This is done one video at a time, the video name being specified as an argument. 
 This script can then be run in parallel by calling with different video names.
 
+Usage:
+    srun --pty --mem 50000 python tools/face/make_ground_truth_data.py
 
+Note: if run without DEBUG set, then frames with annotations are saved into the 
+CS6_Annots folder. If DEBUG is run, then visualized frames are saved under a 
+"visual debugging" folder.
 
 """
 
@@ -36,11 +41,11 @@ from six.moves import xrange
 
 
 
-VID_NAME = '3013.mp4'
+VID_NAME = '407.mp4'
 DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
 OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
 
-DEBUG = True
+DEBUG = False
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Creating CS6 ground truth data')

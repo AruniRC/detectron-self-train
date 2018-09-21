@@ -1,30 +1,38 @@
 #!/usr/bin/env bash
 
 
-###     Faster R-CNN Resnet-50 detector trained on CS6-train-subset, LR=0.0001
-# DET_NAME=frcnn-R-50-C4-1x-8gpu-lr=0.0001
-# TRAIN_IMDB=cs6-subset
-# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml
-# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug11-12-52-16_node151_step/ckpt/model_step29999.pth
-# CONF_THRESH=0.25
-# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
+## --- CS6-GT-subset ---
+# DET_NAME=frcnn-R-50-C4-1x
+# TRAIN_IMDB=CS6-GT-sub-50k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k/Sep15-09-38-08_node121_step/ckpt/model_step49999.pth
 
-## 
-# DET_NAME=frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001
-# TRAIN_IMDB=cs6-GT-chkpt-10k
-# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml
-# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001/Aug26-18-28-46_node112_step/ckpt/model_step9999.pth
+
+
+## --- CS6-GT All videos ---
+# DET_NAME=frcnn-R-50-C4-1x
+# TRAIN_IMDB=CS6-GT-all-30k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step29999.pth
 
 # DET_NAME=frcnn-R-50-C4-1x
-# TRAIN_IMDB=WIDER
-# CFG_PATH=configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml
-# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth
+# TRAIN_IMDB=CS6-GT-all-10k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k/Aug26-18-18-43_node111_step/ckpt/model_step9999.pth
 
 
+## --- CS6-Det videos ---
+# DET_NAME=frcnn-R-50-C4-1x
+# TRAIN_IMDB=CS6-Det-all-30k
+# CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k.yaml
+# WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k/Sep06-16-42-46_node122_step/ckpt/model_step29999.pth
+
+
+## --- CS6 + WIDER Joint training [distill branch] ---
 DET_NAME=frcnn-R-50-C4-1x
-TRAIN_IMDB=CS6-Dets-50k
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k/Sep15-09-38-08_node121_step/ckpt/model_step49999.pth
+TRAIN_IMDB=CS6-GT-easy+WIDER-bs-512-5k
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_30k.yaml
+WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_30k/Sep19-00-22-09_node123_step/ckpt/model_step4999.pth
 
 
 CONF_THRESH=0.1

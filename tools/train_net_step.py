@@ -184,6 +184,9 @@ def main():
         cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
 
+    elif args.dataset == "cs6-train-hp":
+        cfg.TRAIN.DATASETS = ('cs6-train-hp',)
+        cfg.MODEL.NUM_CLASSES = 2
 
     elif args.dataset == "cs6-train-easy-gt":
         cfg.TRAIN.DATASETS = ('cs6-train-easy-gt',)

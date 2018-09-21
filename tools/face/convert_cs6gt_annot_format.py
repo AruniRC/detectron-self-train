@@ -17,7 +17,7 @@ By default the output is saved as:
 
 TODO: Usage (on slurm cluster):
 
-srun --pty --mem 50000 python tools/face/convert_....
+srun --pty --mem 50000 python tools/face/convert_cs6gt_annot_format.py
 
 """
 
@@ -59,9 +59,9 @@ DET_DIR = 'data/CS6_annot/video_annots'
 # VIDEO_LIST_FILE = 'list_video_train_subset.txt'  # parent folder is 'data/CS6'
 
 # CS6 Train GT
-SPLIT = 'test-easy'
+SPLIT = 'val-easy'
 IS_SUBSET = False
-VIDEO_LIST_FILE = 'list_video_test_easy.txt'  # parent folder is 'data/CS6'
+VIDEO_LIST_FILE = 'list_video_val_easy.txt'  # parent folder is 'data/CS6'
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 # ------------------------------------------------------------------------------
