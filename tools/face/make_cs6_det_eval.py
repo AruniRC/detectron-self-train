@@ -54,7 +54,7 @@ import utils.face_utils as face_utils
 #   ***     CS6 "Easy" baseline evaluations     ***
 
 # DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_val-easy_conf-0.1'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-CS6-Dets-50k_val-easy_conf-0.1'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-CS6-GT-easy-fg+WIDER-bs-512-5k_val-easy_conf-0.1'
 
 
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'
@@ -105,6 +105,9 @@ if __name__ == '__main__':
     if vid_list.size == 1:
         vid_list = [vid_list.tolist()] # work-around: iter over singleton np.array 
 
+    # DEBUG
+    # vid_list = ['602.mp4']
+
     for video_name in vid_list:
         print(video_name)
         # Groundtruth file and image list
@@ -121,7 +124,7 @@ if __name__ == '__main__':
             print('Skipping video %s (detections file not found)' % video_name)
             continue
         det_dict = face_utils.parse_wider_gt(det_file)
-        det_out_file = osp.join(out_dir, video_name.split('.')[0] + '.txt')
+        det_out_file = osp.join(out_dir, video_name.split('.')[0] + '.txt')        
         
         with open(det_out_file, 'w') as fid_det:
             # Output bboxes lists for evaluation

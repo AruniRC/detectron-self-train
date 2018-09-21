@@ -66,7 +66,7 @@ def parse_args():
 
 
 
-def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
+def convert_wider_annots(data_dir, out_dir, data_set='WIDER', conf_thresh=0.5):
     """Convert from WIDER FDDB-style format to COCO bounding box"""
 
     # http://cocodataset.org/#format-data: [x,w,width,height]
@@ -120,8 +120,8 @@ def convert_wider_annots(data_dir, out_dir, data_set='WIDER'):
 
 
 
-def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_thresh=0.25):
-    """Convert from FDDB-style detections format to COCO annotations"""
+def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_thresh=0.5):
+    """Convert from WIDER FDDB-style format to COCO bounding box"""
 
         # cs6 subsets
     if data_set=='CS6-subset':
@@ -153,6 +153,8 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
     elif data_set=='CS6-train-easy-det':
         json_name = 'cs6-train-easy-det.json'
 
+    elif data_set=='CS6-train-hp':
+        json_name = 'cs6-train-hp.json'
     else:
         raise NotImplementedError
 
@@ -199,13 +201,12 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
             ann['area'] = gt_bbox[2] * gt_bbox[3]
             ann['bbox'] = gt_bbox[:4]
 
-            if 'score' in data_set:
-                ann['score'] = gt_bbox[4] # for soft-label distillation
-                if gt_bbox[4] < conf_thresh:
-                    continue
+            score = gt_bbox[4]
+            if score < conf_thresh:
+                continue
 
             if 'hp' in data_set:
-                ann['score'] = gt_bbox[4] # for soft-label distillation
+                ann['score'] = score # for soft-label distillation
                 ann['source'] = gt_bbox[5] # annot source: {1: detection, 2:tracker}
 
             if data_set=='CS6-train-easy-det':
@@ -229,6 +230,11 @@ if __name__ == '__main__':
     
     if args.dataset == "wider":
         convert_wider_annots(args.datadir, args.outdir)
+
+
+    # --------------------------------------------------------------------------
+    #   CS6 Train GT
+    # --------------------------------------------------------------------------
     elif args.dataset == "cs6-subset":
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-subset')
@@ -250,11 +256,19 @@ if __name__ == '__main__':
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-gt')
 
+
         # Distillation scores for CS6-Train detections (conf 0.25)
     elif args.dataset == "cs6-train-det-score":
         # set defaults if inputs args are empty
         if not args.annotfile:
             args.annotfile = 'data/CS6_annot/annot-format-GT/cs6_det_annot_train_scores.txt'
+
+
+
+    # --------------------------------------------------------------------------
+    #   CS6 Train unlabeled
+    # --------------------------------------------------------------------------
+        # Pseudo-labels from CS6-Train
 
     elif args.dataset == "cs6-train-det":
         # set defaults if inputs args are empty
@@ -276,6 +290,18 @@ if __name__ == '__main__':
             args.outdir = 'data/CS6_annot'
         convert_cs6_annots(args.annotfile, args.imdir, 
                            args.outdir, data_set='CS6-train-det-0.5')
+
+        # Hard positives from CS6-Train
+    elif args.dataset == "cs6-train-hp":
+        # set defaults if inputs args are empty
+        if not args.annotfile:
+            args.annotfile = 'Outputs/tracklets/hp-res-cs6/hp_cs6_train.txt'
+        if not args.imdir:
+            args.imdir = 'data/CS6_annot'
+        if not args.outdir:
+            args.outdir = 'data/CS6_annot'
+        convert_cs6_annots(args.annotfile, args.imdir, 
+                           args.outdir, data_set='CS6-train-hp', conf_thresh=0.5)
 
 
     # --------------------------------------------------------------------------
@@ -307,7 +333,7 @@ if __name__ == '__main__':
     elif args.dataset == "cs6-train-easy-det":
         # set defaults if inputs args are empty
         if not args.annotfile:
-            args.annotfile = 'Outputs/tracklets/hp-res-cs6/hp_cs6_easy.txt'
+            args.annotfile = 'Outputs/tracklets/hp-res-cs6/hp_cs6_train_easy.txt'
         if not args.imdir:
             args.imdir = 'data/CS6_annot'
         if not args.outdir:

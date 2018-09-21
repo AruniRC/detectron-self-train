@@ -3,7 +3,11 @@
 
 Takes a JSON file and visualizes the annotation boxes on images.
 
+
 Outputs visualized at OUT_DIR/<json_file_basename>/../..*.jpg
+
+srun --mem 10000 python tools/face/viz_json.py
+
 
 """
 
