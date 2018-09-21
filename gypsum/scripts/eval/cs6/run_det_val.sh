@@ -21,10 +21,12 @@
 # WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth
 
 
+
+## --- CS6 + WIDER Joint training [distill branch] ---
 DET_NAME=frcnn-R-50-C4-1x
-TRAIN_IMDB=CS6-Dets-50k
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_50k/Sep15-09-38-08_node121_step/ckpt/model_step49999.pth
+TRAIN_IMDB=CS6-GT+WIDER-bs64-10k
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_bs64_30k.yaml
+WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_bs64_30k/Sep20-00-49-19_node128_step/ckpt/model_step9999.pth
 
 
 CONF_THRESH=0.1

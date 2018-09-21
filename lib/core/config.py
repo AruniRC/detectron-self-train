@@ -118,7 +118,7 @@ __C.TRAIN.JOINT_TRAINING = False
 
 # EDIT: Joint training with two datasets, sample only FG from first dataset
 __C.TRAIN.JOINT_SELECTIVE_FG = False
-
+__C.TRAIN.JOINT_SELECTIVE_BG = False
 
 # ---------------------------------------------------------------------------- #
 # RPN training options
@@ -1014,8 +1014,8 @@ _SHARE_RES5_HEADS = set(
     ]
 )
 
-
-def assert_and_infer_cfg(make_immutable=True):
+# EDIT: make mutable
+def assert_and_infer_cfg(make_immutable=False):
     """Call this function in your script after you have finished setting all cfg
     values that are necessary (e.g., merging a config from a file, merging
     command line config options, etc.). By default, this function will also

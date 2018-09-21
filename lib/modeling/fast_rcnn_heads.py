@@ -81,6 +81,10 @@ def distillation_loss(cls_score, label_int32, gt_score, dist_T=1.0, dist_lambda=
             gt_score (baseline detector scores as groundtruth)
 
     """
+
+    # TODO - single generalized multi-class distillation loss!
+
+
     assert all(gt_score >= 0) & all(gt_score <= 1) # sanity-check
     assert gt_score.shape == label_int32.shape
     assert dist_lambda > 0

@@ -139,13 +139,22 @@ def _sample_rois(roidb, im_scale, batch_idx):
 
     # Select foreground RoIs as those with >= FG_THRESH overlap
     fg_inds = np.where(max_overlaps >= cfg.TRAIN.FG_THRESH)[0]
-    # Guard against the case when an image has fewer than fg_rois_per_image
-    # foreground RoIs
-    fg_rois_per_this_image = np.minimum(fg_rois_per_image, fg_inds.size)
-    # Sample foreground regions without replacement
-    if fg_inds.size > 0:
-        fg_inds = npr.choice(
-            fg_inds, size=fg_rois_per_this_image, replace=False)
+    
+    if cfg.TRAIN.FG_FRACTION == 1:
+        # EDIT: FG_FRACTION is explicitly set to 1
+        fg_rois_per_this_image = fg_rois_per_image
+        # Sample foreground regions WITH replacement
+        if fg_inds.size > 0:
+            fg_inds = npr.choice(
+                fg_inds, size=fg_rois_per_this_image, replace=True)
+    else:
+        # Guard against the case when an image has fewer than fg_rois_per_image
+        # foreground RoIs
+        fg_rois_per_this_image = np.minimum(fg_rois_per_image, fg_inds.size)
+        # Sample foreground regions without replacement
+        if fg_inds.size > 0:
+            fg_inds = npr.choice(
+                fg_inds, size=fg_rois_per_this_image, replace=False)
 
     # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
     bg_inds = np.where((max_overlaps < cfg.TRAIN.BG_THRESH_HI) &
@@ -165,6 +174,7 @@ def _sample_rois(roidb, im_scale, batch_idx):
     sampled_labels = roidb['max_classes'][keep_inds]
     sampled_labels[fg_rois_per_this_image:] = 0  # Label bg RoIs with class 0
     sampled_boxes = roidb['boxes'][keep_inds]
+    
     if cfg.TRAIN.GT_SCORES:
         # EDIT: soft labels
         sampled_scores = roidb['max_scores'][keep_inds] 

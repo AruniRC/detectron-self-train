@@ -203,7 +203,7 @@ class Generalized_RCNN(nn.Module):
                 rpn_ret['bbox_inside_weights'], rpn_ret['bbox_outside_weights'])
             return_dict['losses']['loss_cls'] = loss_cls
             return_dict['losses']['loss_bbox'] = loss_bbox
-            return_dict['metrics']['accuracy_cls'] = accuracy_cls
+            return_dict['metrics']['accuracy_cls'] = accuracy_cls            
 
             # EDIT: soft-labels with distillation loss
             if cfg.TRAIN.GT_SCORES:
