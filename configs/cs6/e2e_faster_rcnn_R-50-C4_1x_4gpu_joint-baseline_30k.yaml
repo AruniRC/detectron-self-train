@@ -2,7 +2,7 @@ MODEL:
   TYPE: generalized_rcnn
   CONV_BODY: ResNet.ResNet50_conv4_body
   FASTER_RCNN: True
-NUM_GPUS: 8
+NUM_GPUS: 4
 RESNETS:
   IMAGENET_PRETRAINED_WEIGHTS: 'data/pretrained_model/resnet50_caffe.pth'
 SOLVER:
@@ -22,7 +22,7 @@ TRAIN:
   SCALES: (800,)
   MAX_SIZE: 1333
   IMS_PER_BATCH: 1
-  BATCH_SIZE_PER_IM: 64
+  BATCH_SIZE_PER_IM: 512
   JOINT_TRAINING: True
 TEST:
   SCALE: 800

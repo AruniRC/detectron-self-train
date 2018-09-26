@@ -32,9 +32,9 @@
 
 ## --- CS6 + WIDER Joint training [distill branch] ---
 DET_NAME=frcnn-R-50-C4-1x
-TRAIN_IMDB=CS6-GT+WIDER-bs64-10k
-CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_bs64_30k.yaml
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_bs64_30k/Sep20-00-49-19_node128_step/ckpt/model_step9999.pth
+TRAIN_IMDB=CS6-train-HP+WIDER-bs512-10k
+CFG_PATH=configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_30k.yaml
+WT_PATH=/mnt/nfs/work1/elm/arunirc/Research/detectron-video/detectron_distill/Detectron-pytorch-video/Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint-baseline_30k/Sep20-23-01-54_node109_step/ckpt/model_step9999.pth
 
 
 CONF_THRESH=0.1

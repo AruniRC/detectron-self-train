@@ -222,6 +222,11 @@ def main():
         cfg.TRAIN.DATASETS = ('cs6-train-gt', 'wider_train')
         cfg.MODEL.NUM_CLASSES = 2
 
+
+    elif args.dataset == "cs6-train-hp+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-hp', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 

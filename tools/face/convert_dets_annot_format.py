@@ -46,9 +46,9 @@ FILES:
         .... 
 
 
-TODO: Usage (on slurm cluster):
+Usage (on slurm cluster):
 
-srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_mining_format.py ...
+srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_annot_format.py ...
 
 """
 
@@ -96,14 +96,25 @@ import utils.face_utils as face_utils
 # ------------------------------------------------------------------------------
 #   For CS6 Train Easy - Hard Positives
 # ------------------------------------------------------------------------------
-IS_HARD_EX = True
-DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/tracklets/hp-res-cs6/'
-VIDEO_LIST_FILE = 'list_video_train_easy.txt'
-CONF_THRESH_LIST = '0.5'
-IS_SUBSET = False
-SPLIT = 'train_easy'
+# IS_HARD_EX = True
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# DET_DIR = 'Outputs/tracklets/hp-res-cs6/'
+# VIDEO_LIST_FILE = 'list_video_train_easy.txt'
+# CONF_THRESH_LIST = '0.5'
+# IS_SUBSET = False
+# SPLIT = 'train_easy'
 
+
+# ------------------------------------------------------------------------------
+#   For CS6 Val Easy
+# ------------------------------------------------------------------------------
+DET_NAME = 'frcnn-R-50-C4-1x'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-CS6-GT-all-30k_val-easy_conf-0.1/'
+VIDEO_LIST_FILE = 'list_video_val_easy.txt'  # parent folder is 'data/CS6'
+CONF_THRESH_LIST = '0.1'    # comma-separated string of thresholds
+SPLIT = 'val_easy'
+IS_SUBSET = False
+IS_HARD_EX = False
 
 
 
@@ -257,7 +268,7 @@ def write_scores_dets(out_file_name, det_dict):
                                                  dets[j, 4]) )
 
 
-# TODO
+
 def write_hard_ex_dets(out_file_name, det_dict):
     '''
     Write the detections, scores included, to a text file.
@@ -332,7 +343,11 @@ if __name__ == '__main__':
         out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_subset_scores.txt')
     else:
-        out_file_name = osp.join(args.output_dir, 
+        if 'val' in args.split:
+            out_file_name = osp.join(args.output_dir, 
+                                 'cs6_annot_eval_scores.txt')
+        else:
+            out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_scores.txt')
 
     print('Writing detections to "score-annot" file: %s' % out_file_name)
