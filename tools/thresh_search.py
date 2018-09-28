@@ -5,7 +5,7 @@ import json
 import numpy as np
 
 import _init_paths
-from result_utils import *
+#from result_utils import *
 from matplotlib import pyplot as plt
 
 def thresh_search(res,class_names):

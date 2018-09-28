@@ -38,6 +38,11 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+     # CS6 evaluation datasets
+     'cs6_annot_eval_val-easy' : {
+        IM_DIR: '/mnt/nfs/work1/elm/arunirc/Research/detectron-video/mask-rcnn.pytorch/data/CS6_annot/',
+        ANN_FN: '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6_gt_annot_val-easy.json'
+     },
      # Pedestrian datasets
      'bdd_peds_full_train' : {
         IM_DIR:

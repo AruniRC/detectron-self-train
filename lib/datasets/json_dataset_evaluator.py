@@ -230,10 +230,12 @@ def _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0
     # max dets index 2: 100 per image
     precision = coco_eval.eval['precision'][ind_lo:(ind_hi + 1), :, :, 0, 2]
     ap_default = np.mean(precision[precision > -1])
+    recall = coco_eval.eval['recall'][ind_lo:(ind_hi + 1), :, 0, 2]
+    ar_default = np.mean(recall[recall > -1])
     logger.info(
         '~~~~ Mean and per-category AP @ IoU=[{:.2f},{:.2f}] ~~~~'.format(
             IoU_lo_thresh, IoU_hi_thresh))
-    logger.info('Overall --> {:.1f}'.format(100 * ap_default))
+    logger.info('Overall --> {:.2f},{:.2f}'.format(100 * ap_default, 100 * ar_default))
     class_maps.update({'Overall' : 100*ap_default})
     for cls_ind, cls in enumerate(json_dataset.classes):
         if cls == '__background__':
@@ -242,7 +244,9 @@ def _log_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0
         precision = coco_eval.eval['precision'][
             ind_lo:(ind_hi + 1), :, cls_ind - 1, 0, 2]
         ap = np.mean(precision[precision > -1])
-        logger.info(str(cls)+' --> {:.1f}'.format(100 * ap))
+        recall = coco_eval.eval['recall'][ind_lo:(ind_hi+1), cls_ind - 1, 0, 2]
+        ar = np.mean(recall[recall > -1])
+        logger.info(str(cls)+' --> {:.2f},{:.2f}'.format(100 * ap, 100 * ar))
         class_maps.update({str(cls) : 100 * ap})
 
     # save class-wise mAP
