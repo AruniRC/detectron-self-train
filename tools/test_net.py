@@ -92,6 +92,11 @@ if __name__ == '__main__':
         cfg.MODEL.NUM_CLASSES = 81
     
     # Specify VAL datasets
+    # CS6 easy val set
+    elif args.dataset == 'cs6_annot_eval_val-easy':
+        cfg.TEST.DATASETS = ('cs6_annot_eval_val-easy',)
+        cfg.MODEL.NUM_CLASSES = 2
+
     # Cityscapes sets
     elif args.dataset == 'cityscapes_val':
         cfg.TEST.DATASETS = ('cityscapes_val',)

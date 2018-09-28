@@ -4,7 +4,7 @@ MODEL:
   FASTER_RCNN: True
 NUM_GPUS: 4
 RESNETS:
-  IMAGENET_PRETRAINED_WEIGHTS: 'data/pretrained_model/resnet50_caffe.pth'
+  IMAGENET_PRETRAINED_WEIGHTS: '/mnt/nfs/work1/elm/arunirc/Research/detectron-video/mask-rcnn.pytorch/data/pretrained_model/resnet50_caffe.pth'
 SOLVER:
   WEIGHT_DECAY: 0.0001
   LR_POLICY: steps_with_decay
