@@ -19,15 +19,16 @@ def poly2bbox(poly):
     return ((x1,y1),(x2,y2))
 
 def cat2id(lab):
-    cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    #cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    cat2id_map = {'person':1} # pedestrians
     
     #cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5} # initial 5 classes
     
     return cat2id_map[lab]
 
 def genJSON(basedir):
-    sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
-    #sel_labels = ['person']
+    #sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
+    sel_labels = ['person'] # pedestrians
     #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
     
     img_dir = os.path.join(basedir,'leftImg8bit')

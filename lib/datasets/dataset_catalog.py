@@ -38,10 +38,15 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+     # CS6 ground truth
+    'cs6_train_gt' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style.json'
+    },
      # CS6 evaluation datasets
      'cs6_annot_eval_val-easy' : {
-        IM_DIR: '/mnt/nfs/work1/elm/arunirc/Research/detectron-video/mask-rcnn.pytorch/data/CS6_annot/',
-        ANN_FN: '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6_gt_annot_val-easy.json'
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6_gt_annot_val-easy.json'
      },
      # Pedestrian datasets
      'bdd_peds_full_train' : {
@@ -67,12 +72,12 @@ DATASETS = {
      'cityscapes_peds_train' : {
          IM_DIR:
             _DATA_DIR + '/cityscapes',
-         ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_peds_train.json'
+         ANN_FN: '/mnt/nfs/work1/elm/pchakrabarty/cityscapes_jsons/cityscapes_peds_train.json'
      },
      'cityscapes_peds_val' : {
         IM_DIR:
             _DATA_DIR + '/cityscapes',
-        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_peds_val.json'
+        ANN_FN: '/mnt/nfs/work1/elm/pchakrabarty/cityscapes_jsons/cityscapes_peds_val.json'
      },
     
     #7-class datasets
