@@ -14,7 +14,18 @@ def show_stats(basedir):
     img_dir = os.path.join(basedir,'images','100k')
     ann_dir = os.path.join(basedir,'labels','100k')
     
-    sel_labels = ['person']
+    #sel_labels = ['person']
+    sel_labels = []
+
+    # select attribute values. set to [] to not restrict an attribute
+    sel_attrib = {
+        'weather'  :['clear'],        #clear, partly cloudy, overcast, rainy, snowy, foggy
+        'scene'    :[],  #residential, highway, city street, parking lot, gas stations, tunnel
+        'timeofday':['daytime']       #dawn/dusk, daytime, night
+    }
+
+    cat_inv = False
+    attrib_inv = True # look at stats of settings other than selected
 
     for subdir in ['train','val']:
         img_subdir = os.path.join(img_dir,subdir)
@@ -43,11 +54,9 @@ def show_stats(basedir):
             name = data['name']
             attrib = data['attributes']
             frames = data['frames']
-
             frame = frames[0]
-            img_count += 1
-            timestamp = frame['timestamp']
             objects = frame['objects']
+            timestamp = frame['timestamp']
             
             # use only images which have the selected categories
             allowed = False
@@ -58,6 +67,22 @@ def show_stats(basedir):
             if len(sel_labels) > 0:
                 if not allowed:
                     continue
+            ###################
+            
+            # check allowed conditions
+            allowed = True
+            for attr in ['weather','scene','timeofday']:
+                if len(sel_attrib[attr]) > 0:
+                    if not (attrib[attr] in sel_attrib[attr]):
+                        allowed = False
+                        break
+            if attrib_inv:
+                allowed = (not allowed)
+            if not allowed:
+                continue
+            ##################
+
+            img_count += 1
 
             # category image count
             for lab in set([t['category'] for t in objects]):
