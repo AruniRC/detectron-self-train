@@ -326,12 +326,22 @@ DATASETS = {
             _DATA_DIR + '/WIDER/wider_face_train_annot_coco_style.json',
     },
 
+
+
+
     # CS6 DATASET SUBSET
     'cs6-subset': {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-subset_face_train_annot_coco_style.json',
+    },
+    
+    'cs6-subset-score': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-subset_face_train_score-annot_coco_style.json',
     },
 
     # CS6 DATASET SUBSET - using GROUND-TRUTH
@@ -357,10 +367,80 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-gt_face_train_annot_coco_style.json',
     },
+
+    # CS6 DATASET NOISY TRAIN
+    'cs6-train-gt-noisy-0.3': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-gt_noisy-0.3.json',
+    },
+    'cs6-train-gt-noisy-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-gt_noisy-0.5.json',
+    },
+
+
+    # CS6 DATASET DETECTIONS DISTILLATION TRAIN
+    'cs6-train-det-score': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-score_face_train_annot_coco_style.json',
+    },
+    'cs6-train-det-score-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-score-0.5_face_train_annot_coco_style.json',
+    },
+
+    
     'cs6-train-det': {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-det_face_train_annot_coco_style.json',
     },
+    'cs6-train-det-0.5': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-det-0.5_face_train_annot_coco_style.json',
+    },
+
+    'cs6-train-easy-gt': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-gt.json',
+    },
+    'cs6-train-easy-gt-sub': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-gt-sub.json',
+    },
+    'cs6-train-easy-hp': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-hp.json',
+    },
+    'cs6-train-easy-det': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-easy-hp.json',
+    },
+
+    'cs6-train-hp':  {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/CS6_annot/cs6-train-hp.json',
+    },
+
 }

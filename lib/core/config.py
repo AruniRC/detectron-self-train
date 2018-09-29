@@ -108,6 +108,18 @@ __C.TRAIN.ASPECT_CROPPING = False
 __C.TRAIN.ASPECT_HI = 2
 __C.TRAIN.ASPECT_LO = 0.5
 
+# EDIT: Use baseline model predictions as gt_scores in distillation loss
+__C.TRAIN.GT_SCORES = False
+__C.TRAIN.DISTILL_LAMBDA = 0.5  # mixing noisy_gt_labels and baseline_gt_scores
+__C.TRAIN.DISTILL_TEMPERATURE = 1.0
+
+# EDIT: Joint training with two datasets, equally sampled
+__C.TRAIN.JOINT_TRAINING = False
+
+# EDIT: Joint training with two datasets, sample only FG from first dataset
+__C.TRAIN.JOINT_SELECTIVE_FG = False
+__C.TRAIN.JOINT_SELECTIVE_BG = False
+
 # ---------------------------------------------------------------------------- #
 # RPN training options
 # ---------------------------------------------------------------------------- #
@@ -1002,8 +1014,8 @@ _SHARE_RES5_HEADS = set(
     ]
 )
 
-
-def assert_and_infer_cfg(make_immutable=True):
+# EDIT: make mutable
+def assert_and_infer_cfg(make_immutable=False):
     """Call this function in your script after you have finished setting all cfg
     values that are necessary (e.g., merging a config from a file, merging
     command line config options, etc.). By default, this function will also

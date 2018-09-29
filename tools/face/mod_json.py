@@ -1,6 +1,9 @@
 """
 Takes a JSON file and output annotation for only one video.
 srun --pty --mem 10000 python tools/face/mod_json.py
+
+srun --pty --mem 10000 python tools/face/mod_json.py
+
 """
 
 from __future__ import absolute_import
@@ -24,9 +27,6 @@ from six.moves import xrange
 from PIL import Image
 from tqdm import tqdm
 from utils import face_utils
-
-
-
 
 JSON_FILE = 'data/CS6_annot/cs6-train-gt_noisy-0.5.json'
 # OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
@@ -186,6 +186,45 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
                             if '1101_' not in x['file_name']}
     gt_images = [x for x in ann_noisy_dict['images'] \
                     if '1101_' not in x['file_name']]
+    
+    for im_info in gt_images:
+        # ground-truth annot
+        im_id = im_info['id']
+        gt_annots = [x for x in ann_noisy_dict['annotations'] \
+                            if x['image_id'] == im_id]
+
+        # locate that image in detections annot
+        det_im_id = det_image_names.get(im_info['file_name'])
+
+        if det_im_id == None:
+            # the gt image has no corresponding image in detections annots
+            for gt_ann in gt_annots:
+                gt_ann['score'] = 0.0
+        else:
+            gt_bboxes = [x['bbox'] for x in gt_annots]
+            det_bboxes = [x['bbox'] for x in ann_det_dict['annotations'] \
+                            if x['image_id'] == det_im_id]
+
+
+            # bipartite matching (Hungarian algorithm)
+            gt_bboxes = np.array(gt_bboxes)
+            det_bboxes = np.array(det_bboxes)
+            # convert [x1 y1 w h] to [x1 y1 x2 y2]
+            gt_bboxes[:,2] += gt_bboxes[:,0]
+            gt_bboxes[:,3] += gt_bboxes[:,1]
+            det_bboxes[:,2] += det_bboxes[:,0]
+            det_bboxes[:,3] += det_bboxes[:,1]
+
+            idx_gt, idx_pred, iou_mat,_ = face_utils.match_bboxes(
+                                            gt_bboxes, det_bboxes)
+
+            if len(idx_gt) > 0 and len(idx_pred) > 0:
+                print(iou_mat)
+            else:
+                for gt_ann in gt_annots:
+                    gt_ann['score'] = 0.0
+
+            print(len(gt_bboxes))
 
     for im_info in gt_images:
         # ground-truth annot
@@ -225,6 +264,52 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
                     gt_ann['score'] = 0.0
 
             print(len(gt_bboxes))
+
+
+        print(im_info)
+        # TODO - sanity-check: assert all gt-annotations have a key 'score'
+
+
+
+
+
+    # ann_dict['images'] = vid_images
+    # ann_dict['annotations'] = vid_annots
+
+    out_file = osp.join(output_dir, 
+                osp.splitext(osp.basename(json_noisy))[0]) \
+                + '_distill.json'
+    with open(out_file, 'w', encoding='utf8') as outfile:
+        outfile.write(json.dumps(ann_noisy_dict))
+
+
+
+
+if __name__ == '__main__':
+    
+
+    args = parse_args()
+    print(args)
+    output_dir = args.output_dir
+    json_file = args.json_file
+
+
+    if args.task == 'single-video':
+        video_file == args.video
+        single_video_annots(output_dir, video_file, json_file)
+       
+    elif args.task == 'noisy-label':
+        np.random.seed(0)
+        make_noisy_annots(output_dir, json_file, 
+                          bbox_noise_level=args.bbox_noise_level)
+
+    elif args.task == 'distill-label':
+        # 
+        np.random.seed(0)
+        make_distill_annots(output_dir, json_file, args.json_file_scores)
+        
+    else:
+        raise NotImplementedError
 
 
         print(im_info)

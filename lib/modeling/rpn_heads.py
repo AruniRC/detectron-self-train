@@ -117,8 +117,8 @@ class single_scale_rpn_outputs(nn.Module):
 
         if cfg.MODEL.FASTER_RCNN :
             if self.training:
-                # Add op that generates training labels for in-network RPN proposals
-                blobs_out = self.RPN_GenerateProposalLabels(rpn_rois, roidb, im_info)
+                # Add op that generates training labels for in-network RPN proposals                
+                blobs_out = self.RPN_GenerateProposalLabels(rpn_rois, roidb, im_info)                
                 return_dict.update(blobs_out)
             else:
                 # Alias rois to rpn_rois for inference

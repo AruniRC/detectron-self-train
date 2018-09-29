@@ -16,7 +16,7 @@ import utils.blob as blob_utils
 
 class RoiDataLoader(data.Dataset):
     def __init__(self, roidb, num_classes, training=True):
-        self._roidb = roidb
+        self._roidb = roidb        
         self._num_classes = num_classes
         self.training = training
         self.DATA_SIZE = len(self._roidb)
@@ -26,11 +26,13 @@ class RoiDataLoader(data.Dataset):
         single_db = [self._roidb[index]]
         blobs, valid = get_minibatch(single_db)
         #TODO: Check if minibatch is valid ? If not, abandon it.
-        # Need to change _worker_loop in torch.utils.data.dataloader.py.
+        # Need to change _worker_loop in torch.utils.data.dataloader.py.        
 
         # Squeeze batch dim
         for key in blobs:
             if key != 'roidb':
+                # print('%s %s' % (key, type(blobs[key])))
+                # print(blobs[key].shape)
                 blobs[key] = blobs[key].squeeze(axis=0)
 
         if self._roidb[index]['need_crop']:
@@ -40,9 +42,10 @@ class RoiDataLoader(data.Dataset):
             boxes = entry['boxes']
             invalid = (boxes[:, 0] == boxes[:, 2]) | (boxes[:, 1] == boxes[:, 3])
             valid_inds = np.nonzero(~ invalid)[0]
+
             if len(valid_inds) < len(boxes):
                 for key in ['boxes', 'gt_classes', 'seg_areas', 'gt_overlaps', 'is_crowd',
-                            'box_to_gt_ind_map', 'gt_keypoints']:
+                            'box_to_gt_ind_map', 'gt_keypoints', 'gt_scores']: # EDIT: gt_scores
                     if key in entry:
                         entry[key] = entry[key][valid_inds]
                 entry['segms'] = [entry['segms'][ind] for ind in valid_inds]
@@ -232,6 +235,7 @@ def collate_minibatch(list_of_blobs):
     A batch contains NUM_GPUS minibatches and image size in different minibatch may be different.
     Hence, we need to stack smaples from each minibatch seperately.
     """
+    # print(list_of_blobs[0])
     Batch = {key: [] for key in list_of_blobs[0]}
     # Because roidb consists of entries of variable length, it can't be batch into a tensor.
     # So we keep roidb in the type of "list of ndarray".

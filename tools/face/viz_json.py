@@ -3,6 +3,12 @@
 
 Takes a JSON file and visualizes the annotation boxes on images.
 
+
+Outputs visualized at OUT_DIR/<json_file_basename>/../..*.jpg
+
+srun --mem 10000 python tools/face/viz_json.py
+
+
 """
 
 from __future__ import absolute_import
@@ -26,8 +32,10 @@ from tqdm import tqdm
 
 
 
-JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
-# OUT_DIR = '/mnt/nfs/work1/elm/arunirc/Data/CS6_annots'
+
+# JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
+JSON_FILE = 'data/CS6_annot/cs6-train-easy-gt-sub.json'
+
 OUT_DIR = 'Outputs/visualizations/'
 
 DEBUG = False
@@ -91,7 +99,7 @@ if __name__ == '__main__':
     out_dir = osp.join(args.output_dir, 
                        osp.splitext(osp.basename(args.json_file))[0])
     if not osp.exists(out_dir):
-        os.makedirs(out_dir, exist_ok=True)
+        os.makedirs(out_dir, exist_ok=True)    
     
     i = 0
     for img_annot in tqdm(ann_dict['images']):

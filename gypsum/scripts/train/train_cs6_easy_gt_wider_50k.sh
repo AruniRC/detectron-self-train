@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=Dtrain_cs6-GT
-#SBATCH -o gypsum/logs/%j_train_cs6-GT.txt 
-#SBATCH -e gypsum/errs/%j_train_cs6-GT.txt
+#SBATCH --job-name=cs6-easy-GT-WIDER
+#SBATCH -o gypsum/logs/%j_train_cs6-easy-GT-WIDER.txt 
+#SBATCH -e gypsum/errs/%j_train_cs6-easy-GT-WIDER.txt
 #SBATCH -p 1080ti-long
 #SBATCH --gres=gpu:8
 #SBATCH --mem=200000
@@ -15,8 +15,8 @@
 
 
 python tools/train_net_step.py \
-    --dataset cs6-train-gt \
-    --cfg configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_100k_lr=0.0001.yaml  \
+    --dataset cs6-train-easy-gt-sub+WIDER \
+    --cfg configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_joint_50k.yaml  \
     --load_ckpt Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth \
     --use_tfboard
 

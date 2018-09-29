@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from core.config import cfg
 import nn as mynn
 import utils.net as net_utils
-
+import numpy as np
 
 class fast_rcnn_outputs(nn.Module):
     def __init__(self, dim_in):
@@ -52,18 +52,61 @@ def fast_rcnn_losses(cls_score, bbox_pred, label_int32, bbox_targets,
     device_id = cls_score.get_device()
     rois_label = Variable(torch.from_numpy(label_int32.astype('int64'))).cuda(device_id)
     loss_cls = F.cross_entropy(cls_score, rois_label)
+    assert not net_utils.is_nan_loss(loss_cls)
 
     bbox_targets = Variable(torch.from_numpy(bbox_targets)).cuda(device_id)
     bbox_inside_weights = Variable(torch.from_numpy(bbox_inside_weights)).cuda(device_id)
     bbox_outside_weights = Variable(torch.from_numpy(bbox_outside_weights)).cuda(device_id)
     loss_bbox = net_utils.smooth_l1_loss(
         bbox_pred, bbox_targets, bbox_inside_weights, bbox_outside_weights)
+    assert not net_utils.is_nan_loss(loss_bbox)
 
     # class accuracy
     cls_preds = cls_score.max(dim=1)[1].type_as(rois_label)
     accuracy_cls = cls_preds.eq(rois_label).float().mean(dim=0)
 
     return loss_cls, loss_bbox, accuracy_cls
+
+
+def distillation_loss(cls_score, label_int32, gt_score, dist_T=1.0, dist_lambda=0.5, cls_id=1):
+    """
+    Compute the knowledge-distillation (KD) loss given outputs, hard labels, soft labels. 
+    This currently supports a single foreground category.
+
+    soft_label = lambda*label_noisy + (1 - lambda)*baseline_score
+
+    Loss = BinaryCrossEntropy(predicted_scores, soft_label)
+
+    Inputs: cls_score (network predictions), label_int32 (hard labels), 
+            gt_score (baseline detector scores as groundtruth)
+
+    """
+
+    # TODO - single generalized multi-class distillation loss!
+
+
+    assert all(gt_score >= 0) & all(gt_score <= 1) # sanity-check
+    assert gt_score.shape == label_int32.shape
+    assert dist_lambda > 0
+    assert dist_T > 0
+    
+    pred = cls_score[:, cls_id]  # prediction logits
+    device_id = pred.get_device()
+    label = torch.from_numpy(label_int32.astype('float32'))
+    gt_score = torch.from_numpy(gt_score.astype('float32'))
+    # get logits from sigmoid, apply temperature, reapply sigmoid
+    if dist_T != 1.0:
+        # NOTE: this applies temperature to only the gt_score
+        # TODO: check numerical stability
+        gt_logit = torch.log(gt_score) - torch.log(1 - gt_score) 
+        gt_score = F.sigmoid(gt_logit / dist_T)
+    # blend "baseline gt score" and "label"
+    soft_label = dist_lambda*label + (1-dist_lambda)*gt_score
+    soft_label = Variable(soft_label).cuda(device_id)     
+    loss_distill = F.binary_cross_entropy_with_logits(pred, soft_label)
+    assert not net_utils.is_nan_loss(loss_distill)
+
+    return loss_distill
 
 
 # ---------------------------------------------------------------------------- #

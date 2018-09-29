@@ -6,8 +6,8 @@ A symlink 'data/CS6' should point to the CS6 data root location.
 (This generated dets file can then be converted into the trianing JSON using 
 lib/datasets/wider/convert_coco....)
 
-Two types of lists are generated - one containing the soft-labels (scores) and the 
-other containing just the detections as positive ground-truth.
+Two types of lists are generated - one containing the "soft-labels" (SCORES) and  
+the other containing just the detections as positive ground-truth.
 By default the output files are saved in a sub-folder created under DET_DIR.
 
 CS6 VIDEO DET FORMAT:
@@ -46,9 +46,9 @@ FILES:
         .... 
 
 
-TODO: Usage (on slurm cluster):
+Usage (on slurm cluster):
 
-srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_mining_format.py ...
+srun --pty --mem 50000 --gres gpu:1 python tools/face/convert_dets_annot_format.py ...
 
 """
 
@@ -79,13 +79,44 @@ import _init_paths
 import utils.face_utils as face_utils
 
 
+# Quick-specify settings:
 
+
+# ------------------------------------------------------------------------------
+#   For CS6 Train - Detections as pseudo-labels
+# ------------------------------------------------------------------------------
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
+# VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
+# CONF_THRESH_LIST = '0.5'    # comma-separated string of thresholds
+# SPLIT = 'train'
+# IS_SUBSET = False
+
+
+# ------------------------------------------------------------------------------
+#   For CS6 Train Easy - Hard Positives
+# ------------------------------------------------------------------------------
+# IS_HARD_EX = True
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# DET_DIR = 'Outputs/tracklets/hp-res-cs6/'
+# VIDEO_LIST_FILE = 'list_video_train_easy.txt'
+# CONF_THRESH_LIST = '0.5'
+# IS_SUBSET = False
+# SPLIT = 'train_easy'
+
+
+# ------------------------------------------------------------------------------
+#   For CS6 Val Easy
+# ------------------------------------------------------------------------------
 DET_NAME = 'frcnn-R-50-C4-1x'
-DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_train-video_conf-0.25/'
-VIDEO_LIST_FILE = 'list_video_train.txt'  # parent folder is 'data/CS6'
-CONF_THRESH_LIST = '0.5'    # comma-separated string of thresholds
-SPLIT = 'train'
+DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-CS6-GT-all-30k_val-easy_conf-0.1/'
+VIDEO_LIST_FILE = 'list_video_val_easy.txt'  # parent folder is 'data/CS6'
+CONF_THRESH_LIST = '0.1'    # comma-separated string of thresholds
+SPLIT = 'val_easy'
 IS_SUBSET = False
+IS_HARD_EX = False
+
+
 
 # OUT_DIR = 'Outputs/evaluations/%s/cs6/mining-detections'  # usually unchanged
 
@@ -129,6 +160,11 @@ def parse_args():
         help='Flag for subset', 
         action='store_true',
         default=IS_SUBSET)
+    parser.add_argument(
+        '--hard_ex', 
+        help='Flag for hard examples', 
+        action='store_true',
+        default=IS_HARD_EX)
 
     return parser.parse_args()
 
@@ -233,6 +269,39 @@ def write_scores_dets(out_file_name, det_dict):
 
 
 
+def write_hard_ex_dets(out_file_name, det_dict):
+    '''
+    Write the detections, scores included, to a text file.
+
+    Output dets format: 
+        <image-path>
+        <num-dets>
+        [x1, y1, w, h, score, source]
+        [x1, y1, w, h, score, source]
+        ....
+
+    The format of <image-path>: 
+        frames/<vid-name>/<vid-name>_<frame-num>.jpg
+
+    '''
+    with open(out_file_name, 'w') as fid:
+        for im_name, dets in det_dict.items():
+            dets = np.array(dets)
+            if dets.shape[0] == 0:
+                continue  # skip images with no detections
+
+            vid_name = im_name.split('_')[0] # im_name format: <vid-name>_<frame-num>
+            im_path = 'frames/%s/%s.jpg' % (vid_name, im_name)
+            fid.write(im_path + '\n')
+            fid.write(str(dets.shape[0]) + '\n')
+            for j in xrange(dets.shape[0]):
+                fid.write('%f %f %f %f %f\n' % ( dets[j, 0], dets[j, 1], 
+                                                 dets[j, 2], dets[j, 3], 
+                                                 dets[j, 4]) )
+
+
+
+
 if __name__ == '__main__':
 
     args = parse_args()
@@ -266,12 +335,19 @@ if __name__ == '__main__':
 
     prune_extra_images(det_dict, det_frame_set, im_frame_set)
 
+    # --------------------------------------------------------------------------
+    # SOFT-LABELS (SCORES) DETECTIONS
     # Write all detections into an annot file (scores as soft-labels)
+    # --------------------------------------------------------------------------
     if args.subset:
         out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_subset_scores.txt')
     else:
-        out_file_name = osp.join(args.output_dir, 
+        if 'val' in args.split:
+            out_file_name = osp.join(args.output_dir, 
+                                 'cs6_annot_eval_scores.txt')
+        else:
+            out_file_name = osp.join(args.output_dir, 
                                  'cs6_annot_train_scores.txt')
 
     print('Writing detections to "score-annot" file: %s' % out_file_name)
@@ -279,7 +355,11 @@ if __name__ == '__main__':
     print('Done.')
     # TODO - print a little summary of num. dets. num. images.
 
+
+    # --------------------------------------------------------------------------
+    # HARD-LABELS DETECTIONS
     # Write detections as "hard-annot" into a file (*thresholded* scores)
+    # --------------------------------------------------------------------------
     for conf_thresh in thresh_list:
         if args.subset:
             thresh_file_name = osp.join(args.output_dir, 

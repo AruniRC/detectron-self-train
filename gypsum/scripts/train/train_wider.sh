@@ -8,6 +8,7 @@
 ##SBATCH --cpus-per-task=4
 ##SBATCH --mem-per-cpu=4096
 
+# cs6-subset_face_train_score-annot_coco_style
 
 python tools/train_net_step.py \
     --dataset wider_train \

@@ -81,6 +81,9 @@ def get_fast_rcnn_blob_names(is_training=True):
         # 'keypoint_loss_normalizer': optional normalization factor to use if
         # cfg.KRCNN.NORMALIZE_BY_VISIBLE_KEYPOINTS is False.
         blob_names += ['keypoint_loss_normalizer']
+    if is_training and cfg.TRAIN.GT_SCORES:
+        # EDIT: Use groundtruth soft labels for distillation loss
+        blob_names += ['gt_scores'] 
     if cfg.FPN.FPN_ON and cfg.FPN.MULTILEVEL_ROIS:
         # Support for FPN multi-level rois without bbox reg isn't
         # implemented (... and may never be implemented)
@@ -136,13 +139,22 @@ def _sample_rois(roidb, im_scale, batch_idx):
 
     # Select foreground RoIs as those with >= FG_THRESH overlap
     fg_inds = np.where(max_overlaps >= cfg.TRAIN.FG_THRESH)[0]
-    # Guard against the case when an image has fewer than fg_rois_per_image
-    # foreground RoIs
-    fg_rois_per_this_image = np.minimum(fg_rois_per_image, fg_inds.size)
-    # Sample foreground regions without replacement
-    if fg_inds.size > 0:
-        fg_inds = npr.choice(
-            fg_inds, size=fg_rois_per_this_image, replace=False)
+    
+    if cfg.TRAIN.FG_FRACTION == 1:
+        # EDIT: FG_FRACTION is explicitly set to 1
+        fg_rois_per_this_image = fg_rois_per_image
+        # Sample foreground regions WITH replacement
+        if fg_inds.size > 0:
+            fg_inds = npr.choice(
+                fg_inds, size=fg_rois_per_this_image, replace=True)
+    else:
+        # Guard against the case when an image has fewer than fg_rois_per_image
+        # foreground RoIs
+        fg_rois_per_this_image = np.minimum(fg_rois_per_image, fg_inds.size)
+        # Sample foreground regions without replacement
+        if fg_inds.size > 0:
+            fg_inds = npr.choice(
+                fg_inds, size=fg_rois_per_this_image, replace=False)
 
     # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
     bg_inds = np.where((max_overlaps < cfg.TRAIN.BG_THRESH_HI) &
@@ -162,6 +174,12 @@ def _sample_rois(roidb, im_scale, batch_idx):
     sampled_labels = roidb['max_classes'][keep_inds]
     sampled_labels[fg_rois_per_this_image:] = 0  # Label bg RoIs with class 0
     sampled_boxes = roidb['boxes'][keep_inds]
+    
+    if cfg.TRAIN.GT_SCORES:
+        # EDIT: soft labels
+        sampled_scores = roidb['max_scores'][keep_inds] 
+        sampled_scores[fg_rois_per_this_image:] = 0
+        assert all((sampled_scores>0) == (sampled_labels>0)) # sanity-check
 
     if 'bbox_targets' not in roidb:
         gt_inds = np.where(roidb['gt_classes'] > 0)[0]
@@ -189,6 +207,10 @@ def _sample_rois(roidb, im_scale, batch_idx):
         bbox_targets=bbox_targets,
         bbox_inside_weights=bbox_inside_weights,
         bbox_outside_weights=bbox_outside_weights)
+
+    # EDIT: soft labels
+    if cfg.TRAIN.GT_SCORES:
+        blob_dict['gt_scores'] = sampled_scores.astype(np.float32, copy=False)
 
     # Optionally add Mask R-CNN blobs
     if cfg.MODEL.MASK_ON:

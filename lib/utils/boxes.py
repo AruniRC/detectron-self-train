@@ -219,6 +219,8 @@ def bbox_transform_inv(boxes, gt_boxes, weights=(1.0, 1.0, 1.0, 1.0)):
     gt_ctr_x = gt_boxes[:, 0] + 0.5 * gt_widths
     gt_ctr_y = gt_boxes[:, 1] + 0.5 * gt_heights
 
+    # print('%f    %f ' % (gt_widths.max(), ex_widths.max()))
+
     wx, wy, ww, wh = weights
     targets_dx = wx * (gt_ctr_x - ex_ctr_x) / ex_widths
     targets_dy = wy * (gt_ctr_y - ex_ctr_y) / ex_heights

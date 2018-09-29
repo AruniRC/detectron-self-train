@@ -34,6 +34,10 @@ def get_rpn_blob_names(is_training=True):
                 'rpn_bbox_inside_weights_wide',
                 'rpn_bbox_outside_weights_wide'
             ]
+        # if cfg.TRAIN.GT_SCORES:
+        #     blob_names += ['gt_scores'] # EDIT: soft labels
+        # if cfg.TRAIN.JOINT_TRAINING:
+        #     blob_names += ['dataset_id']
     return blob_names
 
 
@@ -74,6 +78,12 @@ def add_rpn_blobs(blobs, im_scales, roidb):
         gt_boxes[:, 5] = entry['gt_classes'][gt_inds]
         im_info = np.array([[im_height, im_width, scale]], dtype=np.float32)
         blobs['im_info'].append(im_info)
+        # EDIT: joint training
+        # if cfg.TRAIN.JOINT_TRAINING:
+        #     dataset_name = entry['dataset'].name
+        #     dataset_id = np.array([[cfg.TRAIN.DATASETS.index(dataset_name)]], dtype=np.float32)
+        #     blobs['dataset_id'].append(dataset_id)
+            # print(blobs['dataset_id'])
 
         # Add RPN targets
         if cfg.FPN.FPN_ON and cfg.FPN.MULTILEVEL_RPN:
@@ -98,8 +108,9 @@ def add_rpn_blobs(blobs, im_scales, roidb):
 
     valid_keys = [
         'has_visible_keypoints', 'boxes', 'segms', 'seg_areas', 'gt_classes',
-        'gt_overlaps', 'is_crowd', 'box_to_gt_ind_map', 'gt_keypoints'
-    ]
+        'gt_overlaps', 'is_crowd', 'box_to_gt_ind_map', 'gt_keypoints', 
+        'gt_scores'
+    ] # EDIT: "gt_scores" is a valid key
     minimal_roidb = [{} for _ in range(len(roidb))]
     for i, e in enumerate(roidb):
         for k in valid_keys:

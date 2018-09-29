@@ -145,6 +145,7 @@ class Generalized_RCNN(nn.Module):
 
     def _forward(self, data, im_info, roidb=None, **rpn_kwargs):
         im_data = data
+
         if self.training:
             roidb = list(map(lambda x: blob_utils.deserialize(x)[0], roidb))
 
@@ -195,13 +196,24 @@ class Generalized_RCNN(nn.Module):
                 return_dict['losses']['loss_rpn_cls'] = loss_rpn_cls
                 return_dict['losses']['loss_rpn_bbox'] = loss_rpn_bbox
 
+
             # bbox loss
             loss_cls, loss_bbox, accuracy_cls = fast_rcnn_heads.fast_rcnn_losses(
                 cls_score, bbox_pred, rpn_ret['labels_int32'], rpn_ret['bbox_targets'],
                 rpn_ret['bbox_inside_weights'], rpn_ret['bbox_outside_weights'])
             return_dict['losses']['loss_cls'] = loss_cls
             return_dict['losses']['loss_bbox'] = loss_bbox
-            return_dict['metrics']['accuracy_cls'] = accuracy_cls
+            return_dict['metrics']['accuracy_cls'] = accuracy_cls            
+
+            # EDIT: soft-labels with distillation loss
+            if cfg.TRAIN.GT_SCORES:
+                loss_distill = fast_rcnn_heads.distillation_loss(
+                                cls_score, rpn_ret['labels_int32'], 
+                                rpn_ret['gt_scores'], 
+                                cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                cfg.TRAIN.DISTILL_LAMBDA)
+                # return_dict['losses']['loss_distill'] = loss_distill
+                return_dict['losses']['loss_cls'] = loss_distill
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):
