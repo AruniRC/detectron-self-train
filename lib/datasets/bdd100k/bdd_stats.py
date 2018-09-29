@@ -14,6 +14,8 @@ def show_stats(basedir):
     img_dir = os.path.join(basedir,'images','100k')
     ann_dir = os.path.join(basedir,'labels','100k')
     
+    sel_labels = ['person']
+
     for subdir in ['train','val']:
         img_subdir = os.path.join(img_dir,subdir)
         subdir = os.path.join(ann_dir,subdir)
@@ -46,6 +48,17 @@ def show_stats(basedir):
             img_count += 1
             timestamp = frame['timestamp']
             objects = frame['objects']
+            
+            # use only images which have the selected categories
+            allowed = False
+            for lab in set(t['category'] for t in objects):
+                if lab in sel_labels:
+                    allowed = True
+                    break
+            if len(sel_labels) > 0:
+                if not allowed:
+                    continue
+
             # category image count
             for lab in set([t['category'] for t in objects]):
                 if lab in lab_img_count.keys():

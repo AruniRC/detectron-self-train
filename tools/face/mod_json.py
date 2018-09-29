@@ -270,4 +270,4 @@ if __name__ == '__main__':
         make_distill_annots(output_dir, json_file, args.json_file_scores)
         
     else:
-raise NotImplementedError
+        raise NotImplementedError

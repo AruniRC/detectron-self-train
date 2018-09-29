@@ -1,6 +1,5 @@
 import os
 import sys
-import cv2
 import json
 import pickle
 import logging
@@ -21,6 +20,12 @@ gt_dataset_name = 'cs6_train_gt'
 
 # CS6 Ground Truth -- full dataset (NOT prediction from a model: actual ground truth for the full dataset)
 cs6_gt_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style.json'
+
+# Noisy CS6 ground truth JSONs
+cs6_noisy_gt_02 = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-0.20.json'
+cs6_noisy_gt_05 = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-0.50.json'
+cs6_noisy_gt_08 = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-0.80.json'
+cs6_noisy_gt_10 = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-1.00.json'
 
 # Ground truth JSON (NOT prediction from a model: actualy ground truth)
 cs6_gt_val_easy_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6_gt_annot_val-easy.json'
@@ -44,7 +49,7 @@ cs6_hp_model_det_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/train-CS6-Tra
 cs6_hp_and_wider_bs512_gpu4_5k_model_det_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/train-CS6-HP+WIDER-bs512-gpu4-5k_val-easy_conf-0.1_cs6_annot_eval_scores.json'
 
 
-det_json = cs6_gt_json
+det_json = cs6_noisy_gt_10 #cs6_gt_json
 
 output_dir = 'tmp'
 
@@ -162,3 +167,4 @@ def eval_json(det_json,gt_json):
 
 if __name__ == '__main__':
     eval_json(det_json,gt_dataset_name)
+    print('Det json was:',det_json)
