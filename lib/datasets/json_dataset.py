@@ -110,6 +110,9 @@ class JsonDataset(object):
         if cfg.TRAIN.GT_SCORES:
             keys.append('gt_scores')
 
+        if cfg.TRAIN.JOINT_TRAINING:
+            keys.append('dataset_id')  # EDIT: add 'dataset_id' field for joint trng
+
         if self.keypoints is not None:
             keys += ['gt_keypoints', 'has_visible_keypoints']
         return keys
@@ -217,6 +220,12 @@ class JsonDataset(object):
         if has_scores:
             if not 'gt_scores' in entry.keys():
                 entry['gt_scores'] = np.empty((0), dtype=np.float32)
+        # EDIT: dataset name
+        has_dataset = ('dataset' in objs[0].keys())
+        if has_dataset:
+            if not 'dataset_id' in entry.keys():
+                entry['dataset_id'] = np.empty((0), dtype=np.int32)
+
         # Sanitize bboxes -- some are invalid
         valid_objs = []
         valid_segms = []
@@ -253,6 +262,10 @@ class JsonDataset(object):
         )
         if has_scores:
             gt_scores = np.zeros((num_valid_objs), dtype=entry['gt_scores'].dtype)  # EDIT: scores
+        
+        if has_dataset:
+            dataset_annot = np.zeros((num_valid_objs), dtype=entry['dataset_id'].dtype)  # EDIT: dataset
+
         seg_areas = np.zeros((num_valid_objs), dtype=entry['seg_areas'].dtype)
         is_crowd = np.zeros((num_valid_objs), dtype=entry['is_crowd'].dtype)
         box_to_gt_ind_map = np.zeros(
@@ -271,6 +284,8 @@ class JsonDataset(object):
             gt_classes[ix] = cls
             if has_scores:
                 gt_scores[ix] = obj['score'] # EDIT: scores
+            if has_dataset:
+                dataset_annot[ix] = cfg.TRAIN.DATASETS.index(obj['dataset']) # EDIT: dataset id
             seg_areas[ix] = obj['area']
             is_crowd[ix] = obj['iscrowd']
             box_to_gt_ind_map[ix] = ix
@@ -290,8 +305,12 @@ class JsonDataset(object):
         # entry['boxes'] = np.append(
         #     entry['boxes'], boxes.astype(np.int).astype(np.float), axis=0)
         entry['gt_classes'] = np.append(entry['gt_classes'], gt_classes)
+        
         if has_scores:
             entry['gt_scores'] = np.append(entry['gt_scores'], gt_scores) # EDIT: scores
+        if has_dataset:
+            entry['dataset_id'] = np.append(entry['dataset_id'], dataset_annot) # EDIT: dataset
+        
         entry['seg_areas'] = np.append(entry['seg_areas'], seg_areas)
         entry['gt_overlaps'] = np.append(
             entry['gt_overlaps'].toarray(), gt_overlaps, axis=0
@@ -316,17 +335,28 @@ class JsonDataset(object):
         assert len(roidb) == len(cached_roidb)
         
         gt_scores = [] # EDIT: gt_scores
+        gt_dataset = [] # EDIT: dataset 
+        cache_sentinel_index = 7
         for entry, cached_entry in zip(roidb, cached_roidb):
             values = [cached_entry[key] for key in self.valid_cached_keys]
             boxes, segms, gt_classes, seg_areas, gt_overlaps, is_crowd, \
-                box_to_gt_ind_map = values[:7]
+                box_to_gt_ind_map = values[:cache_sentinel_index]
+            
             if self.keypoints is not None:
-                gt_keypoints, has_visible_keypoints = values[7:]
-            elif len(values) == 8:
+                gt_keypoints, has_visible_keypoints = values[cache_sentinel_index:]
+            else:
                 # EDIT: if not keypoints, but we have 8th value, it is "gt_scores"
-                gt_scores = values[7]
-                if not 'gt_scores' in entry.keys():
-                    entry['gt_scores'] = np.empty((0), dtype=np.float32)
+                if 'gt_scores' in self.valid_cached_keys:
+                    gt_scores = values[cache_sentinel_index]
+                    if not 'gt_scores' in entry.keys():
+                        entry['gt_scores'] = np.empty((0), dtype=np.float32)
+                    cache_sentinel_index += 1
+
+                if 'dataset_id' in self.valid_cached_keys:
+                    gt_dataset = values[cache_sentinel_index]
+                    if not 'dataset_id' in entry.keys():
+                        entry['dataset_id'] = np.empty((0), dtype=np.int32)
+
             entry['boxes'] = np.append(entry['boxes'], boxes, axis=0)
             entry['segms'].extend(segms)
             # To match the original implementation:
@@ -346,6 +376,8 @@ class JsonDataset(object):
                 entry['has_visible_keypoints'] = has_visible_keypoints
             if not len(gt_scores)==0:
                 entry['gt_scores'] = np.append(entry['gt_scores'], gt_scores)
+            if not len(gt_dataset)==0:
+                entry['dataset_id'] = np.append(entry['dataset_id'], gt_dataset)
 
     def _add_proposals_from_file(
         self, roidb, proposal_file, min_proposal_size, top_k, crowd_thresh
@@ -516,7 +548,12 @@ def _merge_proposal_boxes_into_roidb(roidb, box_list):
                 entry['gt_scores'],
                 np.zeros((num_boxes), dtype=entry['gt_scores'].dtype)
         )
-
+        if cfg.TRAIN.JOINT_TRAINING:
+            # EDIT: dataset labels for joint
+            entry['dataset_id'] = np.append(
+                entry['dataset_id'],
+                np.zeros((num_boxes), dtype=entry['dataset_id'].dtype)
+        )
 
 def _filter_crowd_proposals(roidb, crowd_thresh):
     """Finds proposals that are inside crowd regions and marks them as
@@ -554,6 +591,11 @@ def _add_class_assignments(roidb):
             # EDIT: soft labels
             entry['max_scores'] = entry['gt_scores'][entry['box_to_gt_ind_map']]
             assert all((entry['max_scores']>0) == (entry['max_classes']>0))
+        if cfg.TRAIN.JOINT_TRAINING:
+            # EDIT: dataset names
+            entry['max_dataset_id'] = entry['dataset_id'][entry['box_to_gt_ind_map']]
+            pass
+
         # sanity checks
         # if max overlap is 0, the class must be background (class 0)
         zero_inds = np.where(max_overlaps == 0)[0]

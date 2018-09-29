@@ -265,7 +265,7 @@ DATASETS = {
         IM_DIR:
             _DATA_DIR + '/CS6_annot',
         ANN_FN:
-            _DATA_DIR + '/CS6_annot/cs6-train-gt_face_train_annot_coco_style.json',
+            _DATA_DIR + '/CS6_annot/cs6-train-gt.json',
     },
 
     # CS6 DATASET NOISY TRAIN

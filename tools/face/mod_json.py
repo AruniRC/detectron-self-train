@@ -5,6 +5,18 @@ Takes a JSON file and output annotation for only one video.
 
 srun --pty --mem 10000 python tools/face/mod_json.py
 
+
+By default output JSONs are saved under 'Outputs/modified_annots/'
+
+
+Usage 1: add "dataset" field to each annot
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task dataset-annot \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
+
+
 """
 
 from __future__ import absolute_import
@@ -67,6 +79,10 @@ def parse_args():
     parser.add_argument(
         '--json_file_scores', help='Name of scores JSON file', 
         default=JSON_FILE_SCORES
+    )
+    parser.add_argument(
+        '--dataset_name', help='Name of dataset', 
+        default=None
     )
     return parser.parse_args()
 
@@ -235,10 +251,6 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
         print(im_info)
         # TODO - sanity-check: assert all gt-annotations have a key 'score'
 
-
-
-
-
     # ann_dict['images'] = vid_images
     # ann_dict['annotations'] = vid_annots
 
@@ -248,6 +260,29 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
     with open(out_file, 'w', encoding='utf8') as outfile:
         outfile.write(json.dumps(ann_noisy_dict))
 
+
+
+
+# ------------------------------------------------------------------------------
+def add_dataset_annots(output_dir, json_file, data_set):
+# ------------------------------------------------------------------------------
+    ''' Add a 'dataset' field to every annotation '''
+    if not osp.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(json_file) as f:
+        ann_dict = json.load(f)
+    print(ann_dict.keys())
+
+    # ann_dict['images'] = vid_images
+    for annot in ann_dict['annotations']:
+        annot['dataset'] = data_set
+
+    out_file = osp.join(output_dir, 
+                osp.splitext(osp.basename(json_file))[0]) \
+                + '_dataset-' + data_set + '.json'
+    with open(out_file, 'w', encoding='utf8') as out:
+        out.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -270,9 +305,13 @@ if __name__ == '__main__':
                           bbox_noise_level=args.bbox_noise_level)
 
     elif args.task == 'distill-label':
-        # 
+        # TODO
         np.random.seed(0)
         make_distill_annots(output_dir, json_file, args.json_file_scores)
+
+    elif args.task == 'dataset-annot':
+        assert(args.dataset_name is not None)
+        add_dataset_annots(output_dir, json_file, args.dataset_name)
         
     else:
         raise NotImplementedError

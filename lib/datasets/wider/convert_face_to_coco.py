@@ -126,30 +126,39 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
         # cs6 subsets
     if data_set=='CS6-subset':
         json_name = 'cs6-subset_face_train_annot_coco_style.json'
+
     elif data_set=='CS6-subset-score':
         # include "scores" as soft-labels
         json_name = 'cs6-subset_face_train_score-annot_coco_style.json'
+
     elif data_set=='CS6-subset-gt':
         json_name = 'cs6-subset-gt_face_train_annot_coco_style.json'
+
     elif data_set=='CS6-train-gt':
         # full train set of CS6 (86 videos)
-        json_name = 'cs6-train-gt_face_train_annot_coco_style.json'    
+        json_name = 'cs6-train-gt.json'
+
     elif data_set=='CS6-train-det-score':
         # soft-labels used in distillation
         json_name = 'cs6-train-det-score_face_train_annot_coco_style.json'
+
     elif data_set=='CS6-train-det-score-0.5':
         # soft-labels used in distillation, keeping dets with score > 0.5
         json_name = 'cs6-train-det-score-0.5_face_train_annot_coco_style.json'
         conf_thresh = 0.5
+
     elif data_set=='CS6-train-det':
         json_name = 'cs6-train-det_face_train_annot_coco_style.json'
+
     elif data_set=='CS6-train-det-0.5':
         json_name = 'cs6-train-det-0.5_face_train_annot_coco_style.json'
 
     elif data_set=='CS6-train-easy-hp':
         json_name = 'cs6-train-easy-hp.json'
+
     elif data_set=='CS6-train-easy-gt':
         json_name = 'cs6-train-easy-gt.json'
+        
     elif data_set=='CS6-train-easy-det':
         json_name = 'cs6-train-easy-det.json'
 
@@ -200,6 +209,7 @@ def convert_cs6_annots(ann_file, im_dir, out_dir, data_set='CS6-subset', conf_th
             ann['iscrowd'] = 0
             ann['area'] = gt_bbox[2] * gt_bbox[3]
             ann['bbox'] = gt_bbox[:4]
+            ann['dataset'] = data_set
 
             score = gt_bbox[4]
             if score < conf_thresh:

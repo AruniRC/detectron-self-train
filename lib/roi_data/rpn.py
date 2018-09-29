@@ -109,8 +109,8 @@ def add_rpn_blobs(blobs, im_scales, roidb):
     valid_keys = [
         'has_visible_keypoints', 'boxes', 'segms', 'seg_areas', 'gt_classes',
         'gt_overlaps', 'is_crowd', 'box_to_gt_ind_map', 'gt_keypoints', 
-        'gt_scores'
-    ] # EDIT: "gt_scores" is a valid key
+        'gt_scores', 'dataset_id'
+    ] # EDIT: "gt_scores" is a valid key, so is "dataset_id"
     minimal_roidb = [{} for _ in range(len(roidb))]
     for i, e in enumerate(roidb):
         for k in valid_keys:

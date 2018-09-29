@@ -543,24 +543,12 @@ def main():
                         print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
-                        
-                        # if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                        #     cfg.TRAIN.FG_FRACTION = 1.
-                        #     # Only FG samples will form minibatch (approx.) 
-                            # CAVEAT: if available FG samples cannot fill minibatch 
-                            # then sampling *with* replacement is done. 
+                        # CAVEAT: if available FG samples cannot fill minibatch 
+                        # then batchsize will be smaller than cfg.TRAIN.BATCH_SIZE_PER_IM. 
                     else:
                         print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']
-                        # if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                        #     # revert to original FG fraction for WIDER dataset
-                        #     cfg.TRAIN.FG_FRACTION = orig_fg_batch_ratio
-
-                        # if cfg.TRAIN.JOINT_SELECTIVE_BG:
-                        #     # only select BG regions from dataset[1]
-                        #     cfg.TRAIN.FG_FRACTION = 0.
-
 
                 try:
                     input_data = next(dataiterator)
