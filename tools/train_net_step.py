@@ -473,6 +473,8 @@ def main():
             # Set the Tensorboard logger
             tblogger = SummaryWriter(output_dir)
 
+
+
     ### Training Loop ###
     maskRCNN.train()
 
@@ -528,31 +530,36 @@ def main():
             training_stats.IterTic()
             optimizer.zero_grad()
 
-
             for inner_iter in range(args.iter_size):
+                # use a iter counter for optional alternating batches
+                if args.iter_size == 1:
+                    iter_counter = step
+                else:
+                    iter_counter = inner_iter
 
                 if cfg.TRAIN.JOINT_TRAINING:
                     # alternate batches between dataset[0] and dataset[1]                    
-                    if step % 2 == 0:
+                    if iter_counter % 2 == 0:
                         print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
-                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                            cfg.TRAIN.FG_FRACTION = 1.
-                            # Only FG samples will form minibatch (approx.) 
+                        
+                        # if cfg.TRAIN.JOINT_SELECTIVE_FG:
+                        #     cfg.TRAIN.FG_FRACTION = 1.
+                        #     # Only FG samples will form minibatch (approx.) 
                             # CAVEAT: if available FG samples cannot fill minibatch 
                             # then sampling *with* replacement is done. 
                     else:
                         print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']
-                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                            # revert to original FG fraction for WIDER dataset
-                            cfg.TRAIN.FG_FRACTION = orig_fg_batch_ratio
+                        # if cfg.TRAIN.JOINT_SELECTIVE_FG:
+                        #     # revert to original FG fraction for WIDER dataset
+                        #     cfg.TRAIN.FG_FRACTION = orig_fg_batch_ratio
 
-                        if cfg.TRAIN.JOINT_SELECTIVE_BG:
-                            # only select BG regions from dataset[1]
-                            cfg.TRAIN.FG_FRACTION = 0.
+                        # if cfg.TRAIN.JOINT_SELECTIVE_BG:
+                        #     # only select BG regions from dataset[1]
+                        #     cfg.TRAIN.FG_FRACTION = 0.
 
 
                 try:
