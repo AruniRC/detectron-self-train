@@ -17,17 +17,11 @@ Output files:
     <DET_DIR>/
         eval-dets_<split>/
             <video-name>.txt
-
-
-
 """
-
 from __future__ import absolute_import
 from __future__ import division
-
 import matplotlib 
 matplotlib.use('Agg') 
-
 import sys
 sys.path.append('./tools')
 import _init_paths
@@ -39,26 +33,9 @@ import time
 from six.moves import xrange
 import utils.face_utils as face_utils
 
-
-# DET_NAME = 'frcnn-R-50-C4-1x'
-
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video/'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/sample-baseline-video_conf-0.25/'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu/cs6/train-cs6-3013_val-video_conf-0.25/'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_val-video_conf-0.25/'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k/cs6/train-cs6-GT-chkpt-30k_val-video_conf-0.25'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-100k-lr=0.0001/cs6/train-cs6-GT-chkpt-100k_val-video_conf-0.25'
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x-8gpu-50k/cs6/train-cs6-noisy-0.5_val-video_conf-0.25'
-
-
 #   ***     CS6 "Easy" baseline evaluations     ***
-
-# DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/train-WIDER_val-easy_conf-0.1'
-
-DET_IMDB = 'train-CS6-train-HP+WIDER-bs64-gpu4-15k_val-easy_conf-0.1'
-
+DET_IMDB = 'train-CS6-train-HP+WIDER-distill-0.7_5k_val-easy_conf-0.1'
 DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/%s' % DET_IMDB
-
 
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'
 SPLIT = 'val_easy'

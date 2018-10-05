@@ -83,7 +83,7 @@ def get_fast_rcnn_blob_names(is_training=True):
         blob_names += ['keypoint_loss_normalizer']
     if is_training and cfg.TRAIN.GT_SCORES:
         # EDIT: Use groundtruth soft labels for distillation loss
-        blob_names += ['gt_scores']
+        blob_names += ['gt_scores', 'gt_source']
     if is_training and cfg.TRAIN.JOINT_TRAINING:
         # EDIT: Use dataset ID in joint training (selective fg)
         blob_names += ['dataset_id'] 
@@ -202,9 +202,14 @@ def _sample_rois(roidb, im_scale, batch_idx):
     
     if cfg.TRAIN.GT_SCORES:
         # EDIT: soft labels
-        sampled_scores = roidb['max_scores'][keep_inds] 
+        sampled_scores = roidb['max_scores'][keep_inds]
+        sampled_gt_source = roidb['max_gt_source'][keep_inds]
         sampled_scores[fg_rois_per_this_image:] = 0
-        assert all((sampled_scores>0) == (sampled_labels>0)) # sanity-check
+        sampled_gt_source[fg_rois_per_this_image:] = 0
+        if roidb['dataset_id'][0] == 0:
+             # sanity-check for the unlabeled dataset case (assumed "dataset-0")
+            assert all((sampled_scores>0) == (sampled_labels>0))
+            assert(len(sampled_gt_source) == len(sampled_scores))
 
     if 'bbox_targets' not in roidb:
         gt_inds = np.where(roidb['gt_classes'] > 0)[0]
@@ -236,6 +241,9 @@ def _sample_rois(roidb, im_scale, batch_idx):
     # EDIT: soft labels
     if cfg.TRAIN.GT_SCORES:
         blob_dict['gt_scores'] = sampled_scores.astype(np.float32, copy=False)
+        blob_dict['gt_source'] = sampled_gt_source.astype(np.int32, copy=False)
+        blob_dict['dataset_id'] = np.full_like(sampled_scores, roidb['dataset_id'][0], 
+                                            dtype=np.int32)
 
     # Optionally add Mask R-CNN blobs
     if cfg.MODEL.MASK_ON:

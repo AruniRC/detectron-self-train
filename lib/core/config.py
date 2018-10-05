@@ -112,6 +112,7 @@ __C.TRAIN.ASPECT_LO = 0.5
 __C.TRAIN.GT_SCORES = False
 __C.TRAIN.DISTILL_LAMBDA = 0.5  # mixing noisy_gt_labels and baseline_gt_scores
 __C.TRAIN.DISTILL_TEMPERATURE = 1.0
+__C.TRAIN.TRACKER_SCORE = 0.0   # confidence score for tracking-only annots
 
 # EDIT: Joint training with two datasets, equally sampled
 __C.TRAIN.JOINT_TRAINING = False

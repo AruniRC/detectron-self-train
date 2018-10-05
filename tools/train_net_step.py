@@ -543,7 +543,7 @@ def main():
                         print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
-                        # CAVEAT: if available FG samples cannot fill minibatch 
+                        # NOTE: if available FG samples cannot fill minibatch 
                         # then batchsize will be smaller than cfg.TRAIN.BATCH_SIZE_PER_IM. 
                     else:
                         print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
@@ -553,16 +553,14 @@ def main():
                 try:
                     input_data = next(dataiterator)
                 except StopIteration:
+                    # end of epoch for dataloader
                     dataiterator = iter(dataloader)
                     input_data = next(dataiterator)
-
                     if cfg.TRAIN.JOINT_TRAINING:
-                        if step % 2 == 0:
+                        if iter_counter % 2 == 0:
                             joint_training_roidb[0]['dataiterator'] = dataiterator
                         else:
                             joint_training_roidb[1]['dataiterator'] = dataiterator
-
-
 
                 for key in input_data:
                     if key != 'roidb': # roidb is a list of ndarrays with inconsistent length

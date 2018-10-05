@@ -196,7 +196,6 @@ class Generalized_RCNN(nn.Module):
                 return_dict['losses']['loss_rpn_cls'] = loss_rpn_cls
                 return_dict['losses']['loss_rpn_bbox'] = loss_rpn_bbox
 
-
             # bbox loss
             loss_cls, loss_bbox, accuracy_cls = fast_rcnn_heads.fast_rcnn_losses(
                 cls_score, bbox_pred, rpn_ret['labels_int32'], rpn_ret['bbox_targets'],
@@ -205,15 +204,18 @@ class Generalized_RCNN(nn.Module):
             return_dict['losses']['loss_bbox'] = loss_bbox
             return_dict['metrics']['accuracy_cls'] = accuracy_cls            
 
-            # EDIT: soft-labels with distillation loss
+            # EDIT: target soft-labels with distillation loss
             if cfg.TRAIN.GT_SCORES:
-                loss_distill = fast_rcnn_heads.distillation_loss(
-                                cls_score, rpn_ret['labels_int32'], 
-                                rpn_ret['gt_scores'], 
-                                cfg.TRAIN.DISTILL_TEMPERATURE, 
-                                cfg.TRAIN.DISTILL_LAMBDA)
-                # return_dict['losses']['loss_distill'] = loss_distill
-                return_dict['losses']['loss_cls'] = loss_distill
+                # Smooth labels for the noisy dataset assumed to be "dataset-0"
+                if rpn_ret['dataset_id'][0] == 0:
+                    loss_distill = fast_rcnn_heads.smooth_label_loss(
+                                    cls_score, rpn_ret['labels_int32'], 
+                                    rpn_ret['gt_scores'], 
+                                    rpn_ret['gt_source'],
+                                    cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                    cfg.TRAIN.DISTILL_LAMBDA, 
+                                    cfg.TRAIN.TRACKER_SCORE)
+                    return_dict['losses']['loss_cls'] = loss_distill
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):
