@@ -14,6 +14,7 @@ from modeling.roi_xfrom.roi_align.functions.roi_align import RoIAlignFunction
 import modeling.rpn_heads as rpn_heads
 import modeling.fast_rcnn_heads as fast_rcnn_heads
 import modeling.mask_rcnn_heads as mask_rcnn_heads
+import modeling.adversarial_heads as adversarial_heads
 import modeling.keypoint_rcnn_heads as keypoint_rcnn_heads
 import utils.blob as blob_utils
 import utils.net as net_utils
@@ -123,6 +124,12 @@ class Generalized_RCNN(nn.Module):
 
         self._init_modules()
 
+        # Domain Discriminator Branch
+        if cfg.TRAIN.DOMAIN_ADAPT_IM:
+            self.DiscriminatorImage_Head = adversarial_heads.domain_discriminator_im(
+                                            grl_scaler=cfg.TRAIN.GRL_SCALER)
+
+
     def _init_modules(self):
         if cfg.MODEL.LOAD_IMAGENET_PRETRAINED_WEIGHTS:
             resnet_utils.load_pretrained_imagenet_weights(self)
@@ -216,6 +223,21 @@ class Generalized_RCNN(nn.Module):
                                     cfg.TRAIN.DISTILL_LAMBDA, 
                                     cfg.TRAIN.TRACKER_SCORE)
                     return_dict['losses']['loss_cls'] = loss_distill
+
+            # EDIT: domain adversarial losses
+            if cfg.TRAIN.DOMAIN_ADAPT_IM:
+                da_image_pred = self.DiscriminatorImage_Head(blob_conv)                
+                loss_da_im = adversarial_heads.domain_loss_im(
+                            da_image_pred, rpn_ret['dataset_id'][0])                
+                return_dict['losses']['loss_da-im'] = loss_da_im
+
+                if rpn_ret['dataset_id'][0] == 0:
+                    # dataset-0 is assumed unlabeled - so zero out other losses
+                    #   NOTE: multiplied by 0 to maintain valid autodiff graph
+                    return_dict['losses']['loss_cls'] *= 0
+                    return_dict['losses']['loss_bbox'] *= 0
+                    return_dict['losses']['loss_rpn_cls'] *= 0
+                    return_dict['losses']['loss_rpn_bbox'] *= 0           
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):

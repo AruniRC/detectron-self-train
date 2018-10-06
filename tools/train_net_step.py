@@ -38,6 +38,8 @@ logging.getLogger('roi_data.loader').setLevel(logging.INFO)
 rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
 resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
 
+DEBUG = False
+
 def parse_args():
     """Parse input arguments"""
     parser = argparse.ArgumentParser(description='Train a X-RCNN network')
@@ -540,13 +542,15 @@ def main():
                 if cfg.TRAIN.JOINT_TRAINING:
                     # alternate batches between dataset[0] and dataset[1]                    
                     if iter_counter % 2 == 0:
-                        print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
+                        if DEBUG:
+                            print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
                         # NOTE: if available FG samples cannot fill minibatch 
                         # then batchsize will be smaller than cfg.TRAIN.BATCH_SIZE_PER_IM. 
                     else:
-                        print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
+                        if DEBUG:
+                            print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']
 
@@ -570,6 +574,7 @@ def main():
                 training_stats.UpdateIterStats(net_outputs, inner_iter)
                 loss = net_outputs['total_loss']
                 loss.backward()
+
             optimizer.step()
             training_stats.IterToc()
 

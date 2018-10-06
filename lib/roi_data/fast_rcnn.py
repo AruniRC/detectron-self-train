@@ -207,7 +207,7 @@ def _sample_rois(roidb, im_scale, batch_idx):
         sampled_scores[fg_rois_per_this_image:] = 0
         sampled_gt_source[fg_rois_per_this_image:] = 0
         if roidb['dataset_id'][0] == 0:
-             # sanity-check for the unlabeled dataset case (assumed "dataset-0")
+            # sanity-check for the unlabeled dataset case (assumed "dataset-0")
             assert all((sampled_scores>0) == (sampled_labels>0))
             assert(len(sampled_gt_source) == len(sampled_scores))
 
@@ -237,6 +237,12 @@ def _sample_rois(roidb, im_scale, batch_idx):
         bbox_targets=bbox_targets,
         bbox_inside_weights=bbox_inside_weights,
         bbox_outside_weights=bbox_outside_weights)
+
+    # EDIT: joint training
+    if cfg.TRAIN.JOINT_TRAINING:
+        blob_dict['dataset_id'] = np.full_like(sampled_labels, 
+                                            roidb['dataset_id'][0], 
+                                            dtype=np.int32)
 
     # EDIT: soft labels
     if cfg.TRAIN.GT_SCORES:

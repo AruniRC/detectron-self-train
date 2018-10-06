@@ -121,6 +121,11 @@ __C.TRAIN.JOINT_TRAINING = False
 __C.TRAIN.JOINT_SELECTIVE_FG = False
 __C.TRAIN.JOINT_SELECTIVE_BG = False
 
+# EDIT: adversarial domain discriminator
+__C.TRAIN.DOMAIN_ADAPT_IM = False # image-level domain adaptation
+__C.TRAIN.GRL_SCALER = -0.1 # scale factor in gradient reversal layer
+
+
 # ---------------------------------------------------------------------------- #
 # RPN training options
 # ---------------------------------------------------------------------------- #
