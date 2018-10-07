@@ -81,14 +81,16 @@ NMS_THRESH = 0.15
 
 ## --- CS6 + WIDER Joint training [distill branch] ---
 DET_NAME = 'frcnn-R-50-C4-1x'
-TRAIN_IMDB = 'CS6-train-HP+WIDER-bs64-gpu4-5k'
-CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_4gpu_joint_bs64_30k.yaml'
-WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_4gpu_joint_bs64_30k/Sep25-13-48-15_node137_step/ckpt/model_step4999.pth'
+TRAIN_IMDB = 'CS6-train-HP+WIDER-da-im_5k'
+CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_domain_im.yaml'
+WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_domain_im/Oct06-23-57-55_node119_step/ckpt/model_step4999.pth'
 OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-easy_conf-%.2f' % (
             DET_NAME, TRAIN_IMDB, CONF_THRESH)
 
 VID_NAME = '600.mp4'
 DATA_DIR = 'data/CS6'
+
+# ---
 
 
 def parse_args():
@@ -225,7 +227,6 @@ if __name__ == '__main__':
     net = mynn.DataParallel(net, cpu_keywords=['im_info', 'roidb'],
                             minibatch=True, device_ids=[0])  # only support single GPU
     net.eval()
-
 
     # Data setup
     video_path = osp.join(args.data_dir, 'videos', args.video_name)

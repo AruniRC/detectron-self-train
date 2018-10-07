@@ -572,7 +572,9 @@ def main():
                                 
                 net_outputs = maskRCNN(**input_data)
                 training_stats.UpdateIterStats(net_outputs, inner_iter)
-                loss = net_outputs['total_loss']                
+                loss = net_outputs['total_loss']
+                # [p.data.get_device() for p in maskRCNN.parameters()]
+                # [(name, p.data.get_device()) for name, p in maskRCNN.named_parameters()]
                 loss.backward()
 
             optimizer.step()
