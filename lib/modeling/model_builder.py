@@ -128,6 +128,9 @@ class Generalized_RCNN(nn.Module):
         if cfg.TRAIN.DOMAIN_ADAPT_IM:
             self.DiscriminatorImage_Head = adversarial_heads.domain_discriminator_im(
                                             grl_scaler=cfg.TRAIN.GRL_SCALER)
+        if cfg.TRAIN.DOMAIN_ADAPT_ROI:
+            self.DiscriminatorRoi_Head = adversarial_heads.domain_discriminator_roi(
+                                            grl_scaler=cfg.TRAIN.GRL_SCALER)
 
 
     def _init_modules(self):
@@ -225,11 +228,7 @@ class Generalized_RCNN(nn.Module):
                     return_dict['losses']['loss_cls'] = loss_distill
 
             # EDIT: domain adversarial losses
-            if cfg.TRAIN.DOMAIN_ADAPT_IM:
-                da_image_pred = self.DiscriminatorImage_Head(blob_conv)                
-                loss_da_im = adversarial_heads.domain_loss_im(
-                            da_image_pred, rpn_ret['dataset_id'][0])                
-                return_dict['losses']['loss_da-im'] = loss_da_im
+            if cfg.TRAIN.DOMAIN_ADAPT_IM or cfg.TRAIN.DOMAIN_ADAPT_ROI:
 
                 if rpn_ret['dataset_id'][0] == 0:
                     # dataset-0 is assumed unlabeled - so zero out other losses
@@ -237,7 +236,19 @@ class Generalized_RCNN(nn.Module):
                     return_dict['losses']['loss_cls'] *= 0
                     return_dict['losses']['loss_bbox'] *= 0
                     return_dict['losses']['loss_rpn_cls'] *= 0
-                    return_dict['losses']['loss_rpn_bbox'] *= 0           
+                    return_dict['losses']['loss_rpn_bbox'] *= 0
+
+                if cfg.TRAIN.DOMAIN_ADAPT_IM:
+                    da_image_pred = self.DiscriminatorImage_Head(blob_conv)                
+                    loss_da_im = adversarial_heads.domain_loss_im(
+                                    da_image_pred, rpn_ret['dataset_id'][0])                
+                    return_dict['losses']['loss_da-im'] = loss_da_im
+
+                if cfg.TRAIN.DOMAIN_ADAPT_ROI:                    
+                    da_roi_pred = self.DiscriminatorRoi_Head(box_feat)                
+                    loss_da_roi = adversarial_heads.domain_loss_im(
+                                    da_roi_pred, rpn_ret['dataset_id'][0])                
+                    return_dict['losses']['loss_da-roi'] = loss_da_roi     
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):

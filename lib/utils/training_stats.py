@@ -212,7 +212,7 @@ class TrainingStats(object):
         rpn_fpn_cls_losses = []
         rpn_fpn_bbox_losses = []
         for k, v in self.smoothed_losses.items():
-            toks = k.split('_')            
+            toks = k.split('_')
             if len(toks) == 2:
                 head_losses.append((k, v.GetMedianValue()))
             elif len(toks) == 3:
@@ -223,7 +223,6 @@ class TrainingStats(object):
                 rpn_fpn_bbox_losses.append((k, v.GetMedianValue()))
             else:
                 raise ValueError("Unexpected loss key: %s" % k)
-        
         stats['head_losses'] = OrderedDict(head_losses)
         stats['rpn_losses'] = OrderedDict(rpn_losses)
         stats['rpn_fpn_cls_losses'] = OrderedDict(rpn_fpn_cls_losses)

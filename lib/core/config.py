@@ -123,6 +123,7 @@ __C.TRAIN.JOINT_SELECTIVE_BG = False
 
 # EDIT: adversarial domain discriminator
 __C.TRAIN.DOMAIN_ADAPT_IM = False # image-level domain adaptation
+__C.TRAIN.DOMAIN_ADAPT_ROI = False # roi-level domain adaptation
 __C.TRAIN.GRL_SCALER = -0.1 # scale factor in gradient reversal layer
 
 
