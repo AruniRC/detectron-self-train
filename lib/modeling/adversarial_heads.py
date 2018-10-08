@@ -72,6 +72,24 @@ class domain_discriminator_im(nn.Module):
         return detectron_weight_mapping, orphan_in_detectron
 
 
+def domain_loss_im(pred, domain_label):
+    """
+    Image-level domain adversarial loss
+    
+    """
+    if DEBUG:
+        print('\tDA-image loss')
+    device_id = pred.get_device()
+    target_label = Variable(
+                    torch.FloatTensor(pred.data.size()).fill_(float(domain_label))
+                    ).cuda(device_id)
+    loss_da_im = F.binary_cross_entropy_with_logits(pred, target_label)
+
+    if net_utils.is_nan_loss(loss_da_im):
+        loss_da_im *= 0
+    return loss_da_im
+
+
 class domain_discriminator_roi(nn.Module):
     """ ROI-level adversarial domain classifier """
     def __init__(self, n_in=2048, grl_scaler=-0.1):
@@ -102,32 +120,15 @@ class domain_discriminator_roi(nn.Module):
     def detectron_weight_mapping(self):
         # do not load from (or save to) checkpoint
         detectron_weight_mapping = {
-            'DiscriminatorRoi_Head.conv1.weight': None,
-            'DiscriminatorRoi_Head.conv1.bias': None,
-            'DiscriminatorRoi_Head.conv2.weight': None,
-            'DiscriminatorRoi_Head.conv2.bias': None,
-            'DiscriminatorRoi_Head.classifier.weight': None,
-            'DiscriminatorRoi_Head.classifier.bias': None,
+            'conv1.weight': None,
+            'conv1.bias': None,
+            'conv2.weight': None,
+            'conv2.bias': None,
+            'classifier.weight': None,
+            'classifier.bias': None,
         }
         orphan_in_detectron = []
         return detectron_weight_mapping, orphan_in_detectron
-
-
-def domain_loss_im(pred, domain_label):
-    """
-    Image-level domain adversarial loss
-    
-    """
-    if DEBUG:
-        print('\tDA-image loss')
-    device_id = pred.get_device()
-    target_label = Variable(
-                    torch.FloatTensor(pred.data.size()).fill_(float(domain_label))
-                    ).cuda(device_id)
-    loss_da_im = F.binary_cross_entropy_with_logits(pred, target_label)
-    if net_utils.is_nan_loss(loss_da_im):
-        loss_da_im *= 0
-    return loss_da_im
 
 
 def domain_loss_roi(pred, domain_label):
@@ -145,3 +146,16 @@ def domain_loss_roi(pred, domain_label):
     if net_utils.is_nan_loss(loss_da_roi):
         loss_da_roi *= 0
     return loss_da_roi
+
+
+def domain_loss_cst(im_pred, roi_pred):
+    """
+    Consistency regularization between image and ROI predictions
+    
+    """
+    if DEBUG:
+        print('\tDA-CST loss')
+    assert im_pred.get_device() == roi_pred.get_device()
+    device_id = im_pred.get_device()
+    loss_cst = torch.mean((im_pred.mean() - roi_pred)**2)    
+    return loss_cst

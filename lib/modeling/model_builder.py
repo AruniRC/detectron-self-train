@@ -249,6 +249,12 @@ class Generalized_RCNN(nn.Module):
                                     da_roi_pred, rpn_ret['dataset_id'][0])                
                     return_dict['losses']['loss_da-roi'] = loss_da_roi
 
+                if cfg.TRAIN.DOMAIN_ADAPT_CST:
+                    assert cfg.TRAIN.DOMAIN_ADAPT_ROI and cfg.TRAIN.DOMAIN_ADAPT_IM
+                    loss_da_cst = adversarial_heads.domain_loss_cst(
+                                    da_image_pred, da_roi_pred)                
+                    return_dict['losses']['loss_da-cst'] = loss_da_cst
+
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):
