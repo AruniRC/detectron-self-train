@@ -1,7 +1,10 @@
 
 """
 
-Takes a JSON file and output annotation for only one video.
+1) Takes a JSON file and output annotation for only one video.
+2) Make compatible with distillation loss
+3) Add dataset name into annotations
+4) Add artificial noise to the labels
 
 srun --pty --mem 10000 python tools/face/mod_json.py
 
@@ -16,6 +19,14 @@ srun --pty --mem 10000 python tools/face/mod_json.py \
     --dataset_name cs6-train-hp \
     --json_file data/CS6_annot/cs6-train-hp.json
 
+
+Usage 2: add noise to the annotations
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task noisy-label \
+    --bbox_noise_level 1.0 \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
 
 """
 
@@ -113,7 +124,7 @@ def single_video_annots(output_dir, video_file, json_file):
                     osp.splitext(osp.basename(json_file))[0]) \
                     + '_' + video_name + '.json'
         with open(out_file, 'w', encoding='utf8') as outfile:
-            outfile.write(json.dumps(ann_dict))
+            outfile.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -127,7 +138,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
         be trivially transferrable to any MS-COCO format JSON.
 
         A fraction of total images (img_noise_level*num_images) are selected to 
-        have noise.
+        have noise. By default, *all* images are selected.
         In each image, max(1, bbox_noise_level*num_bboxes) bounding boxes  
         are selected to have their X and Y se to a random position in the image.
     '''
@@ -173,7 +184,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
                     osp.splitext(osp.basename(json_file))[0]) \
                     + ('_noisy-%.2f.json' % bbox_noise_level)
     with open(out_file, 'w', encoding='utf8') as outfile:
-            outfile.write(json.dumps(ann_dict))
+            outfile.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -258,7 +269,7 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
                 osp.splitext(osp.basename(json_noisy))[0]) \
                 + '_distill.json'
     with open(out_file, 'w', encoding='utf8') as outfile:
-        outfile.write(json.dumps(ann_noisy_dict))
+        outfile.write(json.dumps(ann_noisy_dict, indent=2))
 
 
 
