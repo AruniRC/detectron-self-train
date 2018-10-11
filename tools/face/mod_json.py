@@ -28,6 +28,16 @@ srun --pty --mem 10000 python tools/face/mod_json.py \
     --dataset_name cs6-train-hp \
     --json_file data/CS6_annot/cs6-train-hp.json
 
+
+Usage 1: add "dataset" and "source" fields
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task dataset-annot \
+    --dataset_name cs6-train-hp \
+    --add_source \
+    --json_file data/CS6_annot/cs6-train-hp.json
+
+
 """
 
 from __future__ import absolute_import
@@ -64,6 +74,10 @@ NOISE_LEVEL = 0.5
 
 JSON_FILE_SCORES = 'data/CS6_annot/cs6-train-det-score_face_train_annot_coco_style.json'
 
+
+
+args = None
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Modify CS6 ground truth data')
     parser.add_argument(
@@ -94,6 +108,10 @@ def parse_args():
     parser.add_argument(
         '--dataset_name', help='Name of dataset', 
         default=None
+    )
+    parser.add_argument(
+        '--add_source', help='Source field annotation', 
+        action='store_true'
     )
     return parser.parse_args()
 
@@ -155,7 +173,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
     perm_ann_dict = np.random.permutation(ann_dict['images'])
     images_sel = perm_ann_dict[0:num_sel_img]
     image_ids = [x['id'] for x in images_sel]
-    vid_annots = []
+    vid_annots = []    
 
     for (i,(im_id, im_info)) in enumerate(zip(image_ids, images_sel)):
         annots = [x for x in ann_dict['annotations'] if x['image_id'] == im_id]
@@ -288,12 +306,17 @@ def add_dataset_annots(output_dir, json_file, data_set):
     # ann_dict['images'] = vid_images
     for annot in ann_dict['annotations']:
         annot['dataset'] = data_set
+        if args.add_source:
+            # default: assume source is detector (1) not tracker (2)
+            annot['source'] = 1 
+
 
     out_file = osp.join(output_dir, 
                 osp.splitext(osp.basename(json_file))[0]) \
                 + '_dataset-' + data_set + '.json'
     with open(out_file, 'w', encoding='utf8') as out:
         out.write(json.dumps(ann_dict, indent=2))
+
 
 
 

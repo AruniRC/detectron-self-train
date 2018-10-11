@@ -34,7 +34,7 @@ from six.moves import xrange
 import utils.face_utils as face_utils
 
 #   ***     CS6 "Easy" baseline evaluations     ***
-DET_IMDB = 'train-CS6-train-HP+WIDER-da-im_10k_val-easy_conf-0.1'
+DET_IMDB = 'train-CS6-train-HP+WIDER-da-im-roi-cst_5k_val-easy_conf-0.1'
 DET_DIR = 'Outputs/evaluations/frcnn-R-50-C4-1x/cs6/%s' % DET_IMDB
 
 VIDEO_LIST_FILE = 'data/CS6/list_video_%s.txt'

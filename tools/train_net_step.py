@@ -187,6 +187,7 @@ def main():
     elif args.dataset == "cs6-train-gt-noisy-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-gt-noisy-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
+
     elif args.dataset == "cs6-train-det-score":
         cfg.TRAIN.DATASETS = ('cs6-train-det-score',)
         cfg.MODEL.NUM_CLASSES = 2
@@ -198,6 +199,7 @@ def main():
     elif args.dataset == "cs6-train-det-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
+        
 
     elif args.dataset == "cs6-train-hp":
         cfg.TRAIN.DATASETS = ('cs6-train-hp',)
@@ -229,12 +231,21 @@ def main():
         cfg.TRAIN.DATASETS = ('cs6-train-hp', 'wider_train')
         cfg.MODEL.NUM_CLASSES = 2
 
+    elif args.dataset == "cs6-train-dummy+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-dummy', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
+    elif args.dataset == "cs6-train-det+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-det', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
     cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
         cfg_from_list(args.set_cfgs)
+
 
     ### Adaptively adjust some configs ###
     original_batch_size = cfg.NUM_GPUS * cfg.TRAIN.IMS_PER_BATCH
@@ -362,6 +373,7 @@ def main():
             num_workers=cfg.DATA_LOADER.NUM_THREADS,
             collate_fn=collate_minibatch)
         dataiterator = iter(dataloader)
+
 
     # Effective training sample size for one epoch
     train_size = roidb_size // args.batch_size * args.batch_size
