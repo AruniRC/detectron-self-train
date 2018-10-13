@@ -5,6 +5,8 @@
 2) Make compatible with distillation loss
 3) Add dataset name into annotations
 4) Add artificial noise to the labels
+5) Remove all tracklet bboxes from HP JSON [detector+tracker]
+
 
 srun --pty --mem 10000 python tools/face/mod_json.py
 
@@ -29,7 +31,7 @@ srun --pty --mem 10000 python tools/face/mod_json.py \
     --json_file data/CS6_annot/cs6-train-hp.json
 
 
-Usage 1: add "dataset" and "source" fields
+Usage 3: add "dataset" and "source" fields
 ------------------------------------------
 srun --pty --mem 10000 python tools/face/mod_json.py \
     --task dataset-annot \
@@ -37,6 +39,13 @@ srun --pty --mem 10000 python tools/face/mod_json.py \
     --add_source \
     --json_file data/CS6_annot/cs6-train-hp.json
 
+
+Usage 4: remove bboxes that come from tracker
+---------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task only-dets \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
 
 """
 
@@ -319,6 +328,29 @@ def add_dataset_annots(output_dir, json_file, data_set):
 
 
 
+# ------------------------------------------------------------------------------
+def remove_tracklet_annots(output_dir, json_file):
+# ------------------------------------------------------------------------------
+    ''' Remove HP JSON annotations that come from tracklets '''
+    if not osp.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(json_file) as f:
+        ann_dict = json.load(f)
+    print(ann_dict.keys())
+
+    det_annots = [x for x in ann_dict['annotations'] if x['source'] == 1]
+    ann_dict['annotations'] = det_annots
+    out_file = osp.join(output_dir, 
+                osp.splitext(osp.basename(json_file))[0]) \
+                + '-det' + '.json'
+
+    print('Output: ' + out_file)
+    with open(out_file, 'w', encoding='utf8') as outfile:
+        outfile.write(json.dumps(ann_dict, indent=2))
+
+
+
 
 if __name__ == '__main__':
     
@@ -346,6 +378,9 @@ if __name__ == '__main__':
     elif args.task == 'dataset-annot':
         assert(args.dataset_name is not None)
         add_dataset_annots(output_dir, json_file, args.dataset_name)
+
+    elif args.task == 'only-dets':
+        remove_tracklet_annots(output_dir, json_file)
         
     else:
         raise NotImplementedError
