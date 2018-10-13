@@ -132,6 +132,10 @@ class Generalized_RCNN(nn.Module):
             self.DiscriminatorRoi_Head = adversarial_heads.domain_discriminator_roi(
                                             grl_scaler=cfg.TRAIN.GRL_SCALER)
 
+        # Learned attention for distillation lambda Branch
+        if cfg.TRAIN.DISTILL_ATTN:
+            self.AttentionRoi_Head = fast_rcnn_heads.distill_attention_head()
+
 
     def _init_modules(self):
         if cfg.MODEL.LOAD_IMAGENET_PRETRAINED_WEIGHTS:
@@ -218,13 +222,26 @@ class Generalized_RCNN(nn.Module):
             if cfg.TRAIN.GT_SCORES:
                 # Smooth labels for the noisy dataset assumed to be "dataset-0"
                 if rpn_ret['dataset_id'][0] == 0:
-                    loss_distill = fast_rcnn_heads.smooth_label_loss(
-                                    cls_score, rpn_ret['labels_int32'], 
-                                    rpn_ret['gt_scores'], 
-                                    rpn_ret['gt_source'],
-                                    cfg.TRAIN.DISTILL_TEMPERATURE, 
-                                    cfg.TRAIN.DISTILL_LAMBDA, 
-                                    cfg.TRAIN.TRACKER_SCORE)
+
+                    if cfg.TRAIN.DISTILL_ATTN:
+                        pre_lambda_attn = self.AttentionRoi_Head(box_feat)
+                        loss_distill = fast_rcnn_heads.smooth_label_loss(
+                                        cls_score, rpn_ret['labels_int32'], 
+                                        rpn_ret['gt_scores'], 
+                                        rpn_ret['gt_source'],
+                                        dist_T=cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                        dist_lambda=F.sigmoid(pre_lambda_attn), 
+                                        tracker_score=cfg.TRAIN.TRACKER_SCORE)
+                        loss_distill += torch.sum(torch.abs(pre_lambda_attn))  # regularize attn magnitude
+                    else:
+                        loss_distill = fast_rcnn_heads.smooth_label_loss(
+                                        cls_score, rpn_ret['labels_int32'], 
+                                        rpn_ret['gt_scores'], 
+                                        rpn_ret['gt_source'],
+                                        dist_T=cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                        dist_lambda=cfg.TRAIN.DISTILL_LAMBDA, 
+                                        tracker_score=cfg.TRAIN.TRACKER_SCORE)
+
                     return_dict['losses']['loss_cls'] = loss_distill
 
             # EDIT: domain adversarial losses
