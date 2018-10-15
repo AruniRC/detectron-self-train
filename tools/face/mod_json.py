@@ -96,8 +96,6 @@ def single_video_annots(output_dir, video_file, json_file):
             outfile.write(json.dumps(ann_dict))
 
 
-
-
 # ------------------------------------------------------------------------------
 def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3, 
                       img_noise_level=1.0):
@@ -153,8 +151,6 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
                     + ('_noisy-%.2f.json' % bbox_noise_level)
     with open(out_file, 'w', encoding='utf8') as outfile:
             outfile.write(json.dumps(ann_dict))
-
-
 
 
 
@@ -244,7 +240,6 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
             det_bboxes = [x['bbox'] for x in ann_det_dict['annotations'] \
                             if x['image_id'] == det_im_id]
 
-
             # bipartite matching (Hungarian algorithm)
             gt_bboxes = np.array(gt_bboxes)
             det_bboxes = np.array(det_bboxes)
@@ -253,7 +248,6 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
             gt_bboxes[:,3] += gt_bboxes[:,1]
             det_bboxes[:,2] += det_bboxes[:,0]
             det_bboxes[:,3] += det_bboxes[:,1]
-
             idx_gt, idx_pred, iou_mat,_ = face_utils.match_bboxes(
                                             gt_bboxes, det_bboxes)
 
@@ -264,61 +258,8 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
                     gt_ann['score'] = 0.0
 
             print(len(gt_bboxes))
-
-
         print(im_info)
         # TODO - sanity-check: assert all gt-annotations have a key 'score'
-
-
-
-
-
-    # ann_dict['images'] = vid_images
-    # ann_dict['annotations'] = vid_annots
-
-    out_file = osp.join(output_dir, 
-                osp.splitext(osp.basename(json_noisy))[0]) \
-                + '_distill.json'
-    with open(out_file, 'w', encoding='utf8') as outfile:
-        outfile.write(json.dumps(ann_noisy_dict))
-
-
-
-
-if __name__ == '__main__':
-    
-
-    args = parse_args()
-    print(args)
-    output_dir = args.output_dir
-    json_file = args.json_file
-
-
-    if args.task == 'single-video':
-        video_file == args.video
-        single_video_annots(output_dir, video_file, json_file)
-       
-    elif args.task == 'noisy-label':
-        np.random.seed(0)
-        make_noisy_annots(output_dir, json_file, 
-                          bbox_noise_level=args.bbox_noise_level)
-
-    elif args.task == 'distill-label':
-        # 
-        np.random.seed(0)
-        make_distill_annots(output_dir, json_file, args.json_file_scores)
-        
-    else:
-        raise NotImplementedError
-
-
-        print(im_info)
-        # TODO - sanity-check: assert all gt-annotations have a key 'score'
-
-
-
-
-
     # ann_dict['images'] = vid_images
     # ann_dict['annotations'] = vid_annots
 

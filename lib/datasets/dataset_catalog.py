@@ -38,6 +38,52 @@ RAW_DIR = 'raw_dir'
 
 # Available datasets
 DATASETS = {
+    # CS6 noisy ground truth
+    'cs6_noise020' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-020.json'
+     },
+    'cs6_noise030' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-030.json'
+    },
+    'cs6_noise040' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-040.json'
+    },
+    'cs6_noise050' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-050.json'
+    },
+    'cs6_noise060' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-060.json'
+    },
+    'cs6_noise070' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-070.json'
+    },
+    'cs6_noise080' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-080.json'
+    },
+    'cs6_noise085' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-085.json'
+    },
+    'cs6_noise090' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-090.json'
+    },
+    'cs6_noise095' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-095.json'
+    },
+    'cs6_noise100' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-100.json'
+    },
+
      # CS6 ground truth
     'cs6_train_gt' : {
         IM_DIR: _DATA_DIR + '/CS6_annot/',
@@ -52,22 +98,22 @@ DATASETS = {
      'bdd_peds_full_train' : {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
-        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_full_train.json'
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_full_train.json'
      },
     'bdd_peds_full_val' : {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
-        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_full_val.json'
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_full_val.json'
      },
      'bdd_peds_train' : {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
-        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_train.json'
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_train.json'
      },
      'bdd_peds_val' : {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
-        ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_peds_val.json'
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_val.json'
      },
      'cityscapes_peds_train' : {
          IM_DIR:
@@ -112,6 +158,57 @@ DATASETS = {
         IM_DIR:
             _DATA_DIR + '/bdd100k',
         ANN_FN: '/srv/data1/pchakrabarty/bdd_jsons/bdd_weather-Any_scene-Any_timeofday-Any_val.json'
+    },
+    
+    # bdd peds dets on 20k target domain videos
+    'bdd_peds_dets_20k_target_domain' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_detections_20k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_clear_any_daytime_det_conf080.json'
+    },
+
+    # bdd peds HP on partial (13k) target domain videos
+    'bdd_peds_HP_target_domain' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_clear_any_daytime_HP.json'
+    },
+
+    # bdd peds HP on 18k target domain videos
+    'bdd_peds_HP18k_target_domain' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k.json'
+    },
+
+    # bdd peds dets on the same images as HP18k samples
+    'bdd_peds_dets18k_target_domain' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_dets18k.json'
+    },
+
+    # bdd peds -- complement of clear_any_daytime
+    'bdd_peds_not_clear_any_daytime_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_not_clear_any_daytime_train.json'
+    },
+    'bdd_peds_not_clear_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_not_clear_any_daytime_val.json'
+    },
+    
+    # Ashish's 20k sampled video
+    'bdd_peds_not_clear_any_daytime_20k_train' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_not_clear_any_daytime_20k_train.json'
     },
 
     'cityscapes_train': {

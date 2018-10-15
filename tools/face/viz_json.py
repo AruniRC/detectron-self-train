@@ -104,6 +104,9 @@ if __name__ == '__main__':
     i = 0
     for img_annot in tqdm(ann_dict['images']):
         image_name = img_annot['file_name']
+        print(osp.join(args.imdir, image_name))
+        if not osp.exists(osp.join(args.imdir, image_name)):
+            continue
         image_id = img_annot['id']
         bboxes = [x['bbox'] for x in ann_dict['annotations'] \
                         if x['image_id'] == image_id]

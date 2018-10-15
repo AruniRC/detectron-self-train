@@ -212,7 +212,10 @@ class JsonDataset(object):
         """Add ground truth annotation metadata to an roidb entry."""
         ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
         objs = self.COCO.loadAnns(ann_ids)
-        has_scores = ('score' in objs[0].keys())
+        if len(objs) > 0:
+            has_scores = ('score' in objs[0].keys())
+        else:
+            has_scores = False
         # EDIT: detection "soft"-scores
         if has_scores:
             if not 'gt_scores' in entry.keys():

@@ -157,6 +157,65 @@ def main():
         cfg.TRAIN.DATASETS = ('keypoints_coco_2017_train',)
         cfg.MODEL.NUM_CLASSES = 2
     
+    # Noisy CS6+WIDER datasets
+    elif args.dataset == 'cs6_noise020+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise020','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise050+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise050','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise080+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise080','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise085+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise085','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise090+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise090','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise095+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise095','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise100+WIDER':
+        cfg.TRAIN.DATASETS = ('cs6_noise100','wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    # Just Noisy CS6 datasets
+    elif args.dataset == 'cs6_noise020':
+        cfg.TRAIN.DATASETS = ('cs6_noise020',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise030':
+        cfg.TRAIN.DATASETS = ('cs6_noise030',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise040':
+        cfg.TRAIN.DATASETS = ('cs6_noise040',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise050':
+        cfg.TRAIN.DATASETS = ('cs6_noise050',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise060':
+        cfg.TRAIN.DATASETS = ('cs6_noise060',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise070':
+        cfg.TRAIN.DATASETS = ('cs6_noise070',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise080':
+        cfg.TRAIN.DATASETS = ('cs6_noise080',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise085':
+        cfg.TRAIN.DATASETS = ('cs6_noise085',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise090':
+        cfg.TRAIN.DATASETS = ('cs6_noise090',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise095':
+        cfg.TRAIN.DATASETS = ('cs6_noise095',)
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'cs6_noise100':
+        cfg.TRAIN.DATASETS = ('cs6_noise100',)
+        cfg.MODEL.NUM_CLASSES = 2
+
+
     # Cityscapes 7 classes
     elif args.dataset == "cityscapes":
         cfg.TRAIN.DATASETS = ('cityscapes_train',)
@@ -178,11 +237,52 @@ def main():
         cfg.TRAIN.DATASETS = ('cityscapes_peds_train',)
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == "bdd_peds":
-        cfg.TRAIN.DATASETS = ('bdd_peds_train',)
+        cfg.TRAIN.DATASETS = ('bdd_peds_train',) # bdd peds: clear_any_daytime
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == "bdd_peds_full":
-        cfg.TRAIN.DATASETS = ('bdd_peds_full_train',)
+        cfg.TRAIN.DATASETS = ('bdd_peds_full_train',) # bdd peds: any_any_any
         cfg.MODEL.NUM_CLASSES = 2
+    # Pedestrians with constraints
+    elif args.dataset == "bdd_peds_not_clear_any_daytime":
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Ashish's  20k samples videos
+    elif args.dataset == "bdd_peds_not_clear_any_daytime_20k":
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_20k_train',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source domain + Target domain detections
+    elif args.dataset == "bdd_peds+DETS_20k":
+        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_dets_20k_target_domain')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source domain + Target domain detections -- same 18k images as HP18k
+    elif args.dataset == "bdd_peds+DETS18k":
+        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_dets18k_target_domain')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Only Dets
+    elif args.dataset == "DETS20k":
+        cfg.TRAIN.DATASETS = ('bdd_peds_dets_20k_target_domain',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Only Dets18k - same images as HP18k
+    elif args.dataset == 'DETS18k':
+        cfg.TRAIN.DATASETS = ('bdd_peds_dets18k_target_domain',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Only HP
+    elif args.dataset == 'HP':
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP_target_domain',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Only HP 18k videos
+    elif args.dataset == 'HP18k':
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source domain + Target domain HP
+    elif args.dataset == 'bdd_peds+HP':
+        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_HP_target_domain')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source domain + Target domain HP 18k videos
+    elif args.dataset == 'bdd_peds+HP18k':
+        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_HP18k_target_domain')
+        cfg.MODEL.NUM_CLASSES = 2
+        
 
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)
@@ -490,7 +590,7 @@ def main():
                                  minibatch=True)
 
     ### Training Setups ###
-    args.run_name = misc_utils.get_run_name() + '_step'
+    args.run_name = misc_utils.get_run_name() + '_' + str(cfg.TRAIN.DATASETS)  + '_step'
     output_dir = misc_utils.get_output_dir(args, args.run_name)
     args.cfg_filename = os.path.basename(args.cfg_file)
 
