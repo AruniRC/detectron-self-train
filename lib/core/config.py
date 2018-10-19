@@ -112,6 +112,8 @@ __C.TRAIN.ASPECT_LO = 0.5
 __C.TRAIN.GT_SCORES = False
 __C.TRAIN.DISTILL_LAMBDA = 0.5  # mixing noisy_gt_labels and baseline_gt_scores
 __C.TRAIN.DISTILL_TEMPERATURE = 1.0
+__C.TRAIN.TRACKER_SCORE = 0.0   # confidence score for tracking-only annots
+__C.TRAIN.DISTILL_ATTN = False 
 
 # EDIT: Joint training with two datasets, equally sampled
 __C.TRAIN.JOINT_TRAINING = False
@@ -119,6 +121,13 @@ __C.TRAIN.JOINT_TRAINING = False
 # EDIT: Joint training with two datasets, sample only FG from first dataset
 __C.TRAIN.JOINT_SELECTIVE_FG = False
 __C.TRAIN.JOINT_SELECTIVE_BG = False
+
+# EDIT: adversarial domain discriminator
+__C.TRAIN.DOMAIN_ADAPT_IM = False # image-level domain adaptation
+__C.TRAIN.DOMAIN_ADAPT_ROI = False # roi-level domain adaptation
+__C.TRAIN.DOMAIN_ADAPT_CST = False # consistency regularization
+__C.TRAIN.GRL_SCALER = -0.1 # scale factor in gradient reversal layer
+
 
 # ---------------------------------------------------------------------------- #
 # RPN training options

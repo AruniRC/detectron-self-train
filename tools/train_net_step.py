@@ -38,6 +38,8 @@ logging.getLogger('roi_data.loader').setLevel(logging.INFO)
 rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
 resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
 
+DEBUG = False
+
 def parse_args():
     """Parse input arguments"""
     parser = argparse.ArgumentParser(description='Train a X-RCNN network')
@@ -313,6 +315,7 @@ def main():
     elif args.dataset == "cs6-train-gt-noisy-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-gt-noisy-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
+
     elif args.dataset == "cs6-train-det-score":
         cfg.TRAIN.DATASETS = ('cs6-train-det-score',)
         cfg.MODEL.NUM_CLASSES = 2
@@ -324,6 +327,7 @@ def main():
     elif args.dataset == "cs6-train-det-0.5":
         cfg.TRAIN.DATASETS = ('cs6-train-det-0.5',)
         cfg.MODEL.NUM_CLASSES = 2
+        
 
     elif args.dataset == "cs6-train-hp":
         cfg.TRAIN.DATASETS = ('cs6-train-hp',)
@@ -355,12 +359,21 @@ def main():
         cfg.TRAIN.DATASETS = ('cs6-train-hp', 'wider_train')
         cfg.MODEL.NUM_CLASSES = 2
 
+    elif args.dataset == "cs6-train-dummy+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-dummy', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
+    elif args.dataset == "cs6-train-det+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6-train-det', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
     cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
         cfg_from_list(args.set_cfgs)
+
 
     ### Adaptively adjust some configs ###
     original_batch_size = cfg.NUM_GPUS * cfg.TRAIN.IMS_PER_BATCH
@@ -495,6 +508,7 @@ def main():
             collate_fn=collate_minibatch)
         dataiterator = iter(dataloader)
 
+
     # Effective training sample size for one epoch
     train_size = roidb_size // args.batch_size * args.batch_size
 
@@ -607,6 +621,8 @@ def main():
             # Set the Tensorboard logger
             tblogger = SummaryWriter(output_dir)
 
+
+
     ### Training Loop ###
     maskRCNN.train()
 
@@ -662,46 +678,39 @@ def main():
             training_stats.IterTic()
             optimizer.zero_grad()
 
-
             for inner_iter in range(args.iter_size):
+                # use a iter counter for optional alternating batches
+                if args.iter_size == 1:
+                    iter_counter = step
+                else:
+                    iter_counter = inner_iter
 
                 if cfg.TRAIN.JOINT_TRAINING:
                     # alternate batches between dataset[0] and dataset[1]                    
-                    if step % 2 == 0:
-                        print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
+                    if iter_counter % 2 == 0:
+                        if DEBUG:
+                            print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
-                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                            cfg.TRAIN.FG_FRACTION = 1.
-                            # Only FG samples will form minibatch (approx.) 
-                            # CAVEAT: if available FG samples cannot fill minibatch 
-                            # then sampling *with* replacement is done. 
+                        # NOTE: if available FG samples cannot fill minibatch 
+                        # then batchsize will be smaller than cfg.TRAIN.BATCH_SIZE_PER_IM. 
                     else:
-                        print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
+                        if DEBUG:
+                            print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']
-                        if cfg.TRAIN.JOINT_SELECTIVE_FG:
-                            # revert to original FG fraction for WIDER dataset
-                            cfg.TRAIN.FG_FRACTION = orig_fg_batch_ratio
-
-                        if cfg.TRAIN.JOINT_SELECTIVE_BG:
-                            # only select BG regions from dataset[1]
-                            cfg.TRAIN.FG_FRACTION = 0.
-
 
                 try:
                     input_data = next(dataiterator)
                 except StopIteration:
+                    # end of epoch for dataloader
                     dataiterator = iter(dataloader)
                     input_data = next(dataiterator)
-
                     if cfg.TRAIN.JOINT_TRAINING:
-                        if step % 2 == 0:
+                        if iter_counter % 2 == 0:
                             joint_training_roidb[0]['dataiterator'] = dataiterator
                         else:
                             joint_training_roidb[1]['dataiterator'] = dataiterator
-
-
 
                 for key in input_data:
                     if key != 'roidb': # roidb is a list of ndarrays with inconsistent length
@@ -710,7 +719,10 @@ def main():
                 net_outputs = maskRCNN(**input_data)
                 training_stats.UpdateIterStats(net_outputs, inner_iter)
                 loss = net_outputs['total_loss']
+                # [p.data.get_device() for p in maskRCNN.parameters()]
+                # [(name, p.data.get_device()) for name, p in maskRCNN.named_parameters()]
                 loss.backward()
+
             optimizer.step()
             training_stats.IterToc()
 

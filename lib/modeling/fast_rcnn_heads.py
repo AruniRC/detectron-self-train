@@ -9,6 +9,8 @@ import nn as mynn
 import utils.net as net_utils
 import numpy as np
 
+DEBUG = False
+
 class fast_rcnn_outputs(nn.Module):
     def __init__(self, dim_in):
         super().__init__()
@@ -68,45 +70,102 @@ def fast_rcnn_losses(cls_score, bbox_pred, label_int32, bbox_targets,
     return loss_cls, loss_bbox, accuracy_cls
 
 
-def distillation_loss(cls_score, label_int32, gt_score, dist_T=1.0, dist_lambda=0.5, cls_id=1):
+# if self.distill:
+#   soft_target = Variable(data[2].cuda())
+#   distill_loss = torch.mean(torch.sum(- nn.Softmax(dim=1)(soft_target/self.T) * nn.LogSoftmax(dim=1)(out_data/self.T), 1))  
+#   loss += self.lbda*distill_loss
+#   self.writer.add_scalar('train/distill_loss', distill_loss, i_acc+i+1)
+
+def smooth_label_loss(cls_score, label_int32, gt_score, gt_source, 
+                      dist_T=1.0, dist_lambda=0.5, tracker_score=0.0,
+                      cls_id=1):
     """
-    Compute the knowledge-distillation (KD) loss given outputs, hard labels, soft labels. 
-    This currently supports a single foreground category.
+    Compute the label smoothing loss given network predictions (logits), hard 
+    labels and soft labels. This currently supports a single category only.
 
-    soft_label = lambda*label_noisy + (1 - lambda)*baseline_score
-
+    soft_label = (1-dist_lambda)*label + dist_lambda*gt_score
     Loss = BinaryCrossEntropy(predicted_scores, soft_label)
 
     Inputs: cls_score (network predictions), label_int32 (hard labels), 
-            gt_score (baseline detector scores as groundtruth)
+            gt_score (baseline detector scores as groundtruth), 
+            gt_source (1: detector, 2: tracker)
 
     """
-
-    # TODO - single generalized multi-class distillation loss!
-
+    # TODO: single generalized multi-class distillation loss!
+    if DEBUG:
+        print('\tDistillation loss')
 
     assert all(gt_score >= 0) & all(gt_score <= 1) # sanity-check
     assert gt_score.shape == label_int32.shape
-    assert dist_lambda > 0
+    if not cfg.TRAIN.DISTILL_ATTN:
+        assert dist_lambda > 0
     assert dist_T > 0
-    
-    pred = cls_score[:, cls_id]  # prediction logits
+    pred = cls_score[:, cls_id] / dist_T  # tempered prediction logits
     device_id = pred.get_device()
+    gt_score[gt_source == 2] = tracker_score 
     label = torch.from_numpy(label_int32.astype('float32'))
     gt_score = torch.from_numpy(gt_score.astype('float32'))
-    # get logits from sigmoid, apply temperature, reapply sigmoid
-    if dist_T != 1.0:
-        # NOTE: this applies temperature to only the gt_score
-        # TODO: check numerical stability
-        gt_logit = torch.log(gt_score) - torch.log(1 - gt_score) 
-        gt_score = F.sigmoid(gt_logit / dist_T)
-    # blend "baseline gt score" and "label"
-    soft_label = dist_lambda*label + (1-dist_lambda)*gt_score
-    soft_label = Variable(soft_label).cuda(device_id)     
-    loss_distill = F.binary_cross_entropy_with_logits(pred, soft_label)
-    assert not net_utils.is_nan_loss(loss_distill)
 
+    if not cfg.TRAIN.DISTILL_ATTN:
+        # Blend "baseline gt score" and "label" with temperature
+        soft_label = (1-dist_lambda)*label + dist_lambda*gt_score
+        soft_label = soft_label**(1/dist_T) / (soft_label**(1/dist_T) + (1-soft_label)**(1/dist_T))
+        soft_label = Variable(soft_label).cuda(device_id)
+    else:
+        # "dist_lambda" is a learnable Variable
+        label = Variable(label).cuda(device_id)
+        gt_score = Variable(gt_score).cuda(device_id)
+        soft_label = (1-torch.squeeze(dist_lambda))*label + torch.squeeze(dist_lambda)*gt_score
+        soft_label = soft_label**(1/dist_T) / (soft_label**(1/dist_T) + (1-soft_label)**(1/dist_T))    
+    
+    loss_distill = F.binary_cross_entropy_with_logits(pred, soft_label)    
+    assert not net_utils.is_nan_loss(loss_distill)
     return loss_distill
+
+
+
+# ---------------------------------------------------------------------------- #
+# Attention head
+# ---------------------------------------------------------------------------- #
+class distill_attention_head(nn.Module):
+    """ Learn distillation lambda from ROI-level feature map """
+    def __init__(self, n_in=2048, grl_scaler=-0.1):
+        super(distill_attention_head, self).__init__()
+        self.conv1 = nn.Conv2d(n_in, 1024, kernel_size=1, stride=1)
+        self.conv2 = nn.Conv2d(1024, 1024, kernel_size=1, stride=1)
+        self.fc = nn.Conv2d(1024, 1, kernel_size=1, stride=1)
+        self.leaky_relu = nn.LeakyReLU(negative_slope=0.2, inplace=True)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.leaky_relu(x)
+        if DEBUG:
+            print(x.size())
+        x = self.conv2(x)
+        x = self.leaky_relu(x)
+        if DEBUG:
+            print(x.size())
+        x = self.fc(x)
+        if DEBUG:
+            print(x.size())
+        return x
+
+    def detectron_weight_mapping(self):
+        # do not load from (or save to) checkpoint
+        detectron_weight_mapping = {
+            'conv1.weight': None,
+            'conv1.bias': None,
+            'conv2.weight': None,
+            'conv2.bias': None,
+            'fc.weight': None,
+            'fc.bias': None,
+        }
+        orphan_in_detectron = []
+        return detectron_weight_mapping, orphan_in_detectron
+
+
+
+
 
 
 # ---------------------------------------------------------------------------- #

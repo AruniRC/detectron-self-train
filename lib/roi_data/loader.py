@@ -45,7 +45,8 @@ class RoiDataLoader(data.Dataset):
 
             if len(valid_inds) < len(boxes):
                 for key in ['boxes', 'gt_classes', 'seg_areas', 'gt_overlaps', 'is_crowd',
-                            'box_to_gt_ind_map', 'gt_keypoints', 'gt_scores']: # EDIT: gt_scores
+                            'box_to_gt_ind_map', 'gt_keypoints', 'gt_scores', 'dataset_id', 
+                            'gt_source']: # EDIT: gt_scores
                     if key in entry:
                         entry[key] = entry[key][valid_inds]
                 entry['segms'] = [entry['segms'][ind] for ind in valid_inds]

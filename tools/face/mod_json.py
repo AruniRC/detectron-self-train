@@ -1,8 +1,52 @@
 """
 Takes a JSON file and output annotation for only one video.
 srun --pty --mem 10000 python tools/face/mod_json.py
+=======
+
+1) Takes a JSON file and output annotation for only one video.
+2) Make compatible with distillation loss
+3) Add dataset name into annotations
+4) Add artificial noise to the labels
+5) Remove all tracklet bboxes from HP JSON [detector+tracker]
 
 srun --pty --mem 10000 python tools/face/mod_json.py
+
+
+By default output JSONs are saved under 'Outputs/modified_annots/'
+
+
+Usage 1: add "dataset" field to each annot
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task dataset-annot \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
+
+
+Usage 2: add noise to the annotations
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task noisy-label \
+    --bbox_noise_level 1.0 \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
+
+
+Usage 3: add "dataset" and "source" fields
+------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task dataset-annot \
+    --dataset_name cs6-train-hp \
+    --add_source \
+    --json_file data/CS6_annot/cs6-train-hp.json
+
+
+Usage 4: remove bboxes that come from tracker
+---------------------------------------------
+srun --pty --mem 10000 python tools/face/mod_json.py \
+    --task only-dets \
+    --dataset_name cs6-train-hp \
+    --json_file data/CS6_annot/cs6-train-hp.json
 
 """
 
@@ -37,6 +81,10 @@ NOISE_LEVEL = 0.5
 
 JSON_FILE_SCORES = 'data/CS6_annot/cs6-train-det-score_face_train_annot_coco_style.json'
 
+
+
+args = None
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Modify CS6 ground truth data')
     parser.add_argument(
@@ -63,6 +111,14 @@ def parse_args():
     parser.add_argument(
         '--json_file_scores', help='Name of scores JSON file', 
         default=JSON_FILE_SCORES
+    )
+    parser.add_argument(
+        '--dataset_name', help='Name of dataset', 
+        default=None
+    )
+    parser.add_argument(
+        '--add_source', help='Source field annotation', 
+        action='store_true'
     )
     return parser.parse_args()
 
@@ -93,7 +149,7 @@ def single_video_annots(output_dir, video_file, json_file):
                     osp.splitext(osp.basename(json_file))[0]) \
                     + '_' + video_name + '.json'
         with open(out_file, 'w', encoding='utf8') as outfile:
-            outfile.write(json.dumps(ann_dict))
+            outfile.write(json.dumps(ann_dict, indent=2))
 
 
 # ------------------------------------------------------------------------------
@@ -104,7 +160,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
         Add noise to the bounding-box annotations of CS6 videos. This should 
         be trivially transferrable to any MS-COCO format JSON.
         A fraction of total images (img_noise_level*num_images) are selected to 
-        have noise.
+        have noise. By default, *all* images are selected.
         In each image, max(1, bbox_noise_level*num_bboxes) bounding boxes  
         are selected to have their X and Y se to a random position in the image.
     '''
@@ -121,7 +177,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
     perm_ann_dict = np.random.permutation(ann_dict['images'])
     images_sel = perm_ann_dict[0:num_sel_img]
     image_ids = [x['id'] for x in images_sel]
-    vid_annots = []
+    vid_annots = []    
 
     for (i,(im_id, im_info)) in enumerate(zip(image_ids, images_sel)):
         annots = [x for x in ann_dict['annotations'] if x['image_id'] == im_id]
@@ -150,7 +206,7 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
                     osp.splitext(osp.basename(json_file))[0]) \
                     + ('_noisy-%.2f.json' % bbox_noise_level)
     with open(out_file, 'w', encoding='utf8') as outfile:
-            outfile.write(json.dumps(ann_dict))
+            outfile.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -220,54 +276,66 @@ def make_distill_annots(output_dir, json_noisy, json_dets):
                 for gt_ann in gt_annots:
                     gt_ann['score'] = 0.0
 
-            print(len(gt_bboxes))
+            #print(len(gt_bboxes))
 
-    for im_info in gt_images:
-        # ground-truth annot
-        im_id = im_info['id']
-        gt_annots = [x for x in ann_noisy_dict['annotations'] \
-                            if x['image_id'] == im_id]
+    print(im_info)
 
-        # locate that image in detections annot
-        det_im_id = det_image_names.get(im_info['file_name'])
+    out_file = osp.join(output_dir,
+               osp.splitext(osp.basename(json_noisy))[0]) \
+               + '_distill.json'
+    with open(out_file, 'w', encoding='utf8') as outfile:
+        outfile.write(json.dumps(ann_noisy_dict, indent=2))
 
-        if det_im_id == None:
-            # the gt image has no corresponding image in detections annots
-            for gt_ann in gt_annots:
-                gt_ann['score'] = 0.0
-        else:
-            gt_bboxes = [x['bbox'] for x in gt_annots]
-            det_bboxes = [x['bbox'] for x in ann_det_dict['annotations'] \
-                            if x['image_id'] == det_im_id]
 
-            # bipartite matching (Hungarian algorithm)
-            gt_bboxes = np.array(gt_bboxes)
-            det_bboxes = np.array(det_bboxes)
-            # convert [x1 y1 w h] to [x1 y1 x2 y2]
-            gt_bboxes[:,2] += gt_bboxes[:,0]
-            gt_bboxes[:,3] += gt_bboxes[:,1]
-            det_bboxes[:,2] += det_bboxes[:,0]
-            det_bboxes[:,3] += det_bboxes[:,1]
-            idx_gt, idx_pred, iou_mat,_ = face_utils.match_bboxes(
-                                            gt_bboxes, det_bboxes)
+# ------------------------------------------------------------------------------
+def add_dataset_annots(output_dir, json_file, data_set):
+# ------------------------------------------------------------------------------
+    ''' Add a 'dataset' field to every annotation '''
+    if not osp.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
 
-            if len(idx_gt) > 0 and len(idx_pred) > 0:
-                print(iou_mat)
-            else:
-                for gt_ann in gt_annots:
-                    gt_ann['score'] = 0.0
+    with open(json_file) as f:
+        ann_dict = json.load(f)
+    print(ann_dict.keys())
 
-            print(len(gt_bboxes))
-        print(im_info)
-        # TODO - sanity-check: assert all gt-annotations have a key 'score'
+    #print(len(gt_bboxes))
+    #print(im_info)
     # ann_dict['images'] = vid_images
-    # ann_dict['annotations'] = vid_annots
+    for annot in ann_dict['annotations']:
+        annot['dataset'] = data_set
+        if args.add_source:
+            # default: assume source is detector (1) not tracker (2)
+            annot['source'] = 1 
+
 
     out_file = osp.join(output_dir, 
-                osp.splitext(osp.basename(json_noisy))[0]) \
-                + '_distill.json'
+                osp.splitext(osp.basename(json_file))[0]) \
+                + '_dataset-' + data_set + '.json'
+    with open(out_file, 'w', encoding='utf8') as out:
+        out.write(json.dumps(ann_dict, indent=2))
+
+
+
+# ------------------------------------------------------------------------------
+def remove_tracklet_annots(output_dir, json_file):
+# ------------------------------------------------------------------------------
+    ''' Remove HP JSON annotations that come from tracklets '''
+    if not osp.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(json_file) as f:
+        ann_dict = json.load(f)
+    print(ann_dict.keys())
+
+    det_annots = [x for x in ann_dict['annotations'] if x['source'] == 1]
+    ann_dict['annotations'] = det_annots
+    out_file = osp.join(output_dir, 
+                osp.splitext(osp.basename(json_file))[0]) \
+                + '-det' + '.json'
+
+    print('Output: ' + out_file)
     with open(out_file, 'w', encoding='utf8') as outfile:
-        outfile.write(json.dumps(ann_noisy_dict))
+        outfile.write(json.dumps(ann_dict, indent=2))
 
 
 
@@ -291,9 +359,16 @@ if __name__ == '__main__':
                           bbox_noise_level=args.bbox_noise_level)
 
     elif args.task == 'distill-label':
-        # 
+        # TODO
         np.random.seed(0)
         make_distill_annots(output_dir, json_file, args.json_file_scores)
+
+    elif args.task == 'dataset-annot':
+        assert(args.dataset_name is not None)
+        add_dataset_annots(output_dir, json_file, args.dataset_name)
+
+    elif args.task == 'only-dets':
+        remove_tracklet_annots(output_dir, json_file)
         
     else:
         raise NotImplementedError

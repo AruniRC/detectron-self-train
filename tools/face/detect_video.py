@@ -67,47 +67,30 @@ from utils.detectron_weight_helper import load_detectron_weight
 # ---------------------------------------------------------------------------- #
 
 # Baseline: trained on WIDER Face
-DET_NAME = 'frcnn-R-50-C4-1x'
-CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
-WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
-TRAIN_DATA = 'WIDER'
-
-# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
-# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001/Aug11-12-52-16_node151_step/ckpt/model_step29999.pth'
-# TRAIN_DATA = 'cs6-subset'
+# DET_NAME = 'frcnn-R-50-C4-1x'
+# CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
+# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth'
+# TRAIN_DATA = 'WIDER'
 
 
-# DET_NAME = 'frcnn-R-50-C4-1x-8gpu-lr=0.0001'
-# TRAIN_DATA = 'cs6-subset-GT+WIDER'
-# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu_lr=0.0001_cs6_WIDER/Aug15-22-45-51_node142_step/ckpt/model_step49999.pth'
-
-# OUT_DIR="Outputs/evaluations/"${DET_NAME}"/cs6/train-"${TRAIN_IMDB}"_val-video_conf-"${CONF_THRESH}
-
-# Overfit: train and test on one video: 3013.mp4
-# DET_NAME = 'frcnn-R-50-C4-1x-8gpu'
-# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_8gpu.yaml'
-# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_8gpu/Aug23-18-29-02_node121_step/ckpt/model_step29999.pth'
-# TRAIN_DATA = 'cs6-3013'
-
-
-CONF_THRESH = 0.25
+# CONF_THRESH = 0.25
+CONF_THRESH = 0.1
 NMS_THRESH = 0.15
-# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (DET_NAME, CONF_THRESH)
-# CONF_THRESH = 0.85   
-# CONF_THRESH = 0.25   # very low threshold, similar to WIDER eval
-# OUT_DIR = 'Outputs/evaluations/%s/cs6/sample-baseline-video_conf-%.2f' % (
-#             DET_NAME, CONF_THRESH)
-OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-video_conf-%.2f' % (
-            DET_NAME, TRAIN_DATA, CONF_THRESH)
 
 
 
-VID_NAME = '3004.mp4'
-# VID_NAME = '1100.mp4'
-# DATA_DIR = '/mnt/nfs/scratch1/arunirc/data/CS6/CS6/CS6.0.01/CS6'
+## --- CS6 + WIDER Joint training [distill branch] ---
+DET_NAME = 'frcnn-R-50-C4-1x'
+TRAIN_IMDB = 'CS6-train-HP+WIDER-da-im_5k'
+CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_domain_im.yaml'
+WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_domain_im/Oct06-23-57-55_node119_step/ckpt/model_step4999.pth'
+OUT_DIR = 'Outputs/evaluations/%s/cs6/train-%s_val-easy_conf-%.2f' % (
+            DET_NAME, TRAIN_IMDB, CONF_THRESH)
+
+VID_NAME = '600.mp4'
 DATA_DIR = 'data/CS6'
+
+# ---
 
 
 def parse_args():
@@ -244,7 +227,6 @@ if __name__ == '__main__':
     net = mynn.DataParallel(net, cpu_keywords=['im_info', 'roidb'],
                             minibatch=True, device_ids=[0])  # only support single GPU
     net.eval()
-
 
     # Data setup
     video_path = osp.join(args.data_dir, 'videos', args.video_name)

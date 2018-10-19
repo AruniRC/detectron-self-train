@@ -14,6 +14,7 @@ from modeling.roi_xfrom.roi_align.functions.roi_align import RoIAlignFunction
 import modeling.rpn_heads as rpn_heads
 import modeling.fast_rcnn_heads as fast_rcnn_heads
 import modeling.mask_rcnn_heads as mask_rcnn_heads
+import modeling.adversarial_heads as adversarial_heads
 import modeling.keypoint_rcnn_heads as keypoint_rcnn_heads
 import utils.blob as blob_utils
 import utils.net as net_utils
@@ -123,6 +124,19 @@ class Generalized_RCNN(nn.Module):
 
         self._init_modules()
 
+        # Domain Discriminator Branch
+        if cfg.TRAIN.DOMAIN_ADAPT_IM:
+            self.DiscriminatorImage_Head = adversarial_heads.domain_discriminator_im(
+                                            grl_scaler=cfg.TRAIN.GRL_SCALER)
+        if cfg.TRAIN.DOMAIN_ADAPT_ROI:
+            self.DiscriminatorRoi_Head = adversarial_heads.domain_discriminator_roi(
+                                            grl_scaler=cfg.TRAIN.GRL_SCALER)
+
+        # Learned attention for distillation lambda Branch
+        if cfg.TRAIN.DISTILL_ATTN:
+            self.AttentionRoi_Head = fast_rcnn_heads.distill_attention_head()
+
+
     def _init_modules(self):
         if cfg.MODEL.LOAD_IMAGENET_PRETRAINED_WEIGHTS:
             resnet_utils.load_pretrained_imagenet_weights(self)
@@ -196,7 +210,6 @@ class Generalized_RCNN(nn.Module):
                 return_dict['losses']['loss_rpn_cls'] = loss_rpn_cls
                 return_dict['losses']['loss_rpn_bbox'] = loss_rpn_bbox
 
-
             # bbox loss
             loss_cls, loss_bbox, accuracy_cls = fast_rcnn_heads.fast_rcnn_losses(
                 cls_score, bbox_pred, rpn_ret['labels_int32'], rpn_ret['bbox_targets'],
@@ -205,15 +218,60 @@ class Generalized_RCNN(nn.Module):
             return_dict['losses']['loss_bbox'] = loss_bbox
             return_dict['metrics']['accuracy_cls'] = accuracy_cls            
 
-            # EDIT: soft-labels with distillation loss
+            # EDIT: target soft-labels with distillation loss
             if cfg.TRAIN.GT_SCORES:
-                loss_distill = fast_rcnn_heads.distillation_loss(
-                                cls_score, rpn_ret['labels_int32'], 
-                                rpn_ret['gt_scores'], 
-                                cfg.TRAIN.DISTILL_TEMPERATURE, 
-                                cfg.TRAIN.DISTILL_LAMBDA)
-                # return_dict['losses']['loss_distill'] = loss_distill
-                return_dict['losses']['loss_cls'] = loss_distill
+                # Smooth labels for the noisy dataset assumed to be "dataset-0"
+                if rpn_ret['dataset_id'][0] == 0:
+
+                    if cfg.TRAIN.DISTILL_ATTN:
+                        pre_lambda_attn = self.AttentionRoi_Head(box_feat)
+                        loss_distill = fast_rcnn_heads.smooth_label_loss(
+                                        cls_score, rpn_ret['labels_int32'], 
+                                        rpn_ret['gt_scores'], 
+                                        rpn_ret['gt_source'],
+                                        dist_T=cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                        dist_lambda=F.sigmoid(pre_lambda_attn), 
+                                        tracker_score=cfg.TRAIN.TRACKER_SCORE)
+                        loss_distill += torch.sum(torch.abs(pre_lambda_attn))  # regularize attn magnitude
+                    else:
+                        loss_distill = fast_rcnn_heads.smooth_label_loss(
+                                        cls_score, rpn_ret['labels_int32'], 
+                                        rpn_ret['gt_scores'], 
+                                        rpn_ret['gt_source'],
+                                        dist_T=cfg.TRAIN.DISTILL_TEMPERATURE, 
+                                        dist_lambda=cfg.TRAIN.DISTILL_LAMBDA, 
+                                        tracker_score=cfg.TRAIN.TRACKER_SCORE)
+
+                    return_dict['losses']['loss_cls'] = loss_distill
+
+            # EDIT: domain adversarial losses
+            if cfg.TRAIN.DOMAIN_ADAPT_IM or cfg.TRAIN.DOMAIN_ADAPT_ROI:
+                if rpn_ret['dataset_id'][0] == 0:
+                    # dataset-0 is assumed unlabeled - so zero out other losses
+                    #   NOTE: multiplied by 0 to maintain valid autodiff graph
+                    return_dict['losses']['loss_cls'] *= 0
+                    return_dict['losses']['loss_bbox'] *= 0
+                    return_dict['losses']['loss_rpn_cls'] *= 0
+                    return_dict['losses']['loss_rpn_bbox'] *= 0
+
+                if cfg.TRAIN.DOMAIN_ADAPT_IM:
+                    da_image_pred = self.DiscriminatorImage_Head(blob_conv)                
+                    loss_da_im = adversarial_heads.domain_loss_im(
+                                    da_image_pred, rpn_ret['dataset_id'][0])                
+                    return_dict['losses']['loss_da-im'] = loss_da_im
+
+                if cfg.TRAIN.DOMAIN_ADAPT_ROI:                    
+                    da_roi_pred = self.DiscriminatorRoi_Head(box_feat)                
+                    loss_da_roi = adversarial_heads.domain_loss_im(
+                                    da_roi_pred, rpn_ret['dataset_id'][0])                
+                    return_dict['losses']['loss_da-roi'] = loss_da_roi
+
+                if cfg.TRAIN.DOMAIN_ADAPT_CST:
+                    assert cfg.TRAIN.DOMAIN_ADAPT_ROI and cfg.TRAIN.DOMAIN_ADAPT_IM
+                    loss_da_cst = adversarial_heads.domain_loss_cst(
+                                    da_image_pred, da_roi_pred)                
+                    return_dict['losses']['loss_da-cst'] = loss_da_cst
+
 
             if cfg.MODEL.MASK_ON:
                 if getattr(self.Mask_Head, 'SHARE_RES5', False):
@@ -226,6 +284,7 @@ class Generalized_RCNN(nn.Module):
                 # mask loss
                 loss_mask = mask_rcnn_heads.mask_rcnn_losses(mask_pred, rpn_ret['masks_int32'])
                 return_dict['losses']['loss_mask'] = loss_mask
+
 
             if cfg.MODEL.KEYPOINTS_ON:
                 if getattr(self.Keypoint_Head, 'SHARE_RES5', False):

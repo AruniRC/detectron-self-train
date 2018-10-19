@@ -34,10 +34,10 @@ from tqdm import tqdm
 
 
 # JSON_FILE = 'data/CS6_annot/cs6-subset-gt_face_train_annot_coco_style.json'
-JSON_FILE = 'data/CS6_annot/cs6-train-easy-gt-sub.json'
+JSON_FILE = 'Outputs/modified_annots/cs6-train-hp_noisy-1.00.json'
 
 OUT_DIR = 'Outputs/visualizations/'
-
+NUM_IMG = 500 # number of images to visualize
 DEBUG = False
 
 def parse_args():
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         out_path = osp.join(out_dir, image_name.replace('/', '_'))
         cv2.imwrite(out_path, im_det)
         i += 1 
-        if i == 5000:
+        if i == NUM_IMG:
             break
 
 
