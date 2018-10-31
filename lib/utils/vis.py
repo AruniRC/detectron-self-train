@@ -155,7 +155,16 @@ def vis_one_image(
                           bbox[3] - bbox[1],
                           fill=False, edgecolor='g',
                           linewidth=0.5, alpha=box_alpha))
-
+        '''# display score
+        ax.text(
+            bbox[0], bbox[1] - 2,
+            get_class_string(classes[i], score, dataset),
+            fontsize=3,
+            family='serif',
+            bbox=dict(
+                facecolor='g', alpha=0.4, pad=0, edgecolor='none'),
+            color='white')
+        '''
         if show_class:
             ax.text(
                 bbox[0], bbox[1] - 2,

@@ -56,7 +56,7 @@ _GREEN = (18, 127, 15)
 color_dict = {'red': (0,0,225), 'green': (0,255,0), 'yellow': (0,255,255), 
               'blue': (255,0,0), '_GREEN':(18, 127, 15), '_GRAY': (218, 227, 218), 'COL1': (255,255,0),'COL2':(255,0,255)}
 # -----------------------------------------------------------------------------------
-def draw_detection_list(im, dets, labels):
+def draw_detection_list(im, dets, labels, sources=None):
 # -----------------------------------------------------------------------------------
     """ Draw bounding boxes on a copy of image and return it.
         [x0 y0 w h conf_score]
@@ -74,8 +74,15 @@ def draw_detection_list(im, dets, labels):
     for i, det in enumerate(dets):
         bbox = dets[i, :4]
         x0, y0, x1, y1 = [int(x) for x in bbox]
-        col = list(sorted(color_dict.keys()))[labels[i]]
-        #print('>>>',labels[i],'--',col)
+        
+        # TEMP: if 'source' is available, set yellow for HP and green for dets -- assuming 1 class
+        if not (sources is None):
+            if sources[i] == 1:
+                col = 'green'
+            elif sources[i] == 2:
+                col = 'yellow'
+        else:
+            col = list(sorted(color_dict.keys()))[labels[i]] #-- standard multi class, not considering the source
         line_color = color_dict[col]
         cv2.rectangle(im_det, (x0, y0), (x1, y1), line_color, thickness=2)
         
@@ -89,6 +96,8 @@ if __name__ == '__main__':
     with open(args.json_file) as f:
         ann_dict = json.load(f)
     print(ann_dict.keys())
+    #input(ann_dict['images'][0])
+    #input(ann_dict['annotations'][0])
 
     #out_dir = osp.join(args.output_dir, 
     #                   osp.splitext(osp.basename(args.json_file))[0])
@@ -103,9 +112,16 @@ if __name__ == '__main__':
         image_id = img_annot['id']
         bboxes = [x['bbox'] for x in ann_dict['annotations'] if x['image_id'] == image_id]
         labels = [x['category_id'] for x in ann_dict['annotations'] if x['image_id'] == image_id]
+        
+        # get source -- gt, dets or hp
+        sources = None
+        if 'source' in ann_dict['annotations'][0].keys():
+            sources = [x['source'] for x in ann_dict['annotations'] if x['image_id'] == image_id]
+            #input('-->'+str(sources[0]))
+        
         im = cv2.imread(osp.join(args.imdir, image_name))
         assert im.size > 0
-        im_det = draw_detection_list(im, np.array(bboxes), labels)
+        im_det = draw_detection_list(im, np.array(bboxes), labels, sources=sources)
         
         #if im_det is None:
         #    print('>>>',image_name)

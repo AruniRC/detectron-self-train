@@ -67,6 +67,7 @@ if __name__ == '__main__':
     args = parse_args()
     logger.info('Called with args:')
     logger.info(args)
+    
 
     assert (torch.cuda.device_count() == 1) ^ bool(args.multi_gpu_testing)
 
@@ -96,6 +97,10 @@ if __name__ == '__main__':
     elif args.dataset == 'cs6_annot_eval_val-easy':
         cfg.TEST.DATASETS = ('cs6_annot_eval_val-easy',)
         cfg.MODEL.NUM_CLASSES = 2
+    # CS6 Test set
+    elif args.dataset == 'cs6_test_gt':
+        cfg.TEST.DATASETS = ('cs6_TEST_gt',)
+        cfg.MODEL.NUM_CLASSES = 2
 
     # Cityscapes sets
     elif args.dataset == 'cityscapes_val':
@@ -119,10 +124,13 @@ if __name__ == '__main__':
         cfg.MODEL.NUM_CLASSES = 2
     # BDD pedestrians
     elif args.dataset == 'bdd_peds_val':
-        cfg.TEST.DATASETS = ('bdd_peds_val',)
+        cfg.TEST.DATASETS = ('bdd_peds_val',) # val set for bdd peds: clear_any_daytime
         cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == 'bdd_peds_full_val':
-        cfg.TEST.DATASETS = ('bdd_peds_full_val',)
+        cfg.TEST.DATASETS = ('bdd_peds_full_val',) # val set for full bdd peds: any_any_any
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds_not_clear_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_not_clear_any_daytime_val',) # val set for complement of clear_any_daytime
         cfg.MODEL.NUM_CLASSES = 2
 
     elif args.dataset == "keypoints_coco2017":

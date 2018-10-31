@@ -75,6 +75,7 @@ torch.backends.cudnn.deterministic = True
 
 DEBUG = False
 
+"""
 # # --- Quick settings ---
 # DET_NAME = 'frcnn-R-50-C4-1x_Baseline'
 # CFG_PATH = 'configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml'
@@ -91,18 +92,49 @@ DEBUG = False
 # WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_4gpu_joint_bs64_30k/Sep25-13-48-15_node137_step/ckpt/model_step4999.pth'
 
 # --- CS6-train-HP-distill-0.7 + WIDER ---
-DET_NAME = 'frcnn-R-50-C4-1x_CS6-train-HP-distill-0.7+WIDER'
-CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_4gpu_distill-07.yaml'
-WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_4gpu_distill-07/Oct03-22-00-34_node142_step/ckpt/model_step4999.pth'
-
+# DET_NAME = 'frcnn-R-50-C4-1x_CS6-train-HP-distill-0.7+WIDER'
+# CFG_PATH = 'configs/cs6/e2e_faster_rcnn_R-50-C4_1x_4gpu_distill-07.yaml'
+# WT_PATH = 'Outputs/e2e_faster_rcnn_R-50-C4_1x_4gpu_distill-07/Oct03-22-00-34_node142_step/ckpt/model_step4999.pth'
 
 DATASET = 'cs6-val-easy'
+GT_FILE = 'data/CS6_annot/annot-format-GT/cs6_gt_annot_val-easy.txt'
+OUT_DIR = 'Outputs/visualizations/'
+NUM_IMG = 100 
+CONF_THRESH = 0.25
+NMS_THRESH = 0.15
+DATA_DIR = 'data/CS6_annot'   # this points to ANNOTS folder, and *not* the raw CS6 protocol
+"""
+ 
+# -- BDD Dets18k only --- #
+DET_NAME = 'bdd_dets18k_only'
+CFG_PATH = 'configs/baselines/cityscapes.yaml'
+WT_PATH = 'Outputs/cityscapes/bdd_dets18k_only/ckpt/model_step64999.pth'
+
+# -- BDD HP18k only -- #
+#DET_NAME = 'bdd_hp18k_only'
+#CFG_PATH = 'configs/baselines/cityscapes.yaml'
+#WT_PATH = 'Outputs/cityscapes/bdd_hp18k_only/ckpt/model_step64999.pth'
+
+# -- BDD source+Dets18k -- #
+#DET_NAME = 'bdd_source_and_dets18k'
+#CFG_PATH = 'configs/baselines/cityscapes.yaml'
+#WT_PATH = 'Outputs/cityscapes/bdd_source_and_dets18k/ckpt/model_step64999.pth'
+
+# -- BDD source+HP18k -- #
+#DET_NAME = 'bdd_source_and_hp18k'
+#CFG_PATH = 'configs/baselines/cityscapes.yaml'
+#WT_PATH = 'Outputs/cityscapes/bdd_source_and_hp18k/ckpt/model_step64999.pth'
+
+# -- BDD source+HP18k distill 0.3 -- #
+
+
+DATASET = 'bdd_peds_not_clear_any_daytime_val'
 GT_FILE = 'data/CS6_annot/annot-format-GT/cs6_gt_annot_val-easy.txt'
 OUT_DIR = 'Outputs/visualizations/'
 NUM_IMG = 100
 CONF_THRESH = 0.25
 NMS_THRESH = 0.15
-DATA_DIR = 'data/CS6_annot'   # this points to ANNOTS folder, and *not* the raw CS6 protocol
+DATA_DIR = 'data/bdd100k'   # this points to ANNOTS folder, and *not* the raw CS6 protocol
 
 
 def parse_args():

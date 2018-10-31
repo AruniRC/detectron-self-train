@@ -94,6 +94,27 @@ DATASETS = {
         IM_DIR: _DATA_DIR + '/CS6_annot/',
         ANN_FN: _DATA_DIR + '/cs6_jsons/cs6_gt_annot_val-easy.json'
      },
+    'cs6_TEST_gt' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6-test-gt.json'
+    },
+    
+    # Detection dataset created by removing the traker output from the HP json
+    'cs6_train_det_from_hp' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6_train_det_derived_from_hp.json'
+    },
+    # Dataset with only HP: removed the detections from the HP json
+    'cs6_train_hp_tracker_only':{
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6_train_hp_tracker_only.json'
+    },
+    # HP dataset with noisy labels: used to prevent the DA models using any HP info
+    'cs6_train_hp_noisy_100' : {
+        IM_DIR: _DATA_DIR + '/CS6_annot/',
+        ANN_FN: _DATA_DIR + '/cs6_jsons/cs6_train_hp_noisy_100.json' 
+    },
+
      # Pedestrian datasets
      'bdd_peds_full_train' : {
         IM_DIR:

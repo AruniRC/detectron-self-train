@@ -69,7 +69,7 @@ def get_inference_dataset(index, is_parent=True):
         'The child inference process can only work on a single dataset'
 
     dataset_name = cfg.TEST.DATASETS[index]
-
+    
     if cfg.TEST.PRECOMPUTED_PROPOSALS:
         assert is_parent or len(cfg.TEST.PROPOSAL_FILES) == 1, \
             'The child inference process can only work on a single proposal file'
@@ -294,7 +294,8 @@ def test_net(
                 thresh=cfg.VIS_TH,
                 box_alpha=0.8,
                 dataset=dataset,
-                show_class=True
+                show_class=True,
+                ext='png'
             )
 
     cfg_yaml = yaml.dump(cfg)

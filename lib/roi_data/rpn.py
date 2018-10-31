@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import numpy.random as npr
+import random
 
 from core.config import cfg
 import roi_data.data_utils as data_utils
@@ -8,6 +9,10 @@ import utils.blob as blob_utils
 import utils.boxes as box_utils
 
 logger = logging.getLogger(__name__)
+
+# Fix random seed
+#npr.seed(cfg.RNG_SEED)
+#random.seed(cfg.RNG_SEED)
 
 
 def get_rpn_blob_names(is_training=True):

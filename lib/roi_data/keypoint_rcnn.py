@@ -28,7 +28,11 @@ import numpy as np
 from core.config import cfg
 import utils.blob as blob_utils
 import utils.keypoints as keypoint_utils
+import random
 
+# Fix random seed
+#random.seed(cfg.RNG_SEED)
+#np.random.seed(cfg.RNG_SEED)
 
 def add_keypoint_rcnn_blobs(blobs, roidb, fg_rois_per_image, fg_inds, im_scale,
                             batch_idx):

@@ -20,6 +20,7 @@ def thresh_search(res,class_names):
     overall_wrong = {t : 0 for t in score_val}
     cat_count = {c : 0 for _,c in ious.keys()}
     overall_ann_count = 0
+    overall_det_count = 0
     for imgId,catId in ious.keys():
         iou = np.array(ious[(imgId,catId)])
         dt = res._dts[imgId,catId]
@@ -27,18 +28,25 @@ def thresh_search(res,class_names):
         ndt = len(dt)
         ngt = len(gt)
         cat_count[catId] += ngt
+        #print('>>>',gt)
+        #print(iou)
         overall_ann_count += ngt
+        overall_det_count += ndt
         for d,det in enumerate(dt):
+            score = det['score']
+            d_match_count = 0
             for g,gnd in enumerate(gt):
                 dg_iou = iou[d,g]
-                score = det['score']
+                # detection matched a gt box
                 if dg_iou >= iou_thresh:
-                    cat_match_thresh[catId].append((dg_iou,score))
+                    #cat_match_thresh[catId].append((dg_iou,score))
+                    d_match_count += 1
                     for t in score_vs_match[catId].keys():
                         if np.abs(t-score) < 0.1:
                             score_vs_match[catId][t] += 1
                             overall_match[t] += 1
                             break
+                '''
                 elif dg_iou < iou_thresh:
                     cat_wrong_thresh[catId].append((dg_iou,score))
                     for t in score_vs_wrong[catId].keys():
@@ -46,7 +54,19 @@ def thresh_search(res,class_names):
                             score_vs_wrong[catId][t] += 1
                             overall_wrong[t] += 1
                             break
+                '''
+            # d did not match any gt box in the image
+            if d_match_count == 0:
+                for t in score_vs_wrong[catId].keys():
+                    if np.abs(t-score) < 0.1:
+                        score_vs_wrong[catId][t] += 1
+                        overall_wrong[t] += 1
+                        break
+
+    overall_img_count = len(ious.keys())/(len(class_names)-1) # ignore class background
+    print('Total number of images:',overall_img_count)
     print('Total number of annotations:',overall_ann_count)
+    print('Total number of detections:',overall_det_count)
     print('Class-wise annotation count:')
     for c in cat_count.keys():
         print(c,'-->',cat_count[c])

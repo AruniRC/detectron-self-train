@@ -22,6 +22,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import random
 import numpy as np
 import numpy.random as npr
 
@@ -31,6 +32,11 @@ import roi_data.mask_rcnn
 import utils.boxes as box_utils
 import utils.blob as blob_utils
 import utils.fpn as fpn_utils
+
+
+# Fix random seed
+#npr.seed(cfg.RNG_SEED)
+#random.seed(cfg.RNG_SEED)
 
 
 def get_fast_rcnn_blob_names(is_training=True):
@@ -208,7 +214,7 @@ def _sample_rois(roidb, im_scale, batch_idx):
         sampled_gt_source[fg_rois_per_this_image:] = 0
         if roidb['dataset_id'][0] == 0:
             # sanity-check for the unlabeled dataset case (assumed "dataset-0")
-            assert all((sampled_scores>0) == (sampled_labels>0))
+            assert all((sampled_scores>=0) == (sampled_labels>=0)) # TODO: Check >= instead of >
             assert(len(sampled_gt_source) == len(sampled_scores))
 
     if 'bbox_targets' not in roidb:

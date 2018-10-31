@@ -22,7 +22,8 @@ def poly2bbox(poly):
     return ((x1,y1),(x2,y2))
 
 def cat2id(lab):
-    cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    #cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
+    cat2id_map = {'person':1} # only pedestrians
     #cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5} # 5 initial classes
     return cat2id_map[lab]
 
@@ -44,9 +45,10 @@ def attrib2str(attrib_dict):
     return '_'.join(keys)
 
 def genJSON(basedir):
+    #################### PARAMS ###############
     # select labels
-    sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
-    #sel_labels = ['person'] # just pedestrians
+    #sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
+    sel_labels = ['person'] # just pedestrians
     #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
     
     # select attribute values. set to [] to not restrict an attribute
@@ -55,6 +57,16 @@ def genJSON(basedir):
                   'scene'    :[],  #residential, highway, city street, parking lot, gas stations, tunnel
                   'timeofday':['daytime']       #dawn/dusk, daytime, night
                  }
+
+    # file with list of specific videos (used for detection)
+    filelist = ''
+    #filelist = '/mnt/nfs/scratch1/ashishsingh/FALL2018/BDD20k/bdd_target_20k.txt'
+    
+    # set to true if you want to select the images that do NOT satisfy the constraints set in sel_attrib
+    choose_inverted_attrib = False
+
+    ################### END of PARAMS ###########
+
     img_dir = os.path.join(basedir,'images','100k')
     ann_dir = os.path.join(basedir,'labels','100k')
     vid_dir = os.path.join(basedir,'videos','100k')
@@ -74,10 +86,24 @@ def genJSON(basedir):
         img_id = 0
         ann_id = 0
 
-        img_samples = os.listdir(img_subdir)
-        samples = os.listdir(subdir)
+        if len(filelist) == 0:
+            img_samples = os.listdir(img_subdir)
+            samples = os.listdir(subdir)
+        else:
+            # load filenames from a file
+            with open(filelist,'r') as f:
+                flist = f.readlines()
+            f.close()
+            # if given a list of videos, choose the corresponding annotated frame files
+            samples = []
+            for i in range(len(flist)):
+                flist[i] = flist[i].strip()
+                if flist[i].endswith('.mov'):
+                    flist[i] = flist[i][:-4]+'.jpg'
+                samples.append(flist[i][:-4]+'.json') # corresponding annotation json
+            img_samples = flist
         
-        img_files   = sorted([os.path.join(img_subdir,s) for s in img_samples])
+        img_files  = sorted([os.path.join(img_subdir,s) for s in img_samples])
         lab_files  = sorted([os.path.join(subdir,s) for s in samples])
         for img_file,lab_file in zip(img_files,lab_files):
             with open(lab_file,'r') as f:
@@ -94,6 +120,8 @@ def genJSON(basedir):
                     if not (attrib[attr] in sel_attrib[attr]):
                         allowed = False
                         break
+            if choose_inverted_attrib:
+                allowed = (not allowed) # invert allowed constraints
             if not allowed:
                 continue
             
@@ -146,9 +174,9 @@ def genJSON(basedir):
             f.write(json.dumps(ann_dict))
         f.close()
         with open('img_files_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.txt','w',encoding='utf8') as f:
-            f.write('\n'.join(img_file_list))
+            f.write('\n'.join(img_file_list)+'\n')
         with open('vid_files_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.txt','w',encoding='utf8') as f:
-            f.write('\n'.join(vid_file_list))
+            f.write('\n'.join(vid_file_list)+'\n')
         f.close()
 
 if __name__ == '__main__':

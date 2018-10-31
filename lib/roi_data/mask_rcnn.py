@@ -30,6 +30,8 @@ import utils.blob as blob_utils
 import utils.boxes as box_utils
 import utils.segms as segm_utils
 
+# Fix random seed
+#np.random.seed(cfg.RNG_SEED)
 
 def add_mask_rcnn_blobs(blobs, sampled_boxes, roidb, im_scale, batch_idx):
     """Add Mask R-CNN specific blobs to the input blob dictionary."""

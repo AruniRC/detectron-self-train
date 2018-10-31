@@ -23,6 +23,7 @@ from __future__ import unicode_literals
 import six
 import logging
 import numpy as np
+import random
 
 import utils.boxes as box_utils
 import utils.keypoints as keypoint_utils
@@ -33,6 +34,9 @@ from .json_dataset import JsonDataset
 
 logger = logging.getLogger(__name__)
 
+# Fix random seed
+#random.seed(999)
+#np.random.seed(999)
 
 def combined_roidb_for_training(dataset_names, proposal_files):
     """Load and concatenate roidbs for one or more datasets, along with optional

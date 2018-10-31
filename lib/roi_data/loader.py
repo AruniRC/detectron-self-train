@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import numpy.random as npr
+import random
 
 import torch
 import torch.utils.data as data
@@ -8,11 +9,19 @@ import torch.utils.data.sampler as torch_sampler
 from torch.utils.data.dataloader import default_collate
 from torch._six import int_classes as _int_classes
 
+"""# Fix random seed
+npr.seed(999)
+random.seed(999)
+torch.cuda.manual_seed(999)
+torch.cuda.manual_seed_all(999)
+torch.manual_seed(999)
+torch.backends.cudnn.deterministic = True
+"""
+
 from core.config import cfg
 from roi_data.minibatch import get_minibatch
 import utils.blob as blob_utils
 # from model.rpn.bbox_transform import bbox_transform_inv, clip_boxes
-
 
 class RoiDataLoader(data.Dataset):
     def __init__(self, roidb, num_classes, training=True):

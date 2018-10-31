@@ -178,6 +178,8 @@ def load_ckpt(model, ckpt):
     mapping, _ = model.detectron_weight_mapping
     state_dict = {}
     for name in ckpt:        
+        if not name in mapping.keys():
+            continue
         if mapping[name]:
             state_dict[name] = ckpt[name]
     model.load_state_dict(state_dict, strict=False)

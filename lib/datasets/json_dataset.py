@@ -29,6 +29,7 @@ import copy
 from six.moves import cPickle as pickle
 import logging
 import numpy as np
+import random
 import os
 import scipy.sparse
 
@@ -48,6 +49,9 @@ from .dataset_catalog import IM_DIR
 from .dataset_catalog import IM_PREFIX
 
 logger = logging.getLogger(__name__)
+
+#random.seed(999)
+#np.random.seed(999)
 
 
 class JsonDataset(object):
@@ -152,6 +156,7 @@ class JsonDataset(object):
         if gt:
             # Include ground-truth object annotations
             cache_filepath = os.path.join(self.cache_path, self.name+'_gt_roidb.pkl')
+            #input(cache_filepath)
             if os.path.exists(cache_filepath) and not cfg.DEBUG:
                 self.debug_timer.tic()
                 self._add_gt_from_cache(roidb, cache_filepath)
@@ -280,6 +285,9 @@ class JsonDataset(object):
                 valid_objs.append(obj)
                 valid_segms.append(obj['segmentation'])
         num_valid_objs = len(valid_objs)
+
+        #print('>>>',num_valid_objs)
+        #input('checkpoint here')
 
         boxes = np.zeros((num_valid_objs, 4), dtype=entry['boxes'].dtype)
         gt_classes = np.zeros((num_valid_objs), dtype=entry['gt_classes'].dtype)

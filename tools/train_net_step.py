@@ -15,6 +15,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn as nn
 import cv2
+import random
 cv2.setNumThreads(0)  # pytorch issue 1355: possible deadlock in dataloader
 
 import _init_paths  # pylint: disable=unused-import
@@ -29,6 +30,16 @@ from utils.detectron_weight_helper import load_detectron_weight
 from utils.logging import setup_logging
 from utils.timer import Timer
 from utils.training_stats import TrainingStats
+
+
+# Fix random seed
+np.random.seed(999)
+random.seed(999)
+torch.cuda.manual_seed(999)
+torch.cuda.manual_seed_all(999)
+torch.manual_seed(999)
+torch.backends.cudnn.deterministic = True
+
 
 # Set up logging and load config options
 logger = setup_logging(__name__)
@@ -258,7 +269,7 @@ def main():
         cfg.MODEL.NUM_CLASSES = 2
     # Source domain + Target domain detections -- same 18k images as HP18k
     elif args.dataset == "bdd_peds+DETS18k":
-        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_dets18k_target_domain')
+        cfg.TRAIN.DATASETS = ('bdd_peds_dets18k_target_domain','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
     # Only Dets
     elif args.dataset == "DETS20k":
@@ -282,7 +293,7 @@ def main():
         cfg.MODEL.NUM_CLASSES = 2
     # Source domain + Target domain HP 18k videos
     elif args.dataset == 'bdd_peds+HP18k':
-        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_HP18k_target_domain')
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
         
 
@@ -367,6 +378,19 @@ def main():
         cfg.TRAIN.DATASETS = ('cs6-train-det', 'wider_train')
         cfg.MODEL.NUM_CLASSES = 2
 
+    # Dets dataset created by removing tracker results from the HP json
+    elif args.dataset == "cs6_train_det_from_hp+WIDER": 
+        cfg.TRAIN.DATASETS = ('cs6_train_det_from_hp', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Dataset created by removing det results from the HP json -- HP tracker only
+    elif args.dataset == "cs6_train_hp_tracker_only+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6_train_hp_tracker_only', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    # HP dataset with noisy labels: used to prevent DA from getting any info from HP
+    elif args.dataset == "cs6_train_hp_noisy_100+WIDER":
+        cfg.TRAIN.DATASETS = ('cs6_train_hp_noisy_100', 'wider_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    
     else:
         raise ValueError("Unexpected args.dataset: {}".format(args.dataset))
 
@@ -436,6 +460,15 @@ def main():
 
     timers = defaultdict(Timer)
 
+    """def _init_fn(worker_id):
+        random.seed(999)
+        np.random.seed(999)
+        torch.cuda.manual_seed(999)
+        torch.cuda.manual_seed_all(999)
+        torch.manual_seed(999)
+        torch.backends.cudnn.deterministic = True
+    """
+
     ### Dataset ###
     timers['roidb'].tic()
     roidb, ratio_list, ratio_index = combined_roidb_for_training(cfg.TRAIN.DATASETS, cfg.TRAIN.PROPOSAL_FILES)
@@ -477,6 +510,7 @@ def main():
                 batch_sampler=batchSampler,
                 num_workers=cfg.DATA_LOADER.NUM_THREADS,
                 collate_fn=collate_minibatch)
+                #worker_init_fn=_init_fn)
                 # decrease num-threads when using two dataloaders
             dataiterator = iter(dataloader)
 
@@ -506,6 +540,7 @@ def main():
             batch_sampler=batchSampler,
             num_workers=cfg.DATA_LOADER.NUM_THREADS,
             collate_fn=collate_minibatch)
+            #worker_init_fn=init_fn)
         dataiterator = iter(dataloader)
 
 
@@ -646,6 +681,15 @@ def main():
         step = args.start_step
         for step in range(args.start_step, cfg.SOLVER.MAX_ITER):
 
+            """
+            random.seed(cfg.RNG_SEED)
+            np.random.seed(cfg.RNG_SEED)
+            torch.cuda.manual_seed(cfg.RNG_SEED)
+            torch.cuda.manual_seed_all(cfg.RNG_SEED)
+            torch.manual_seed(cfg.RNG_SEED)
+            torch.backends.cudnn.deterministic = True
+            """
+
             # Warm up
             if step < cfg.SOLVER.WARM_UP_ITERS:
                 method = cfg.SOLVER.WARM_UP_METHOD
@@ -688,14 +732,14 @@ def main():
                 if cfg.TRAIN.JOINT_TRAINING:
                     # alternate batches between dataset[0] and dataset[1]                    
                     if iter_counter % 2 == 0:
-                        if DEBUG:
+                        if True: #DEBUG:
                             print('Dataset: %s' % joint_training_roidb[0]['dataset_name'])
                         dataloader = joint_training_roidb[0]['dataloader']
                         dataiterator = joint_training_roidb[0]['dataiterator']
                         # NOTE: if available FG samples cannot fill minibatch 
                         # then batchsize will be smaller than cfg.TRAIN.BATCH_SIZE_PER_IM. 
                     else:
-                        if DEBUG:
+                        if True: #DEBUG:
                             print('Dataset: %s' % joint_training_roidb[1]['dataset_name'])
                         dataloader = joint_training_roidb[1]['dataloader']
                         dataiterator = joint_training_roidb[1]['dataiterator']

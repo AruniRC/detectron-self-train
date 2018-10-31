@@ -11,7 +11,16 @@ from core.config import cfg
 from modeling import ResNet
 import nn as mynn
 import utils.net as net_utils
+import random
 
+"""# Fix random seed
+random.seed(cfg.RNG_SEED)
+np.random.seed(cfg.RNG_SEED)
+torch.cuda.manual_seed(cfg.RNG_SEED)
+torch.cuda.manual_seed_all(cfg.RNG_SEED)
+torch.manual_seed(cfg.RNG_SEED)
+torch.backends.cudnn.deterministic = True
+"""
 
 # ---------------------------------------------------------------------------- #
 # Mask R-CNN outputs and losses
