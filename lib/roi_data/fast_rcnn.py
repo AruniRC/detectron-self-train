@@ -34,10 +34,6 @@ import utils.blob as blob_utils
 import utils.fpn as fpn_utils
 
 
-# Fix random seed
-#npr.seed(cfg.RNG_SEED)
-#random.seed(cfg.RNG_SEED)
-
 
 def get_fast_rcnn_blob_names(is_training=True):
     """Fast R-CNN blob names."""

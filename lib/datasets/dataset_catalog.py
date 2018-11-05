@@ -204,6 +204,37 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/bdd_jsons/bdd_HP18k.json'
     },
+    'bdd_HP18k_track_only' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_track_only.json'    
+    },
+    # noisy bdd HP on 18k target domain videos -- used to prevent domain adv roi using HP info.
+    'bdd_HP18k_noisy_100k' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_noisy_100.json'    
+    },
+    'bdd_HP18k_noisy_060' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_noisy_060.json' # noise level 0.6
+    },
+    'bdd_HP18k_noisy_070' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_noisy_070.json' # noise level 0.7
+    },
+    'bdd_HP18k_noisy_080' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_noisy_080.json' # noise level 0.8
+    },
 
     # bdd peds dets on the same images as HP18k samples
     'bdd_peds_dets18k_target_domain' : {

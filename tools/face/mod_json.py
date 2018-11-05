@@ -191,8 +191,14 @@ def make_noisy_annots(output_dir, json_file, bbox_noise_level=0.3,
         for j in range(num_sel_noisy):
             # move some bboxes to random locations (size remains same)
             annot_bbox = annots_sel[j]['bbox']
-            rand_x = float(np.random.randint(1, im_info['width'] - annot_bbox[2]))
-            rand_y = float(np.random.randint(1, im_info['height'] - annot_bbox[3]))
+            
+            if annot_bbox[2] >= im_info['width']:
+                annot_bbox[2] = im_info['width'] - 2
+            if annot_bbox[3] >= im_info['height']:
+                annot_bbox[3] = im_info['height'] - 2
+            
+            rand_x = float(np.random.randint(1, im_info['width'] - annot_bbox[2]) )
+            rand_y = float(np.random.randint(1, im_info['height'] - annot_bbox[3]) )
             annot_bbox[0] = rand_x # Modifications propagated through Call-by-Object
             annot_bbox[1] = rand_y # annot_bbox --> annots --> ann_dict['annotations']
 

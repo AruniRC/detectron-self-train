@@ -33,8 +33,8 @@ from utils.training_stats import TrainingStats
 
 
 # Fix random seed
-np.random.seed(999)
-random.seed(999)
+#np.random.seed(999)
+#random.seed(999)
 torch.cuda.manual_seed(999)
 torch.cuda.manual_seed_all(999)
 torch.manual_seed(999)
@@ -265,7 +265,7 @@ def main():
         cfg.MODEL.NUM_CLASSES = 2
     # Source domain + Target domain detections
     elif args.dataset == "bdd_peds+DETS_20k":
-        cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_dets_20k_target_domain')
+        cfg.TRAIN.DATASETS = ('bdd_peds_dets_20k_target_domain','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
     # Source domain + Target domain detections -- same 18k images as HP18k
     elif args.dataset == "bdd_peds+DETS18k":
@@ -295,7 +295,23 @@ def main():
     elif args.dataset == 'bdd_peds+HP18k':
         cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
-        
+    # Source domain + Target domain HP tracker bboxes only
+    elif args.dataset == 'bdd_peds+HP18k_track_only':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_track_only','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source+Noisy Target domain -- prevent domain adv from using HP roi info
+    elif args.dataset == 'bdd_peds+bdd_HP18k_noisy_100k':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_noisy_100k','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+bdd_HP18k_noisy_080':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_noisy_080','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+bdd_HP18k_noisy_060':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_noisy_060','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+bdd_HP18k_noisy_070':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_noisy_070','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
 
     elif args.dataset == "wider_train":
         cfg.TRAIN.DATASETS = ('wider_train',)

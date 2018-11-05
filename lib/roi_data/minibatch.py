@@ -5,9 +5,6 @@ from core.config import cfg
 import utils.blob as blob_utils
 import roi_data.rpn
 
-# Fix random seed
-#np.random.seed(cfg.RNG_SEED)
-
 def get_minibatch_blob_names(is_training=True):
     """Return blob names in the order in which they are read by the data loader.
     """

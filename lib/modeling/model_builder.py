@@ -23,13 +23,6 @@ import random
 
 logger = logging.getLogger(__name__)
 
-"""# Fix random seeds
-random.seed(cfg.RNG_SEED)
-torch.cuda.manual_seed(cfg.RNG_SEED)
-torch.cuda.manual_seed_all(cfg.RNG_SEED)
-torch.backends.cudnn.deterministic = True
-"""
-
 def get_func(func_name):
     """Helper to return a function object by name. func_name must identify a
     function in this module or the path to a function relative to the base

@@ -10,10 +10,6 @@ import utils.boxes as box_utils
 
 logger = logging.getLogger(__name__)
 
-# Fix random seed
-#npr.seed(cfg.RNG_SEED)
-#random.seed(cfg.RNG_SEED)
-
 
 def get_rpn_blob_names(is_training=True):
     """Blob names used by RPN."""

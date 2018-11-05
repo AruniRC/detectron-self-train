@@ -10,10 +10,6 @@ import cv2
 import pdb
 import random
 
-# Fix random seed
-random.seed(999)
-np.random.seed(999)
-
 def save_net(fname, net):
     import h5py
     h5f = h5py.File(fname, mode='w')

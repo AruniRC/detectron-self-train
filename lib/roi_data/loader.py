@@ -9,15 +9,6 @@ import torch.utils.data.sampler as torch_sampler
 from torch.utils.data.dataloader import default_collate
 from torch._six import int_classes as _int_classes
 
-"""# Fix random seed
-npr.seed(999)
-random.seed(999)
-torch.cuda.manual_seed(999)
-torch.cuda.manual_seed_all(999)
-torch.manual_seed(999)
-torch.backends.cudnn.deterministic = True
-"""
-
 from core.config import cfg
 from roi_data.minibatch import get_minibatch
 import utils.blob as blob_utils

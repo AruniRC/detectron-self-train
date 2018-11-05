@@ -82,7 +82,7 @@ if __name__ == '__main__':
         os.makedirs(args.output_dir)
 
     cfg.VIS = args.vis
-
+    
     if args.cfg_file is not None:
         merge_cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
