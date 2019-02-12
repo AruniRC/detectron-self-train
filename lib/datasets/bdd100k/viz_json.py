@@ -107,7 +107,10 @@ if __name__ == '__main__':
         os.makedirs(out_dir, exist_ok=True)
     
     i = 0
-    for img_annot in tqdm(ann_dict['images']):
+    np.random.seed(0)
+    imlist = ann_dict['images']
+    np.random.shuffle(imlist)
+    for img_annot in tqdm(imlist):#ann_dict['images']):
         image_name = img_annot['file_name']
         image_id = img_annot['id']
         bboxes = [x['bbox'] for x in ann_dict['annotations'] if x['image_id'] == image_id]
@@ -118,8 +121,12 @@ if __name__ == '__main__':
         if 'source' in ann_dict['annotations'][0].keys():
             sources = [x['source'] for x in ann_dict['annotations'] if x['image_id'] == image_id]
             #input('-->'+str(sources[0]))
-        
+       
+        #print('>>>',osp.join(args.imdir, image_name))
         im = cv2.imread(osp.join(args.imdir, image_name))
+        if im is None:
+            print('>>>',osp.join(args.imdir, image_name))
+            continue
         assert im.size > 0
         im_det = draw_detection_list(im, np.array(bboxes), labels, sources=sources)
         

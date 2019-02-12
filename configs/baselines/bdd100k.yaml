@@ -14,7 +14,7 @@ SOLVER:
   MAX_ITER: 70000
   STEPS: [0, 50000]
 RPN:
-  SIZES: (32, 64, 128, 256, 512)
+  SIZES: (16, 32, 64, 128, 256, 512)
 FAST_RCNN:
   ROI_BOX_HEAD: ResNet.ResNet_roi_conv5_head
   ROI_XFORM_METHOD: RoIAlign

@@ -1,3 +1,5 @@
+# Read the results dump from tools/test_net.py and print the results
+
 import os
 import sys
 import pickle

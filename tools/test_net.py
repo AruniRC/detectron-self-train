@@ -102,21 +102,25 @@ if __name__ == '__main__':
         cfg.TEST.DATASETS = ('cs6_TEST_gt',)
         cfg.MODEL.NUM_CLASSES = 2
 
-    # Cityscapes sets
+    # Cityscapes peds
     elif args.dataset == 'cityscapes_val':
         cfg.TEST.DATASETS = ('cityscapes_val',)
-        cfg.MODEL.NUM_CLASSES = 8
-    
+        cfg.MODEL.NUM_CLASSES = 2  # Cityscapes cars
+    elif args.dataset == 'cityscapes_car_val':
+        cfg.TEST.DATASETS = ('cityscapes_car_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+
+
     # BDD sets -- with constraints
     elif args.dataset == 'bdd_any_any_daytime':
         cfg.TEST.DATASETS = ('bdd_any_any_daytime_val',) # or whichever constraint dataset to be used (scene, weather, etc.)
-        cfg.MODEL.NUM_CLASSES = 8
+        cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == 'bdd_clear_any_daytime':
         cfg.TEST.DATASETS = ('bdd_clear_any_daytime_val',)
-        cfg.MODEL.NUM_CLASSES = 8
+        cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == 'bdd_any_any_any':
         cfg.TEST.DATASETS = ('bdd_any_any_any_val',)
-        cfg.MODEL.NUM_CLASSES = 8
+        cfg.MODEL.NUM_CLASSES = 2
 
     # Cityscapes pedestrians
     elif args.dataset == 'cityscapes_peds_val':
@@ -132,10 +136,72 @@ if __name__ == '__main__':
     elif args.dataset == 'bdd_peds_not_clear_any_daytime_val':
         cfg.TEST.DATASETS = ('bdd_peds_not_clear_any_daytime_val',) # val set for complement of clear_any_daytime
         cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds_dets18k_target_domain':
+        cfg.TEST.DATASETS = ('bdd_peds_dets18k_target_domain',) # bbd dets json: for bdd data dist experiment
+        cfg.MODEL.NUM_CLASSES = 2
+    # BDD pedestrians test set
+    elif args.dataset == 'bdd_peds_TEST':
+        cfg.TEST.DATASETS = ('bdd_peds_TEST',)
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    # BDD sub-domains
+    # night
+    elif args.dataset == 'bdd_peds_any_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_any_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # rainy, day
+    elif args.dataset == 'bdd_peds_rainy_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_rainy_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # rainy night
+    elif args.dataset == 'bdd_peds_rainy_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_rainy_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # overcast, day
+    elif args.dataset == 'bdd_peds_overcast_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # overcast, night
+    elif args.dataset == 'bdd_peds_overcast_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # snowy, day
+    elif args.dataset == 'bdd_peds_snowy_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_snowy_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # snowy, night
+    elif args.dataset == 'bdd_peds_snowy_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_snowy_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    # overcast, rainy day
+    elif args.dataset == 'bdd_peds_overcast,rainy_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast,rainy_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # overcast, rainy night
+    elif args.dataset == 'bdd_peds_overcast,rainy_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast,rainy_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # overcast, rainy, snowy day
+    elif args.dataset == 'bdd_peds_overcast,rainy,snowy_any_daytime_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast,rainy,snowy_any_daytime_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    # overcast, rainy, snowy day
+    elif args.dataset == 'bdd_peds_overcast,rainy,snowy_any_night_val':
+        cfg.TEST.DATASETS = ('bdd_peds_overcast,rainy,snowy_any_night_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+    ##### end of BDD sub-domains #####
+    
+    # WIDER val
+    elif args.dataset == 'wider_val':
+        cfg.TEST.DATASETS = ('wider_val',)
+        cfg.MODEL.NUM_CLASSES = 2
+
 
     elif args.dataset == "keypoints_coco2017":
         cfg.TEST.DATASETS = ('keypoints_coco_2017_val',)
         cfg.MODEL.NUM_CLASSES = 2
+
     else:  # For subprocess call
         assert cfg.TEST.DATASETS, 'cfg.TEST.DATASETS shouldn\'t be empty'
     assert_and_infer_cfg()

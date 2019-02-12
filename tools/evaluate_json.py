@@ -16,10 +16,18 @@ from datasets import dataset_catalog
 from datasets import task_evaluation
 
 #gt_dataset_name = 'cs6_annot_eval_val-easy'
-gt_dataset_name = 'cs6_train_gt'
+#gt_dataset_name = 'cs6_train_gt'
+gt_dataset_name = 'cs6_train_gt_same_imgs'
+
 
 # CS6 Ground Truth -- full dataset (NOT prediction from a model: actual ground truth for the full dataset)
 cs6_gt_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style.json'
+
+# CS6 HP Json
+cs6_hp_json = 'data/CS6_annot/cs6-train-hp.json'
+
+# CS6 HP Json with the distill 0.7 softening of the detection scores (not tracker scores)
+cs6_hp_distill070_remapped = 'data/cs6_jsons/cs6-train-hp_remapped_distill-0.7.json'
 
 # Noisy CS6 ground truth JSONs
 cs6_noisy_gt_020 = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/cs6-train-gt_face_train_annot_coco_style_noisy-020.json'
@@ -56,9 +64,14 @@ cs6_hp_model_det_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/train-CS6-Tra
 cs6_hp_and_wider_bs512_gpu4_5k_model_det_json = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/train-CS6-HP+WIDER-bs512-gpu4-5k_val-easy_conf-0.1_cs6_annot_eval_scores.json'
 
 
-det_json = 'tmp/cs6-train-gt_face_train_annot_coco_style_noisy-0.50.json' # cs6_noisy_gt_100
+#det_json = 'tmp/cs6-train-gt_face_train_annot_coco_style_noisy-0.50.json' # cs6_noisy_gt_100
 
-output_dir = 'tmp'
+# json with images common in cs6-train-gt and cs6-train-hp
+cs6_hp_json_same_imgs = '/mnt/nfs/work1/elm/pchakrabarty/cs6_jsons/noise_reduction_with_soft_label/cs6-train-hp_same_imgs.json'
+
+
+det_json = cs6_hp_json_same_imgs #cs6_gt_json #cs6_hp_json
+output_dir = 'tmp_res'
 
 def disp_detection_eval_metrics(json_dataset, coco_eval, iou_low=0.5, iou_high=0.95, output_dir=None):
      def _get_thr_ind(coco_eval, thr):
@@ -153,7 +166,10 @@ def eval_json(det_json,gt_json):
                 if image%100 == 0:
                     print('Reading detections for:',filename,'--',det_prop['file_name'])
                     print('Det json:',det_json)
-                boxes = np.array([b['bbox'] for b in boxes])
+                if 'score' in boxes[0]:
+                    boxes = np.array([b['bbox']+[b['score']] for b in boxes])
+                else:
+                    boxes = np.array([b['bbox'] for b in boxes])
                 if len(boxes) > 0:
                     # add w, h to get (x2,y2)
                     boxes[:,2] += boxes[:,0]

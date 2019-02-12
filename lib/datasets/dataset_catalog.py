@@ -210,6 +210,199 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/bdd_jsons/bdd_HP18k_track_only.json'    
     },
+    # bdd peds HP on 18k target videos -- different conf thresholds theta
+    'bdd_HP18k_thresh-050' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_thresh-050.json'
+    },
+    'bdd_HP18k_thresh-060' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_thresh-060.json'
+    },
+    'bdd_HP18k_thresh-070' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_thresh-070.json'
+    },
+    'bdd_HP18k_thresh-090' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_thresh-090.json'
+    },
+    
+    # Subsets extracted from  bdd peds HP on 18k target domain 
+    # night images only
+    'bdd_HP18k_any_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_any_any_night.json'  
+    },
+    'bdd_HP18k_any_any_night_val': {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_any_any_night_val.json'
+    },
+    # rainy, day
+    'bdd_HP18k_rainy_any_daytime' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_rainy_any_daytime.json'
+    },
+    'bdd_peds_rainy_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_rainy_any_daytime_val.json'
+    },
+    # rainy, night
+    'bdd_HP18k_rainy_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_rainy_any_night.json'
+    },
+    'bdd_peds_rainy_any_night_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k', 
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_rainy_any_night_val.json'
+    },
+    # overcast, day
+    'bdd_HP18k_overcast_any_daytime' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_overcast_any_daytime.json'
+    },
+    'bdd_peds_overcast_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast_any_daytime_val.json'
+    },
+    # overcast, night
+    'bdd_HP18k_overcast_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_overcast_any_night.json'
+    }, 
+    'bdd_peds_overcast_any_night_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast_any_night_val.json'
+    },
+    # snowy, day
+    'bdd_HP18k_snowy_any_daytime' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_snowy_any_daytime.json'
+    },
+    'bdd_peds_snowy_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_snowy_any_daytime_val.json'
+    },
+    # snowy, night
+    'bdd_HP18k_snowy_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_snowy_any_night.json'
+    },
+    'bdd_peds_snowy_any_night_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_snowy_any_night_val.json'
+    },
+    # overcast, rainy, day
+    'bdd_HP18k_overcast,rainy_any_daytime' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_overcast,rainy_any_daytime.json'  
+    },
+    'bdd_peds_overcast,rainy_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k', 
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast,rainy_any_daytime_val.json'
+    },
+    # overcast, rainy, night
+    'bdd_HP18k_overcast,rainy_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_overcast,rainy_any_night.json'
+    },
+    'bdd_peds_overcast,rainy_any_night_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast,rainy_any_night_val.json'
+    },
+    # overcast, rainy, snowy day
+    'bdd_HP18k_overcast,rainy,snowy_any_daytime' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_overcast,rainy,snowy_any_daytime.json'
+    },
+    'bdd_peds_overcast,rainy,snowy_any_daytime_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast,rainy,snowy_any_daytime_val.json'
+    },
+    # overcast, rainy, snowy night
+    'bdd_HP18k_overcast,rainy,snowy_any_night' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast,rainy,snowy_any_night.json'
+    },
+    'bdd_peds_overcast,rainy,snowy_any_night_val' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_overcast,rainy,snowy_any_night_val.json'
+    },
+    #### end of bdd_HP18k subsets ####
+
+    # BDD HP18k after histogram remapping
+    'bdd_peds_HP18k_target_domain_remap_hist': {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_remap_hist.json'
+    },
+    # BDD HP18k after random remapping
+    'bdd_peds_HP18k_target_domain_remap_random': {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_remap_random.json'
+    },
+    # BDD HP18k with remapping accroding to the Cityscapes baseline model
+    'bdd_peds_HP18k_target_domain_remap_cityscape_hist': {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_HP18k_remap_cityscapes_hist.json'
+    },
     # noisy bdd HP on 18k target domain videos -- used to prevent domain adv roi using HP info.
     'bdd_HP18k_noisy_100k' : {
         IM_DIR:
@@ -255,6 +448,67 @@ DATASETS = {
             _DATA_DIR + '/bdd100k',
         ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_not_clear_any_daytime_val.json'
     },
+
+    ##### Varying amounts of BDD target domain labeled data #####
+    'bdd_peds_not_clear_any_daytime_train_100' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_100.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_075' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_075.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_050' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_050.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_025' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_025.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_010' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_010.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_005' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_005.json'
+    },
+    'bdd_peds_not_clear_any_daytime_train_001' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN: _DATA_DIR + '/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_001.json'
+    },
+    #########################################################
+   
+    ##### Jsons for the rebuttal: data distillation on BDD #####
+    'bdd_data_dist_small' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/data_dist/bdd_data_dist_small.json'
+    },
+    'bdd_data_dist_mid' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/data_dist/bdd_data_dist_mid.json'
+    },
+    'bdd_data_dist' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd_peds_HP18k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/data_dist/bdd_data_dist.json'
+    },
+    
+    #########################################################
+   
     
     # Ashish's 20k sampled video
     'bdd_peds_not_clear_any_daytime_20k_train' : {
@@ -262,30 +516,62 @@ DATASETS = {
             _DATA_DIR + '/bdd100k',
         ANN_FN: _DATA_DIR + '/bdd_jsons/bdd_peds_not_clear_any_daytime_20k_train.json'
     },
+    
+    # BDD peds test set
+    'bdd_peds_TEST' : {
+        IM_DIR:
+            _DATA_DIR + '/bdd100k',
+        ANN_FN:
+            _DATA_DIR + '/bdd_jsons/bdd_peds_TEST.json'
+    },
+    # Cityscapes JSONS: peds and cars
+    'cityscapes_peds_train': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_peds_train.json'
+    },
+    'cityscapes_peds_val': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_peds_val.json'
+    },
+    'cityscapes_car_train': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_car_train.json'
+        },
+    'cityscapes_car_val': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_car_val.json'
+    },
+    'cityscapes_cars_HPlen5': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes/cityscapes_cars_HP_frames',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_cars_HPlen5.json'
+    },
+    'cityscapes_cars_HPlen3': {
+        IM_DIR:
+            _DATA_DIR + '/cityscapes/cityscapes_cars_HP_frames',
+        ANN_FN:
+            _DATA_DIR + '/cityscapes_jsons/cityscapes_cars_HPlen3.json'
+    },
+    ####################################
 
-    'cityscapes_train': {
+    # KITTI JSONS: Cars
+    'kitti_car_train': {
         IM_DIR:
-            _DATA_DIR + '/cityscapes',
-        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_7_class_train.json'
-        
-        #ANN_FN: '/srv/data1/pchakrabarty/cityscapes_train.json'
-        
-            #_DATA_DIR + '/cityscapes/cityscapes_train.json',
-        #RAW_DIR:
-        #    _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
+            _DATA_DIR + '/KITTI',
+        ANN_FN:
+            #_DATA_DIR + '/KITTI_jsons/kitti_car_train_annot_coco_style.json'
+            _DATA_DIR + '/KITTI_jsons/kitti_car_train.json'
     },
-    'cityscapes_val': {
-        IM_DIR:
-            _DATA_DIR + '/cityscapes',
-        
-        ANN_FN: '/srv/data1/pchakrabarty/cityscapes_jsons/cityscapes_7_class_val.json'
-        
-        #ANN_FN: '/srv/data1/pchakrabarty/cityscapes_val.json'
-        
-            #_DATA_DIR + '/cityscapes/cityscapes_val.json',
-        #RAW_DIR:
-        #    _DATA_DIR + '/vis/home/pchakrabarty/Detectron-pytorch-video/'
-    },
+    ###################################
 
     'cityscapes_fine_instanceonly_seg_train': {
         IM_DIR:
@@ -474,8 +760,12 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/WIDER/wider_face_train_annot_coco_style.json',
     },
-
-
+    'wider_val' : {
+        IM_DIR:
+            _DATA_DIR + '/WIDER',
+        ANN_FN:
+            _DATA_DIR + '/WIDER/wider_face_val_annot_coco_style.json'
+    },
 
 
     # CS6 DATASET SUBSET
@@ -530,6 +820,21 @@ DATASETS = {
         ANN_FN:
             _DATA_DIR + '/CS6_annot/cs6-train-gt_noisy-0.5.json',
     },
+
+    ##### CS6 GT and HP JSONS with the same images -- for supp mat noise reduction section #####
+    'cs6_train_gt_same_imgs': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/cs6_jsons/noise_reduction_with_soft_label/cs6-train-gt_same_imgs.json',
+    },
+    'cs6_train_hp_same_imgs': {
+        IM_DIR:
+            _DATA_DIR + '/CS6_annot',
+        ANN_FN:
+            _DATA_DIR + '/cs6_jsons/noise_reduction_with_soft_label/cs6-train-hp_same_imgs.json',
+    },
+    ########################################
 
 
     # CS6 DATASET DETECTIONS DISTILLATION TRAIN

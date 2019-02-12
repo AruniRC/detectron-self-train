@@ -35,6 +35,7 @@ from utils.training_stats import TrainingStats
 # Fix random seed
 #np.random.seed(999)
 #random.seed(999)
+
 torch.cuda.manual_seed(999)
 torch.cuda.manual_seed_all(999)
 torch.manual_seed(999)
@@ -245,10 +246,28 @@ def main():
         cfg.TRAIN.DATASETS = ('bdd_clear_any_daytime_train',)
         cfg.MODEL.NUM_CLASSES = 8
    
-    # Pedestrian sets
+    # Cistyscapes Pedestrian sets
     elif args.dataset == "cityscapes_peds":
         cfg.TRAIN.DATASETS = ('cityscapes_peds_train',)
         cfg.MODEL.NUM_CLASSES = 2
+
+    # Cityscapes Car sets
+    elif args.dataset == "cityscapes_cars_HPlen3+kitti_car_train":
+        cfg.TRAIN.DATASETS = ('cityscapes_cars_HPlen3','kitti_car_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cityscapes_cars_HPlen5+kitti_car_train":
+        cfg.TRAIN.DATASETS = ('cityscapes_cars_HPlen5','kitti_car_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == "cityscapes_car_train+kitti_car_train":
+        cfg.TRAIN.DATASETS = ('cityscapes_car_train','kitti_car_train')
+        cfg.MODEL.NUM_CLASSES = 2
+
+    # KITTI Car set
+    elif args.dataset == "kitti_car_train":
+        cfg.TRAIN.DATASETS = ('kitti_car_train',)
+        cfg.MODEL.NUM_CLASSES = 2
+
+    # BDD pedestrians sets
     elif args.dataset == "bdd_peds":
         cfg.TRAIN.DATASETS = ('bdd_peds_train',) # bdd peds: clear_any_daytime
         cfg.MODEL.NUM_CLASSES = 2
@@ -292,12 +311,102 @@ def main():
         cfg.TRAIN.DATASETS = ('bdd_peds_train','bdd_peds_HP_target_domain')
         cfg.MODEL.NUM_CLASSES = 2
     # Source domain + Target domain HP 18k videos
+        cfg.MODEL.NUM_CLASSES = 2
     elif args.dataset == 'bdd_peds+HP18k':
         cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
+    #### Source domain + Target domain with different conf threshold theta ####
+    elif args.dataset == 'bdd_peds+HP18k_thresh-050':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_thresh-050','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_thresh-060':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_thresh-060','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_thresh-070':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_thresh-070','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_thresh-090':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_thresh-090','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    ##############################
+    
+    #### Data distillation on BDD -- for rebuttal
+    elif args.dataset == 'bdd_peds+bdd_data_dist_small':
+        cfg.TRAIN.DATASETS = ('bdd_data_dist_small','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+bdd_data_dist_mid':
+        cfg.TRAIN.DATASETS = ('bdd_data_dist_mid','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+bdd_data_dist':
+        cfg.TRAIN.DATASETS = ('bdd_data_dist','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    ##############################
+
+
+    #### Source domain + **Labeled** Target domain with varying number of images
+    elif args.dataset == 'bdd_peds+labeled_100':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_100','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_075':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_075','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_050':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_050','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_025':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_025','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_010':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_010','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_005':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_005','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+labeled_001':
+        cfg.TRAIN.DATASETS = ('bdd_peds_not_clear_any_daytime_train_001','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    ##############################
+
     # Source domain + Target domain HP tracker bboxes only
     elif args.dataset == 'bdd_peds+HP18k_track_only':
         cfg.TRAIN.DATASETS = ('bdd_HP18k_track_only','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    ##### subsets of bdd_HP18k with different constraints
+    # Source domain + HP tracker images at NIGHT
+    elif args.dataset == 'bdd_peds+HP18k_any_any_night':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_any_any_night','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    elif args.dataset == 'bdd_peds+HP18k_rainy_any_daytime':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_rainy_any_daytime','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_rainy_any_night':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_rainy_any_night','bdd_peds_train')
+
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_overcast,rainy_any_daytime':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_overcast,rainy_any_daytime','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2 
+    elif args.dataset == 'bdd_peds+HP18k_overcast,rainy_any_night':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_overcast,rainy_any_night','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    
+    elif args.dataset == 'bdd_peds+HP18k_overcast,rainy,snowy_any_daytime':
+        cfg.TRAIN.DATASETS = ('bdd_HP18k_overcast,rainy,snowy_any_daytime','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    #############  end of bdd constraned subsets  #####################
+    
+    # Source domain + Target domain HP18k -- after histogram matching 
+    elif args.dataset == 'bdd_peds+HP18k_remap_hist':
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain_remap_hist','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    elif args.dataset == 'bdd_peds+HP18k_remap_cityscape_hist':
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain_remap_cityscape_hist','bdd_peds_train')
+        cfg.MODEL.NUM_CLASSES = 2
+    # Source domain + Target domain HP18k -- after histogram matching 
+    elif args.dataset == 'bdd_peds+HP18k_remap_random':
+        cfg.TRAIN.DATASETS = ('bdd_peds_HP18k_target_domain_remap_random','bdd_peds_train')
         cfg.MODEL.NUM_CLASSES = 2
     # Source+Noisy Target domain -- prevent domain adv from using HP roi info
     elif args.dataset == 'bdd_peds+bdd_HP18k_noisy_100k':
