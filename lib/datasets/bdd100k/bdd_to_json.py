@@ -1,8 +1,18 @@
 """
-Save CityScape segmentation labels as bounding boxes in JSON
+Save BDD annotations as bounding boxes in JSON
 
 Usage:
-        python cityscape2json.py <path to ground truth folder>
+    
+    1.  Set the desired object categories in "sel_labels" and constraints in "sel_attrib" (in function genJSON)
+    2.  Set desired category-to-class ID mapping in "catd2id_map" (in function cat2id)
+    3.  Run: python bdd_to_json.py <path-to-ground-truth-folder>
+        
+        The <path-to-ground-truth-folder> is the root BDD folder containing sub-folders "images", "labels" an   d "videos"
+        
+        Example:
+                   python bdd_to_json.py /mnt/nfs/work1/elm/arunirc/Data/BDD100k
+
+            This will save: (1) Train and val jsons with the specified constraints (2) .txt files wil lists of selected images
 """
 
 from __future__ import print_function
@@ -55,8 +65,8 @@ def genJSON(basedir):
 
     # select attribute values. set to [] to not restrict an attribute
     sel_attrib = {
-                  'weather'  :[],        #clear, partly cloudy, overcast, rainy, snowy, foggy
-                  'scene'    :['city street'],  #residential, highway, city street, parking lot, gas stations, tunnel
+                  'weather'  :['clear'],        #clear, partly cloudy, overcast, rainy, snowy, foggy
+                  'scene'    :[],  #residential, highway, city street, parking lot, gas stations, tunnel
                   'timeofday':['daytime']       #dawn/dusk, daytime, night
                  }
 
