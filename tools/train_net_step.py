@@ -170,6 +170,11 @@ def main():
     elif args.dataset == "keypoints_coco2017":
         cfg.TRAIN.DATASETS = ('keypoints_coco_2017_train',)
         cfg.MODEL.NUM_CLASSES = 2
+   
+    # ADE20k as a detection dataset
+    elif args.dataset == "ade_train":
+        cfg.TRAIN.DATASETS = ('ade_train',)
+        cfg.MODEL.NUM_CLASSES = 446
     
     # Noisy CS6+WIDER datasets
     elif args.dataset == 'cs6_noise020+WIDER':

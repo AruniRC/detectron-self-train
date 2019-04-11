@@ -25,6 +25,7 @@ def cat2id(lab):
     #cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'rider':7} # final 7 classes
     cat2id_map = {'person':1} # only pedestrians
     #cat2id_map = {'car':1,'traffic light':2,'person':3,'motorcycle':4,'bus':5} # 5 initial classes
+    #cat2id_map = {'car':1,'person':2,'truck':3,'bus':4,'motorcycle':5,'bicycle':6,'traffic light':7,'sign':8,'rider':9} # all classes
     return cat2id_map[lab]
 
 def bdd2cityscapes(label):
@@ -50,11 +51,12 @@ def genJSON(basedir):
     #sel_labels = ['car','person','truck','bus','motorcycle','bicycle','rider'] # final 7 classes
     sel_labels = ['person'] # just pedestrians
     #sel_labels = ['car','traffic light','person','motorcycle','bus'] # initial 5 classes
-    
+    #sel_labels = ['car','person','truck','bus','motorcycle','bicycle','traffic light','sign','rider']
+
     # select attribute values. set to [] to not restrict an attribute
     sel_attrib = {
-                  'weather'  :['clear'],        #clear, partly cloudy, overcast, rainy, snowy, foggy
-                  'scene'    :[],  #residential, highway, city street, parking lot, gas stations, tunnel
+                  'weather'  :[],        #clear, partly cloudy, overcast, rainy, snowy, foggy
+                  'scene'    :['city street'],  #residential, highway, city street, parking lot, gas stations, tunnel
                   'timeofday':['daytime']       #dawn/dusk, daytime, night
                  }
 
@@ -171,7 +173,7 @@ def genJSON(basedir):
         ann_dict['annotations'] = annotations
         #print(subdir,len(annotations))
         with open('bdd_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.json','w',encoding='utf8') as f:
-            f.write(json.dumps(ann_dict))
+            f.write(json.dumps(ann_dict,indent=2))
         f.close()
         with open('img_files_'+attrib2str(sel_attrib)+'_'+os.path.split(subdir)[-1].strip()+'.txt','w',encoding='utf8') as f:
             f.write('\n'.join(img_file_list)+'\n')
