@@ -145,7 +145,23 @@ BDD-100k takes about 6.5 GB disk space. The 100k unlabeled videos take 234 GB sp
 ### BDD Hard Examples
 Mining the **hard positives** ("HPs") involve detecting pedestrians and tracklet formation on 100K videos. This was done on the UMass GPU Cluster and took about a week. We do not include this pipeline here (yet) -- the mined video frames and annotations are available for download as a gzipped tarball from [here](http://maxwell.cs.umass.edu/self-train/dataset/bdd_HP18k.tar.gz). **NOTE:** this is a large download (**23 GB**). *The data retains the permissions and licensing associated with the BDD-100K dataset (we make the video frames available here for ease of research).*
 
-Now we create a symlink to the untarred BDD HPs from the project data folder, which should have the following structure: `data/bdd100k/*.jpg`. The image naming convention is `<video-name>_<frame-number>.jpg`.
+Now we create a symlink to the untarred BDD HPs from the project data folder, which should have the following structure: `data/bdd_peds_HP18k/*.jpg`. The image naming convention is `<video-name>_<frame-number>.jpg`.
+
+
+### Annotation JSONs
+
+All the annotations are assumed to be inside the folder `data/bdd_jsons` relative to the project root: `data/bdd_jsons/*.json`. We use symlinks here as well, in case the JSONs are kept in some othe location.
+
+
+| Data Split  | JSON |  Dataset name |  Image Dir. |
+| ------------- | ------------- | ------------- | ------------- |
+| BDD-Source-Train | bdd_peds_train.json | bdd_peds_train | data/bdd100k  |
+| BDD-Source-Val | bdd_peds_val.json | bdd_peds_val | data/bdd100k  |
+| BDD-Target-Train | bdd_peds_not_clear_any_daytime_train.json | bdd_peds_not_clear_any_daytime_train | data/bdd100k  |
+| BDD-Target-Val | bdd_peds_not_clear_any_daytime_val.json | bdd_peds_not_clear_any_daytime_val | data/bdd100k  |
+| BDD-dets | bdd_dets18k.json | DETS18k | data/bdd_peds_HP18k  |
+| BDD-HP | bdd_HP18k.json | HP18k | data/bdd_peds_HP18k  |
+| BDD-score-remap | bdd_HP18k_remap_hist.json | HP18k_remap_hist | data/bdd_peds_HP18k  |
 
 
 
