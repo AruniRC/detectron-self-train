@@ -103,7 +103,9 @@ All the annotations are assumed to be downloaded inside a folder `data/bdd_jsons
 
 ## Models
 
-Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs. The trained model checkpoints can be downloaded from the links under the column **Model weights**. The eval scripts need to be modified to point to where the corresponding model checkpoints have been downloaded locally. The performance numbers shown are from *single* models (the same models available for download), while the tables in the paper show results averaged across 5 rounds of train/test.
+Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs. The trained model checkpoints can be downloaded from the links under the column **Model weights**. The eval scripts need to be modified to point to where the corresponding model checkpoints have been downloaded locally. To be consistent, we suggest creating a folder under the project root like `data/bdd_pre_trained_models` and saving all the models under it.
+
+The performance numbers shown are from *single* models (the same models available for download), while the tables in the paper show results averaged across 5 rounds of train/test.
 
 | Method  | Model weights |  Config YAML |  Train script |  Eval script | AP, AR |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
@@ -119,7 +121,9 @@ Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use
 
 ## Inference demo
 
-**TODO**
+| Baseline  | HP-constrained |
+| :-------: | :------------: |
+| ![baseline](demo/bdd_hp-cons_b242f6b2-f5da110f.png) | ![hp-cons](demo/bdd_baseline_b242f6b2-f5da110f.png) |
 
-
+The folder `gypsum/scripts/demo` contains two shell scripts that run the pre-trained [Baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth) (BDD-Source trained) and [HP-constrained](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-cons/bdd_HP-cons_model_step29999.pth) (domain adapted to BDD Target) models on a sample image. Please change the `MODEL_PATH` variable in these scripts to where the appropriate models have been downloaded locally.
 
