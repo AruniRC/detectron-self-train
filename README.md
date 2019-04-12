@@ -91,14 +91,14 @@ All the annotations are assumed to be downloaded inside a folder `data/bdd_jsons
 
 | Data Split  | JSON |  Dataset name |  Image Dir. |
 | ------------- | ------------- | ------------- | ------------- |
-| BDD-Source-Train | [bdd_peds_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_train.json) | bdd_peds_train | data/bdd100k  |
-| BDD-Source-Val | [bdd_peds_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_val.json) | bdd_peds_val | data/bdd100k  |
-| BDD-Target-Train | [bdd_peds_not_clear_any_daytime_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_train.json) | bdd_peds_not_clear_any_daytime_train | data/bdd100k  |
-| BDD-Target-Val | [bdd_peds_not_clear_any_daytime_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_val.json) | bdd_peds_not_clear_any_daytime_val | data/bdd100k  |
-| BDD-dets | [bdd_dets18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_dets18k.json) | DETS18k | data/bdd_peds_HP18k  |
-| BDD-HP | [bdd_HP18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k.json) | HP18k | data/bdd_peds_HP18k  |
-| BDD-score-remap | [bdd_HP18k_remap_hist.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k_remap_hist.json) | HP18k_remap_hist | data/bdd_peds_HP18k  |
-
+| BDD_Source_Train | [bdd_peds_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_train.json) | bdd_peds_train | data/bdd100k  |
+| BDD_Source_Val | [bdd_peds_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_val.json) | bdd_peds_val | data/bdd100k  |
+| BDD_Target_Train | [bdd_peds_not_clear_any_daytime_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_train.json) | bdd_peds_not_clear_any_daytime_train | data/bdd100k  |
+| BDD_Target_Val | [bdd_peds_not_clear_any_daytime_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_val.json) | bdd_peds_not_clear_any_daytime_val | data/bdd100k  |
+| BDD_dets | [bdd_dets18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_dets18k.json) | DETS18k | data/bdd_peds_HP18k  |
+| BDD_HP | [bdd_HP18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k.json) | HP18k | data/bdd_peds_HP18k  |
+| BDD_score_remap | [bdd_HP18k_remap_hist.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k_remap_hist.json) | HP18k_remap_hist | data/bdd_peds_HP18k  |
+| BDD_target_GT | [bdd_target_labeled.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/vary_pure_target/bdd_peds_not_clear_any_daytime_train_subsampled_100.json) | bdd_peds_not_clear_any_daytime_train_100 | data/bdd100k  |
 
 
 ## Models
@@ -112,9 +112,8 @@ Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use
 | HP | [bdd_hp](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP/bdd_HP_model_step29999.pth)  | [cfg](configs/baselines/bdd_peds_dets_bs64_4gpu.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_hp_source.sh)  |  28.34, 58.04  |
 | HP-constrained | [bdd_hp-cons](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-cons/bdd_HP-cons_model_step29999.pth)  | [cfg](configs/baselines/bdd_distill100_track100.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k_distill100_track100.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_hp_cons_source.sh)  |  **29.57**, **56.48**  |
 | HP-score-remap | [bdd_score-remap](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-score-remap/bdd_HP-score-remap_model_step29999.pth)  | [cfg](configs/baselines/bdd_distill100_track100.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k_remap_hist.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_score_remap_source.sh)  |  28.11, 56.80  |
-| DA-im | [bdd_da-im](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_DA-im/bdd_DA-im_model_step29999.pth)  | [cfg](configs/baselines/bdd_domain_im.yaml)  |  [train](configs/baselines/bdd_domain_im.yaml)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_domain_im_source.sh)  |  25.71, 56.29  |
-
-
+| DA-im | [bdd_da-im](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_DA-im/bdd_DA-im_model_step29999.pth)  | [cfg](configs/baselines/bdd_domain_im.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k_domain_im.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_domain_im_source.sh)  |  25.71, 56.29  |
+| Src-Target-GT | [bdd_target-gt](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/vary_pure_target/model_step29999.pth)  | [cfg](configs/baselines/bdd_peds_dets_bs64_4gpu.yaml)  |  [train](gypsum/scripts/train/bdd_vary_pure_target/bdd_source_and_labeled_100.sh)  |  eval  |  35.40, 66.26  |
 
 
 
