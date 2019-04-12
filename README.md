@@ -1,9 +1,21 @@
 
 # PyTorch-Detectron for domain adaptation by self-training on hard examples
 
-This codebase replicates results for pedestrian detection with domain shifts on the BDD100k dataset, following the CVPR 2019 paper [Automatic adaptation of object detectors to new domains using self-training](http://vis-www.cs.umass.edu/unsupVideo/docs/self-train_cvpr2019.pdf). We provide trained models, train and eval scripts as well as splits of the dataset for download.
+This codebase replicates results for pedestrian detection with domain shifts on the BDD100k dataset, following the CVPR 2019 paper [Automatic adaptation of object detectors to new domains using self-training](http://vis-www.cs.umass.edu/unsupVideo/docs/self-train_cvpr2019.pdf). We provide trained models, train and eval scripts as well as splits of the dataset for download. More details are available on the **[project page](http://vis-www.cs.umass.edu/unsupVideo/)**. 
 
 This repository is heavily based off [A Pytorch Implementation of Detectron](https://github.com/roytseng-tw/Detectron.pytorch). We modify it for experiments on domain adaptation face and pedestrian detectors. 
+
+If you find this codebase useful, please consider citing:
+
+```
+@inproceedings{roychowdhury2019selftrain,
+    Author = {Aruni RoyChowdhury and Prithvijit Chakrabarty  and Ashish Singh and SouYoung Jin and Huaizu Jiang and Liangliang Cao and Erik Learned-Miller},
+    Title = {Automatic adaptation of object detectors to new domains using self-training},
+    Booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+    Year = {2019}
+}
+
+```
 
 
 ## Getting Started
