@@ -1,5 +1,5 @@
 
-# PyTorch Detectron for domain adaptation by self-training
+# PyTorch-Detectron for domain adaptation by self-training on hard examples
 
 This codebase replicates results for pedestrian detection with domain shifts on the BDD100k dataset, following the CVPR 2019 paper [Automatic adaptation of object detectors to new domains using self-training](http://vis-www.cs.umass.edu/unsupVideo/docs/self-train_cvpr2019.pdf). We provide trained models, train and eval scripts as well as splits of the dataset for download.
 
@@ -143,63 +143,32 @@ BDD-100k takes about 6.5 GB disk space. The 100k unlabeled videos take 234 GB sp
 
 
 ### BDD Hard Examples
-Mining the **hard positives** ("HPs") involve detecting pedestrians and tracklet formation on 100K videos. This was done on the UMass GPU Cluster and took about a week. We do not include this pipeline here (yet) -- the mined video frames and annotations are available for download as a gzipped tarball from [here](link_to_maxwell_tarball). **TODO** 
+Mining the **hard positives** ("HPs") involve detecting pedestrians and tracklet formation on 100K videos. This was done on the UMass GPU Cluster and took about a week. We do not include this pipeline here (yet) -- the mined video frames and annotations are available for download as a gzipped tarball from [here](http://maxwell.cs.umass.edu/self-train/dataset/bdd_HP18k.tar.gz). **NOTE:** this is a large download (**23 GB**). *The data retains the permissions and licensing associated with the BDD-100K dataset (we make the video frames available here for ease of research).*
 
-Now we create a symlink to the untarred BDD HPs from the project data folder, which should have the following structure: `data/bdd100k/*.jpg`. The image naming format is `<video-name>_<frame-number>.jpg`.
+Now we create a symlink to the untarred BDD HPs from the project data folder, which should have the following structure: `data/bdd100k/*.jpg`. The image naming convention is `<video-name>_<frame-number>.jpg`.
 
 
 
-## Train and eval models
+## Models
 
-Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs.
+Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs. The trained model checkpoints can be downloaded from the links under the column **Model weights**. The eval scripts need to be modified to point to where the corresponding model checkpoints have been downloaded locally.
 
 | Method  | Model weights |  Config YAML |  Train script |  Eval script | AP, AR |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| Baseline | [bdd_baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth)  | [cfg](configs/baselines/bdd100k.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_baseline.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/baseline_source.sh)  |  15.21, xxx  |
+| Baseline | [bdd_baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth)  | [cfg](configs/baselines/bdd100k.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_baseline.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/baseline_source.sh)  |  15.21, 33.09  |
 | Dets | [bdd_dets](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_dets/bdd_dets_model_step29999.pth)  | [cfg](configs/baselines/bdd_peds_dets_bs64_4gpu.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_dets18k.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_dets_source.sh)  |  27.55, 56.90  |
+| HP | [bdd_hp](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP/bdd_HP_model_step29999.pth)  | [cfg](configs/baselines/bdd_peds_dets_bs64_4gpu.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_hp_source.sh)  |  28.34, 58.04  |
+| HP-constrained | [bdd_hp-cons](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-cons/bdd_HP-cons_model_step29999.pth)  | [cfg](configs/baselines/bdd_distill100_track100.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k_distill100_track100.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_hp_cons_source.sh)  |  **29.57**, **56.48**  |
+| HP-score-remap | [bdd_score-remap](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-score-remap/bdd_HP-score-remap_model_step29999.pth)  | [cfg](configs/baselines/bdd_distill100_track100.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_HP18k_remap_hist.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_score_remap_source.sh)  |  28.11, 56.80  |
+| DA-im | [bdd_da-im](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_DA-im/bdd_DA-im_model_step29999.pth)  | [cfg](configs/baselines/bdd_domain_im.yaml)  |  [train](configs/baselines/bdd_domain_im.yaml)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_domain_im_source.sh)  |  25.71, 56.29  |
 
 
 
 
 
+## Inference demo
 
-
-### Adding a dataset
-
-The general way to add a new dataset is to:
-1. Add it to `lib/datasets/dataset_catalog.py`
-2. Add it to `tools/train_net_step.py`
-
-To get an idea using COCO 2017 as an example, search for `args.dataset == "coco2017":` in `tools/train_net_step.py` and for `coco_2017_train` in `tools/dataset_catalog.py`. The paths to the JSON training annotations are defined in `dataset_catalog.py`. 
-
-
-
-### Verify by running on COCO-2017 
-Put the Imagenet pre-trained models in `data/pretrained_model` by running `python tools/download_imagenet_weights.py`).
-
-Then, verify setup by running COCO-2017 inference code:
-
-```
-CFG_PATH=configs/baselines/e2e_faster_rcnn_R-50-C4_1x.yaml
-WT_PATH=/mnt/nfs/work1/elm/arunirc/Research/detectron-video/mask-rcnn.pytorch/data/detectron_trained_model/e2e_faster_rcnn_R-50-C4_1x.pkl
-
-mkdir Outputs
-
-srun --pty -p m40-long --gres gpu:4 --mem 100000 python tools/test_net.py \
---set TEST.SCORE_THRESH 0.1 TRAIN.JOINT_TRAINING False TRAIN.GT_SCORES False \
---multi-gpu-testing \
---dataset coco2017 \
---cfg ${CFG_PATH} \
---load_detectron ${WT_PATH} \
---output_dir Outputs
-```
-
-
-
-
-
-
-## Inference
+**TODO**
 
 ### Visualize pre-trained Detectron model on images
 
@@ -212,6 +181,8 @@ python tools/infer_simple.py --dataset coco --cfg cfgs/baselines/e2e_mask_rcnn_R
 
 
 
-## Training
+## Training demo
+
+**TODO**
 
 
