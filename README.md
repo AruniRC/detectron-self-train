@@ -150,24 +150,24 @@ Now we create a symlink to the untarred BDD HPs from the project data folder, wh
 
 ### Annotation JSONs
 
-All the annotations are assumed to be inside the folder `data/bdd_jsons` relative to the project root: `data/bdd_jsons/*.json`. We use symlinks here as well, in case the JSONs are kept in some othe location.
+All the annotations are assumed to be downloaded inside a folder `data/bdd_jsons` relative to the project root: `data/bdd_jsons/*.json`. We use symlinks here as well, in case the JSONs are kept in some other location.
 
 
 | Data Split  | JSON |  Dataset name |  Image Dir. |
 | ------------- | ------------- | ------------- | ------------- |
-| BDD-Source-Train | bdd_peds_train.json | bdd_peds_train | data/bdd100k  |
-| BDD-Source-Val | bdd_peds_val.json | bdd_peds_val | data/bdd100k  |
-| BDD-Target-Train | bdd_peds_not_clear_any_daytime_train.json | bdd_peds_not_clear_any_daytime_train | data/bdd100k  |
-| BDD-Target-Val | bdd_peds_not_clear_any_daytime_val.json | bdd_peds_not_clear_any_daytime_val | data/bdd100k  |
-| BDD-dets | bdd_dets18k.json | DETS18k | data/bdd_peds_HP18k  |
-| BDD-HP | bdd_HP18k.json | HP18k | data/bdd_peds_HP18k  |
-| BDD-score-remap | bdd_HP18k_remap_hist.json | HP18k_remap_hist | data/bdd_peds_HP18k  |
+| BDD-Source-Train | [bdd_peds_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_train.json) | bdd_peds_train | data/bdd100k  |
+| BDD-Source-Val | [bdd_peds_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_val.json) | bdd_peds_val | data/bdd100k  |
+| BDD-Target-Train | [bdd_peds_not_clear_any_daytime_train.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_train.json) | bdd_peds_not_clear_any_daytime_train | data/bdd100k  |
+| BDD-Target-Val | [bdd_peds_not_clear_any_daytime_val.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_peds_not_clear_any_daytime_val.json) | bdd_peds_not_clear_any_daytime_val | data/bdd100k  |
+| BDD-dets | [bdd_dets18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_dets18k.json) | DETS18k | data/bdd_peds_HP18k  |
+| BDD-HP | [bdd_HP18k.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k.json) | HP18k | data/bdd_peds_HP18k  |
+| BDD-score-remap | [bdd_HP18k_remap_hist.json](http://maxwell.cs.umass.edu/self-train/dataset/bdd_jsons/bdd_HP18k_remap_hist.json) | HP18k_remap_hist | data/bdd_peds_HP18k  |
 
 
 
 ## Models
 
-Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs. The trained model checkpoints can be downloaded from the links under the column **Model weights**. The eval scripts need to be modified to point to where the corresponding model checkpoints have been downloaded locally.
+Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs. The trained model checkpoints can be downloaded from the links under the column **Model weights**. The eval scripts need to be modified to point to where the corresponding model checkpoints have been downloaded locally. The performance numbers shown are from *single* models (the same models available for download), while the tables in the paper show results averaged across 5 rounds of train/test.
 
 | Method  | Model weights |  Config YAML |  Train script |  Eval script | AP, AR |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
