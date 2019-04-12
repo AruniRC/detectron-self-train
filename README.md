@@ -1,25 +1,17 @@
-# A Pytorch Implementation of Detectron
 
-[![Build Status](https://travis-ci.com/roytseng-tw/Detectron.pytorch.svg?branch=master)](https://travis-ci.com/roytseng-tw/Detectron.pytorch)
+# PyTorch Detectron for domain adaptation by self-training
 
+This codebase replicates results for pedestrian detection with domain shifts on the BDD100k dataset, following the CVPR 2019 paper [Automatic adaptation of object detectors to new domains using self-training](http://vis-www.cs.umass.edu/unsupVideo/docs/self-train_cvpr2019.pdf). We provide trained models, train and eval scripts as well as splits of the dataset for download.
 
-**This code follows the implementation architecture of Detectron.** Only part of the functionality is supported. Check [this section](#supported-network-modules) for more information.
+This repository is heavily based off [A Pytorch Implementation of Detectron](https://github.com/roytseng-tw/Detectron.pytorch). We modify it for experiments on domain adaptation face and pedestrian detectors. 
 
-
-## News
-
-- (2018/05/25) Support ResNeXt backbones.
-- (2018/05/22) Add group normalization baselines.
-- (2018/05/15) PyTorch0.4 is supported now !
 
 ## Getting Started
 Clone the repo:
 
 ```
-git clone https://github.com/roytseng-tw/mask-rcnn.pytorch.git
+git clone https://github.com/AruniRC/Detectron-pytorch-video.git
 ```
-
-Branch test
 
 ### Requirements
 
@@ -40,39 +32,92 @@ Tested under python3.
 - An NVIDAI GPU and CUDA 8.0 or higher. Some operations only have gpu implementation.
 - **NOTICE**: different versions of Pytorch package have different memory usages.
 
-### Setup on Gypsum
-I used Anaconda to get all these requirements set up.
+
+## Installation
+This walkthrough describes setting up Detectron (3rd party pytorch implementation) repo. This setup assumes CUDA 8.0 and CuDNN 5.1, as well as the default C compiler being `gcc 5.4`. 
+
+### Cluster environment
+**Optional (please skip if not on a cluster)** If setting up on a SLURM cluster, please make sure that **only** these modules are loaded and not multiple versions of CUDA etc. that can cause build conflicts further on. List of loaded modules:
+
+- slurm/16.05.8 
+- gcc5/5.4.0
+- cuda80/toolkit/8.0.61
+- cudnn/5.1
+- openmpi/gcc/64/1.10.1
+- fftw2/openmpi/open64/64/float/2.1.5
+- hdf5_18/1.8.17
+
+
+### Create conda env
+
+`conda create -n detectron-context python=3.5`
+
+If you need to install conda, please follow [these instructions](https://docs.anaconda.com/anaconda/install/linux/).
+
+Install pytorch and numpy using `pip`:
+```
+pip install https://download.pytorch.org/whl/cu80/torch-0.4.0-cp35-cp35m-linux_x86_64.whl
+pip install numpy -I
+```
+
+### Test it out 
+Start python at the command line and try to import torch (without errors):
+```
+$ python
+>>> import torch
+```
+
+Rest of the packages:
+```
+pip install torchvision
+pip install matplotlib
+pip install scipy
+pip install pyyaml
+pip install cython
+pip install pycocotools
+pip install opencv-python
+conda install cffi
+pip install requests
+pip install colorama
 
 ```
-$ module list
-Currently Loaded Modulefiles:
-  1) slurm/16.05.8                         5) cuda80/toolkit/8.0.61
-  2) openmpi/gcc/64/1.10.1                 6) cudnn/5.1
-  3) hdf5/1.6.10                           7) openblas/dynamic/0.2.18
-  4) fftw2/openmpi/open64/64/float/2.1.5   8) hdf5_18/1.8.17
+
+### Visualization installs
+
+```
+pip install tensorboardX
+pip install tensorboard_logger
+pip install tensorboard
 ```
 
-The total list of items in the conda environment is there in `conda_list.txt` in the project root folder.
 
+### Compile Detectron-pytorch 
+The makefile is in `lib/make.sh` w.r.t. the project root. Set the `CUDA_PATH`  to point to your local CUDA install (e.g `/usr/local/cuda`). If you want to use a CUDA library on different path, change that line accordingly.
 
+It will compile all the modules you need, including NMS, ROI_Pooing, ROI_Crop and ROI_Align.
 
-### Compilation
-
-Compile the CUDA code (the makefile is modified to work on the UMass Gypsum cluster environment):
+Note that, If you use `CUDA_VISIBLE_DEVICES` to set gpus, **make sure at least one gpu is visible when compiling the code.**
 
 ```
 cd lib  # please change to this directory
 sh make.sh
 ```
 
-`CUDA_PATH` defaults to `/usr/loca/cuda`. If you want to use a CUDA library on different path, change this [line](https://github.com/roytseng-tw/mask-rcnn.pytorch/tree/master/lib/make.sh#L3) accordingly.
+Make sure that there are no fatal errors in the output log of the make command above. Common issues are usually multiple versions of CUDA or CuDNN being present.
 
-It will compile all the modules you need, including NMS, ROI_Pooing, ROI_Crop and ROI_Align. (Actually gpu nms is never used ...)
+### Download Pretrained Backbone Model
+Use ImageNet pretrained weights from Caffe for the backbone networks.
+Download them and put them into the `{repo_root}/data/pretrained_model`, using the following command:
 
-Note that, If you use `CUDA_VISIBLE_DEVICES` to set gpus, **make sure at least one gpu is visible when compile the code.**
+```
+python tools/download_imagenet_weights.py
+```
 
-### Data Preparation
+**NOTE**: Caffe pretrained weights have slightly better performance than Pytorch pretrained (the official Detectron also use pretrained weights from Caffe).
 
+
+
+## Dataset
 Create a data folder under the repo,
 
 ```
@@ -80,42 +125,77 @@ cd {repo_root}
 mkdir data
 ```
 
-Create symlink at `data/WIDER` to `/mnt/nfs/scratch1/arunirc/data/WIDER`.
+### BDD-100k
+Our pedestrian detection task uses both labeled and unlabeled data from the **Berkeley Deep Drive** [BDD-100k dataset](https://bdd-data.berkeley.edu/). Please register and download the dataset from their website. We use a symlink from our project root, `data/bdd100k` to link to the location of the downloaded dataset. The folder structure should be like this:
 
 ```
-data/WIDER
-    WIDER_val/
-    WIDER_train/
-    wider_face_split/
-    wider_face_train_imlist.txt
-    wider_face_val_imlist.txt
-    wider_face_train_annot.txt
-    wider_face_train_annot_coco_style.json
+data/bdd100k/
+    images/
+        test/
+        train/
+        val/
+    labels/
+        train/
+        val/
 ```
 
-If missing, the last JSON file needs to be created *once* by running `python ./lib/datasets/wider/convert_face_to_coco.py --dataset wider --outdir data/WIDER --datadir data/WIDER`. This converts the FDDB-style face bounding-box annotations of `wider_face_train_annot.txt` into the MS-COCO style JSON needed for training Detectron models.
+BDD-100k takes about 6.5 GB disk space. The 100k unlabeled videos take 234 GB space, but you do not need to download them, since we have already done the hard example mining on these and the extracted frames (+ pseudo-labels) are available for download.
 
 
-### Pretrained Model
+### BDD Hard Examples
+Mining the **hard positives** ("HPs") involve detecting pedestrians and tracklet formation on 100K videos. This was done on the UMass GPU Cluster and took about a week. We do not include this pipeline here (yet) -- the mined video frames and annotations are available for download as a gzipped tarball from [here](link_to_maxwell_tarball). **TODO** 
 
-Use ImageNet pretrained weights from Caffe for the backbone networks.
+Now we create a symlink to the untarred BDD HPs from the project data folder, which should have the following structure: `data/bdd100k/*.jpg`. The image naming format is `<video-name>_<frame-number>.jpg`.
 
-- [ResNet50](https://drive.google.com/open?id=1wHSvusQ1CiEMc5Nx5R8adqoHQjIDWXl1), [ResNet101](https://drive.google.com/open?id=1x2fTMqLrn63EMW0VuK4GEa2eQKzvJ_7l), [ResNet152](https://drive.google.com/open?id=1NSCycOb7pU0KzluH326zmyMFUU55JslF)
-- [VGG16](https://drive.google.com/open?id=19UphT53C0Ua9JAtICnw84PPTa3sZZ_9k)  (vgg backbone is not implemented yet)
 
-Download them and put them into the `{repo_root}/data/pretrained_model`.
 
-You can the following command to download them all:
+## Train and eval models
 
-- extra required packages: `argparse_color_formater`, `colorama`, `requests`
+Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use. All the training scripts are run with 4 GPUs.
+
+| Method  | Model weights |  Config YAML |  Train script |  Eval script | AP, AR |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| Baseline | [bdd_baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth)  | [cfg](configs/baselines/bdd100k.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_baseline.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/baseline_source.sh)  |  15.21, xxx  |
+| Dets | [bdd_dets](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_dets/bdd_dets_model_step29999.pth)  | [cfg](configs/baselines/bdd_peds_dets_bs64_4gpu.yaml)  |  [train](gypsum/scripts/train/bdd_scripts/bdd_source_and_dets18k.sh)  |  [eval](gypsum/scripts/eval/bdd_scripts/bdd_dets_source.sh)  |  27.55, 56.90  |
+
+
+
+
+
+
+
+### Adding a dataset
+
+The general way to add a new dataset is to:
+1. Add it to `lib/datasets/dataset_catalog.py`
+2. Add it to `tools/train_net_step.py`
+
+To get an idea using COCO 2017 as an example, search for `args.dataset == "coco2017":` in `tools/train_net_step.py` and for `coco_2017_train` in `tools/dataset_catalog.py`. The paths to the JSON training annotations are defined in `dataset_catalog.py`. 
+
+
+
+### Verify by running on COCO-2017 
+Put the Imagenet pre-trained models in `data/pretrained_model` by running `python tools/download_imagenet_weights.py`).
+
+Then, verify setup by running COCO-2017 inference code:
 
 ```
-python tools/download_imagenet_weights.py
+CFG_PATH=configs/baselines/e2e_faster_rcnn_R-50-C4_1x.yaml
+WT_PATH=/mnt/nfs/work1/elm/arunirc/Research/detectron-video/mask-rcnn.pytorch/data/detectron_trained_model/e2e_faster_rcnn_R-50-C4_1x.pkl
+
+mkdir Outputs
+
+srun --pty -p m40-long --gres gpu:4 --mem 100000 python tools/test_net.py \
+--set TEST.SCORE_THRESH 0.1 TRAIN.JOINT_TRAINING False TRAIN.GT_SCORES False \
+--multi-gpu-testing \
+--dataset coco2017 \
+--cfg ${CFG_PATH} \
+--load_detectron ${WT_PATH} \
+--output_dir Outputs
 ```
 
-**NOTE**: Caffe pretrained weights have slightly better performance than Pytorch pretrained. Suggest to use Caffe pretrained models from the above link to reproduce the results. By the way, Detectron also use pretrained weights from Caffe.
 
-**If you want to use pytorch pre-trained models, please remember to transpose images from BGR to RGB, and also use the same data preprocessing (minus mean and normalize) as used in Pytorch pretrained model.**
+
 
 
 
@@ -131,176 +211,7 @@ python tools/infer_simple.py --dataset coco --cfg cfgs/baselines/e2e_mask_rcnn_R
 `--output_dir` defaults to `infer_outputs`.
 
 
-### Evaluate the trained model checkpoint on WIDER-val set
-
-Example evaluation script
-```
-WT_PATH=Outputs/e2e_faster_rcnn_R-50-C4_1x/Jul30-15-51-27_node097_step/ckpt/model_step79999.pth
-CFG_PATH=configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml
-
-python tools/eval/run_face_detection_on_wider.py \
-  --cfg ${CFG_PATH} \
-  --load_ckpt ${WT_PATH} \
-  --exp_name frcnn-R-50-C4-1x
-```
-
-
-
 
 ## Training
 
-Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use.
 
-### Adapative config adjustment
-
-#### Let's define some terms first
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; batch_size:            `NUM_GPUS` x `TRAIN.IMS_PER_BATCH`  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; effective_batch_size:  batch_size x `iter_size`  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; change of somethining: `new value of something / old value of something`
-
-Following config options will be adjusted **automatically** according to actual training setups: 1) number of GPUs `NUM_GPUS`, 2) batch size per GPU `TRAIN.IMS_PER_BATCH`, 3) update period `iter_size`
-
-- `SOLVER.BASE_LR`: adjust directly propotional to the change of batch_size.
-- `SOLVER.STEPS`, `SOLVER.MAX_ITER`: adjust inversely propotional to the change of effective_batch_size.
-
-
-### Train from scratch
-Take mask-rcnn with res50 backbone for example.
-```
-python tools/train_net_step.py --dataset coco2017 --cfg configs/baselines/e2e_mask_rcnn_R-50-C4.yml --use_tfboard --bs {batch_size} --nw {num_workers}
-```
-
-Use `--bs` to overwrite the default batch size to a proper value that fits into your GPUs. Simliar for `--nw`, number of data loader threads defaults to 4 in config.py.
-
-Specify `—-use_tfboard` to log the losses on Tensorboard.
-
-Training for **WIDER-Face**.
-```
-python tools/train_net_step.py \
-    --dataset wider_train \
-    --cfg configs/wider_face/e2e_faster_rcnn_R-50-C4_1x.yaml  \
-    --use_tfboard
-```
-
-
-
-### The use of `--iter_size`
-As in Caffe, update network once (`optimizer.step()`) every `iter_size` iterations (forward + backward). This way to have a larger effective batch size for training. Notice that, step count is only increased after network update.
-
-```
-python tools/train_net_step.py --dataset coco2017 --cfg configs/baselines/e2e_mask_rcnn_R-50-C4.yml --bs 4 --iter_size 4
-```
-`iter_size` defaults to 1.
-
-### Finetune from a pretrained checkpoint
-```
-python tools/train_net_step.py ... --load_ckpt {path/to/the/checkpoint}
-```
-or using Detectron's checkpoint file
-```
-python tools/train_net_step.py ... --load_detectron {path/to/the/checkpoint}
-```
-
-### Resume training with the same dataset and batch size
-```
-python tools/train_net_step.py ... --load_ckpt {path/to/the/checkpoint} --resume
-```
-When resume the training, **step count** and **optimizer state** will also be restored from the checkpoint. For SGD optimizer, optimizer state contains the momentum for each trainable parameter.
-
-**NOTE**: `--resume` is not yet supported for `--load_detectron`
-
-### Set config options in command line
-```
-  python tools/train_net_step.py ... --no_save --set {config.name1} {value1} {config.name2} {value2} ...
-```
-- For Example, run for debugging.
-  ```
-  python tools/train_net_step.py ... --no_save --set DEBUG True
-  ```
-  Load less annotations to accelarate training progress. Add `--no_save` to avoid saving any checkpoint or logging.
-
-### Show command line help messages
-```
-python train_net_step.py --help
-```
-
-### Two Training Scripts
-
-In short, use `train_net_step.py`.
-
-In `train_net_step.py`:
-- `SOLVER.LR_POLICY: steps_with_decay` is supported.
-- Training warm up in [Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour](https://arxiv.org/abs/1706.02677) is supported.
-
-(Deprecated) In `train_net.py` some config options have no effects and worth noticing:
-
- - `SOLVER.LR_POLICY`, `SOLVER.MAX_ITER`, `SOLVER.STEPS`,`SOLVER.LRS`:
-  For now, the training policy is controlled by these command line arguments:
-
-    - **`--epochs`**: How many epochs to train. One epoch means one travel through the whole training sets. Defaults to  6.
-    - **`--lr_decay_epochs `**: Epochs to decay the learning rate on. Decay happens on the beginning of a epoch. Epoch is 0-indexed. Defaults to [4, 5].
-
-   For more command line arguments, please refer to `python train_net.py --help`
-
-- `SOLVER.WARM_UP_ITERS`, `SOLVER.WARM_UP_FACTOR`, `SOLVER.WARM_UP_METHOD`:
-  Training warm up is not supported.
-
-
-## Supported Network modules
-
-- Backbone:
-  - ResNet:
-    `ResNet50_conv4_body`,`ResNet50_conv5_body`,
-    `ResNet101_Conv4_Body`,`ResNet101_Conv5_Body`,
-    `ResNet152_Conv5_Body`
-  - ResNeXt:
-    `[fpn_]ResNet101_Conv4_Body`,`[fpn_]ResNet101_Conv5_Body`, `[fpn_]ResNet152_Conv5_Body`
-  - FPN:
-    `fpn_ResNet50_conv5_body`,`fpn_ResNet50_conv5_P2only_body`,
-    `fpn_ResNet101_conv5_body`,`fpn_ResNet101_conv5_P2only_body`,`fpn_ResNet152_conv5_body`,`fpn_ResNet152_conv5_P2only_body`
-
-- Box head:
-  `ResNet_roi_conv5_head`,`roi_2mlp_head`, `roi_Xconv1fc_head`, `roi_Xconv1fc_gn_head`
-
-- Mask head:
-  `mask_rcnn_fcn_head_v0upshare`,`mask_rcnn_fcn_head_v0up`, `mask_rcnn_fcn_head_v1up`, `mask_rcnn_fcn_head_v1up4convs`, `mask_rcnn_fcn_head_v1up4convs_gn`
-
-- Keypoints head:
-  `roi_pose_head_v1convX`
-
-**NOTE**: the naming is similar to the one used in Detectron. Just remove any prepending `add_`.
-
-
-## Configuration Options
-
-Architecture specific configuration files are put under [configs](configs/). The general configuration file [lib/core/config.py](lib/core/config.py) **has almost all the options with same default values as in Detectron's**, so it's effortless to transform the architecture specific configs from Detectron.
-
-**Some options from Detectron are not used** because the corresponding functionalities are not implemented yet. For example, data augmentation on testing.
-
-### Extra options
-- `MODEL.LOAD_IMAGENET_PRETRAINED_WEIGHTS = True`:  Whether to load ImageNet pretrained weights.
-  - `RESNETS.IMAGENET_PRETRAINED_WEIGHTS = ''`: Path to pretrained residual network weights. If start with `'/'`, then it is treated as a absolute path. Otherwise, treat as a relative path to `ROOT_DIR`.
-- `TRAIN.ASPECT_CROPPING = False`, `TRAIN.ASPECT_HI = 2`, `TRAIN.ASPECT_LO = 0.5`: Options for aspect cropping to restrict image aspect ratio range.
-- `RPN.OUT_DIM_AS_IN_DIM = True`, `RPN.OUT_DIM = 512`, `RPN.CLS_ACTIVATION = 'sigmoid'`: Official implement of RPN has same input and output feature channels and use sigmoid as the activation function for fg/bg class prediction. In [jwyang's implementation](https://github.com/jwyang/faster-rcnn.pytorch/blob/master/lib/model/rpn/rpn.py#L28), it fix output channel number to 512 and use softmax as activation function.
-
-### How to transform configuration files from Detectron
-
-1. Remove `MODEL.NUM_CLASSES`. It will be set according to the dataset specified by `--dataset`.
-2. Remove `TRAIN.WEIGHTS`, `TRAIN.DATASETS` and `TEST.DATASETS`
-3. For module type options (e.g `MODEL.CONV_BODY`, `FAST_RCNN.ROI_BOX_HEAD` ...), remove `add_` in the string if exists.
-4. If want to load ImageNet pretrained weights for the model, add `RESNETS.IMAGENET_PRETRAINED_WEIGHTS` pointing to the pretrained weight file. If not, set `MODEL.LOAD_IMAGENET_PRETRAINED_WEIGHTS` to `False`.
-5. [Optional] Delete `OUTPUT_DIR: .` at the last line
-6. Do **NOT** change the option `NUM_GPUS` in the config file. It's used to infer the original batch size for training, and learning rate will be linearly scaled according to batch size change. Proper learning rate adjustment is important for training with different batch size.
-7. For group normalization baselines, add `RESNETS.USE_GN: True`.
-
-## My nn.DataParallel
-
-- **Keep certain keyword inputs on cpu**
-  Official DataParallel will broadcast all the input Variables to GPUs. However, many rpn related computations are done in CPU, and it's unnecessary to put those related inputs on GPUs.
-- **Allow Different blob size for different GPU**
-  To save gpu memory, images are padded seperately for each gpu.
-- **Work with returned value of dictionary type**
-
-## Benchmark
-[BENCHMARK.md](BENCHMARK.md)
