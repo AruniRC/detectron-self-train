@@ -121,19 +121,5 @@ Use the environment variable `CUDA_VISIBLE_DEVICES` to control which GPUs to use
 
 **TODO**
 
-### Visualize pre-trained Detectron model on images
-
-This can run a pretrained Detectron model trained on MS-COCO categories, downloaded from the official Detectron Model Zoo, on the sample images. Note the `load_detectron` option to the `infer_simple.py` script, because we are using a Detectron model, not a checkpoint.
-
-```
-python tools/infer_simple.py --dataset coco --cfg cfgs/baselines/e2e_mask_rcnn_R-50-C4.yml --load_detectron {path/to/your/checkpoint} --image_dir {dir/of/input/images}  --output_dir {dir/to/save/visualizations}
-```
-`--output_dir` defaults to `infer_outputs`.
-
-
-
-## Training demo
-
-**TODO**
 
 
