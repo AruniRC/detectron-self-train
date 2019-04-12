@@ -25,7 +25,7 @@ If you find this codebase useful, please consider citing:
 Clone the repo:
 
 ```
-git clone https://github.com/AruniRC/Detectron-pytorch-video.git
+git clone git@github.com:AruniRC/detectron-self-train.git
 ```
 
 ### Requirements
@@ -121,9 +121,14 @@ The performance numbers shown are from *single* models (the same models availabl
 
 ## Inference demo
 
-| Baseline  | HP-constrained |
-| :-------: | :------------: |
-| ![baseline](demo/bdd_hp-cons_b242f6b2-f5da110f.png) | ![hp-cons](demo/bdd_baseline_b242f6b2-f5da110f.png) |
+| HP-constrained  | Baseline |
+| :-------------: | :------: |
+| ![HP-cons](demo/bdd_hp-cons_b242f6b2-f5da110f.png) | ![Baseline](demo/bdd_baseline_b242f6b2-f5da110f.png) |
 
-The folder `gypsum/scripts/demo` contains two shell scripts that run the pre-trained [Baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth) (BDD-Source trained) and [HP-constrained](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-cons/bdd_HP-cons_model_step29999.pth) (domain adapted to BDD Target) models on a sample image. Please change the `MODEL_PATH` variable in these scripts to where the appropriate models have been downloaded locally.
+The folder `gypsum/scripts/demo` contains two shell scripts that run the pre-trained [Baseline](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_baseline/bdd_peds.pth) (BDD-Source trained) and [HP-constrained](http://maxwell.cs.umass.edu/self-train/models/bdd_ped_models/bdd_HP-cons/bdd_HP-cons_model_step29999.pth) (domain adapted to BDD Target) models on a sample image. Please change the `MODEL_PATH` variable in these scripts to where the appropriate models have been downloaded locally. Your results should resemble the example shown above. Note that the domain adapted model (HP-constrained) detects pedestrians with higher confidence (visualization threshold is 0.9 on the confidence score), while making one false positive in the background.
+
+# Acknowledgement
+This  material  is  based  on  research sponsored by the AFRL and DARPA under agreement num-ber FA8750-18-2-0126. The U.S. Government is authorized to reproduce and distribute reprints for Governmental purposes notwithstanding any copyright notation thereon. The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either expressed or implied, of the AFRL and DARPA or the U.S. Government. We acknowledge support from the MassTech Collaborative grant for funding the UMass GPU cluster. We thank Tsung-Yu Lin and Subhransu Maji for helpful discussions.
+
+We appreciate the well-organized and accurate codebase for the Detectron implementation in PyTorch from the creators of [A Pytorch Implementation of Detectron](https://github.com/roytseng-tw/Detectron.pytorch). Also thanks to the creators of BDD-100k which has allowed us to share our pseudo-labeled video frames for our academic, non-commercial purpose of quickly reproducing results.
 
