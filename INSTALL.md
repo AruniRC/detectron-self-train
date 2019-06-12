@@ -2,7 +2,7 @@
 Clone the repo:
 
 ```
-git clone https://github.com/AruniRC/Detectron-pytorch-video.git
+git clone git@github.com:AruniRC/detectron-self-train.git
 ```
 
 ### Requirements
